@@ -12,6 +12,17 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.set(0, 5, 5);
 
+
+// Инициализация Telegram Web Apps
+let tg = window.Telegram.WebApp;
+
+// Установка приложения в полноэкранный режим
+tg.expand();
+
+// Получение информации о пользователе и отображение приветствия
+let username = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.username : 'Guest';
+document.getElementById('greeting').innerText = `Hello, ${username}`;
+
 // Настройка рендерера
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
