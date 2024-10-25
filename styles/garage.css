@@ -1,0 +1,11 @@
+body {
+    margin: 0% !important;
+    scroll-behavior: unset;
+    overflow: hidden;
+  }
+  
+  #garage-container {
+    width: 100vw;
+    height: 100vh;
+  }
+  
