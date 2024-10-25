@@ -10,7 +10,8 @@ const camera = new THREE.PerspectiveCamera(
   0.1, // Ближняя плоскость отсечения
   1000 // Дальняя плоскость отсечения
 );
-camera.position.set(0, 5, 5);
+camera.position.set(0, 3, 5);
+camera.rotation.set(-.6,0,0);
 
 
 
@@ -24,8 +25,8 @@ tg.disableVerticalSwipes();
 //tg.allow_vertical_swipe(false);
 
 // Получение информации о пользователе и отображение приветствия
-let username = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.username : 'Guest';
-document.getElementById('greeting').innerText = `Hello, ${username}`;
+let username = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.username : 'guest';
+document.getElementById('greeting').innerHTML = `привет, <span class ="gradient-text"> ${username}</span>`;
 
 // Настройка рендерера
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -37,7 +38,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, .5);
-directionalLight.position.set(5, 10, 7.5);
+directionalLight.position.set(5, 5, 7.5);
 scene.add(directionalLight);
 
 

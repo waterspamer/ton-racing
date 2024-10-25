@@ -2,6 +2,7 @@ body {
   margin: 0;
   overflow: hidden; /* Предотвращаем прокрутку на мобильных устройствах */
   touch-action: none; /* Отключаем жесты прокрутки на сенсорных экранах */
+  font-family: 'Dela Gothic One', sans-serif;
 }
 
 #garage-container {
@@ -9,12 +10,58 @@ body {
   height: 100vh;
 }
 
+#garage-menu{
+  position: absolute;
+  bottom:0px;
+  height:25vh;
+  width: 100%;
+  border-radius: 40px;
+  backdrop-filter: blur(10px);
+  background-color: #ffffff0c;
+  box-shadow: 0px 0px 400px 40px rgba(0,0,0,.5);
+  z-index: 2;
+}
+
+.tg-button {
+  border: 0;
+  padding: 10px 30px;
+  font-size:1.2em;
+  border-radius: 40px;
+  color: #fff;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin: 20px;
+
+  background: linear-gradient(135deg,  #3B89D4 0%,#3B89D4 40%,#ffffff 50%,#3B89D4 60%,#3B89D4 100%);
+  animation: shark-wrap 2.5s infinite;;
+  background-repeat: no-repeat;  
+  background-position:0%;
+  background-size:300%; 
+}
+
+@keyframes shark-wrap {
+  0% {
+    background-position: 100%; 
+}
+100% { 
+    background-position:0%; 
+}
+}
+
+.gradient-text {
+  background-image: linear-gradient(to right, #ff0099, #1f7fed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: all 0.5s;
+}
+
 #greeting {
-  position:absolute;
+  position:relative;
   top: 10px;
-  left: 10px;
+  text-align: center;
+  /* left: 50%; */
+
   font-size: 24px;
   color: #ffffff;
   z-index: 1;
-  text-shadow: 1px 1px 2px #000000;
 }

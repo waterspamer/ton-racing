@@ -1,0 +1,824 @@
+/* Общие стили */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #1c1c1c;
+  color: #ffffff;
+  font-family: 'Dela Gothic One', sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Фоновый канвас */
+#background-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+}
+
+/* Контейнер */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.container-header {
+  width: 90%;
+  margin: 0px 30px 0px 30px;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  align-content: flex-start;
+}
+
+/* Навигация */
+.header {
+  backdrop-filter: blur(10px);
+  display: none;
+  background-color: rgba(255, 255, 255, 0.158); /* Полупрозрачный фон */
+  position: fixed;
+  border-radius: 0px 0px 40px 40px;
+  padding: 15px 0;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  font-size: 28px;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 18px;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav a::after {
+  content: '';
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  background-color: #f00090;
+  left: 0;
+  bottom: -5px;
+  transition: width 0.3s ease;
+}
+
+.nav a:hover {
+  color: #f00090;
+}
+
+.nav a:hover::after {
+  width: 100%;
+}
+
+/* Бургер-меню */
+.burger-menu {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  width: 25px;
+  height: 20px;
+  justify-content: space-between;
+}
+
+.burger-menu span {
+  display: block;
+  height: 3px;
+  background-color: #fff;
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.burger-menu.open span:nth-child(1) {
+  transform: translateY(8.5px) rotate(45deg);
+}
+
+.burger-menu.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.burger-menu.open span:nth-child(3) {
+  transform: translateY(-8.5px) rotate(-45deg);
+}
+
+
+
+/* Мобильная навигация */
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  background-color: #1c1c1c;
+  position: fixed;
+  top: 70px;
+  right: 0;
+  width: 100%;
+  height: calc(100% - 70px);
+  z-index: 999;
+  padding-top: 20px;
+  align-items: center;
+}
+
+.mobile-nav.open {
+  display: flex;
+}
+
+.mobile-nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Главный контент */
+main {
+  padding-top: 80px; /* Высота шапки */
+}
+
+/* Стили секций */
+.section {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transform: translateX(-100px);
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.alternating-layout {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 1200px;
+  width: 100%;
+  padding: 20px;
+}
+
+@media (max-width: 1024px) {
+  .alternating-layout {
+    flex-direction: column;
+    text-align: center;
+  }
+  .list-container, .description-container {
+    max-width: 100%;
+  }
+  .description-container {
+    margin-top: 30px;
+  }
+
+  /* Стили для мобильных устройств */
+  .description-text {
+    display: none; /* Скрываем описание на десктопе */
+  }
+
+  .mobile-description {
+    font-size: 20px;
+    margin-top: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .circular-item {
+    margin-bottom: 20px;
+    font-size: 24px; /* Уменьшаем размер шрифта для мобильных */
+  }
+
+  .description-container {
+    padding: 10px 0;
+  }
+}
+
+/* Контейнер для круглых элементов */
+.circular-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* Круглые элементы */
+.circular-item {
+  flex: 1 1 calc(25% - 20px);
+  max-width: calc(25% - 20px);
+  height: 0;
+  padding-bottom: 25%;
+  background-color: rgba(255, 0, 170, 0.2);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* Новые стили для увеличения размера кружков и их размещения */
+.circular-item:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 0, 170, 0.4);
+}
+
+/* Анимация появления кружков при скролле */
+.circular-item {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.circular-item.show {
+  animation: circleAppear 0.5s forwards;
+}
+
+@keyframes circleAppear {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Новые стили для увеличения кружков и отображения описания */
+.circular-item.dimmed {
+  opacity: 0.5;
+}
+
+.circular-item.active {
+  transform: scale(1.2);
+  background-color: rgba(255, 0, 170, 0.5);
+  z-index: 2;
+}
+
+.circular-item .gradient-text {
+  background-image: linear-gradient(to right, #f00090, #861fed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  padding: 10px;
+  transition: all 0.5s;
+  font-size: 20px;
+}
+
+.circular-item .gradient-text::after {
+  content: '';
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  background-color: #f00090;
+  left: 0;
+  bottom: -5px;
+  transition: width 0.3s ease;
+}
+
+.circular-item .gradient-text:hover::after {
+  width: 100%;
+}
+
+/* Описание при наведении */
+.item-description {
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 15px;
+  border-radius: 8px;
+  color: #fff;
+  width: 220px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 2;
+}
+
+.circular-item.active .item-description {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Новая секция "Наша история" */
+#story {
+  padding: 60px 20px;
+}
+
+#story .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Горизонтальный таймлайн */
+.timeline {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  margin-top: 40px;
+}
+
+.timeline-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.timeline-item.dimmed {
+  opacity: 0.5;
+}
+
+.timeline-item.active {
+  transform: translateY(-10px);
+}
+
+.timeline-year {
+  font-size: 24px;
+  font-weight: bold;
+  color: #f00090;
+  margin-bottom: 10px;
+}
+
+.timeline-content {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px 20px;
+  border-radius: 8px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.timeline-item.active .timeline-content {
+  background-color: rgba(240, 0, 144, 0.3);
+}
+
+/* Описание при наведении на таймлайн */
+.timeline-description {
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 15px;
+  border-radius: 8px;
+  color: #fff;
+  width: 220px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 2;
+}
+
+.timeline-item.active .timeline-description {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Секция услуг */
+#services .circular-container {
+  /* Вы можете добавить дополнительные стили, если нужно */
+}
+
+/* Заголовки и тексты */
+.title {
+  font-size: 80px;
+  line-height: 1.2;
+  text-align: center;
+  margin: 20px;
+}
+
+.subtitle {
+  /* text-align: center; */
+  display: inline-block;
+  /* width: 500px; */
+  /* font-size: 60px; */
+  
+  border-radius: 200px;
+  
+  margin-bottom: 40px;
+}
+
+.feature img{
+width:200px;
+border-radius: 10px;
+}
+
+.feature-text{
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+h2{
+  padding: 0%;
+  font-weight: 500;
+  font-size: 6vw;
+}
+h3{
+  font-weight: 10;
+  font-size: 2vw;
+}
+
+.subtitle-container{
+  display: flex;
+  flex-direction: column;
+}
+
+.text {
+  font-size: 40px;
+  margin-bottom: 30px;
+}
+
+.gradient-text {
+  background-image: linear-gradient(to right, #f00090, #861fed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: all 0.5s;
+}
+
+.gradient-text:hover {
+  letter-spacing: 5px;
+}
+
+/* Стили для канваса модели */
+.absolute-canvas-container {
+  border-radius: 50%;
+  position: relative;
+  width: 60vh;
+  height: 60vh;
+  color: aliceblue;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 20px auto;
+  z-index: 1;
+}
+
+#absolute-canvas {
+  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.199)) brightness(1.5) contrast(1.1)  !important;
+  box-shadow: 0px 0px 400px 10px rgb(104, 33, 184)!important;
+}
+
+/* Кнопка обратной связи */
+#feedback-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  height: 128px;
+  width: 128px; 
+  background-image: url('icons/telegram.png');
+  background-size: cover;
+  font-family: 'Dela Gothic One', sans-serif;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  background-color: #1f89ed;
+  box-shadow: 0px 0px 200px 10px #6e1fed;
+  z-index: 1000;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+#feedback-button:hover {
+  filter: brightness(88%);
+  transform: scale(1.1);
+}
+
+/* Секция контактов */
+.contact .container {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.contact h2 {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+.contact p {
+  font-size: 24px;
+  margin-bottom: 40px;
+}
+
+.btn {
+  display: inline-block;
+  cursor: pointer;
+  padding: 15px 30px;
+  background-color: #f00090;
+  color: #ffffff;
+  border-radius: 30px;
+  text-decoration: none;
+  font-size: 20px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #861fed;
+  transform: translateY(-5px);
+}
+
+/* Подвал */
+.footer {
+  background-color: #1c1c1c;
+  padding: 20px 0;
+  text-align: center;
+}
+
+.footer p {
+  font-size: 16px;
+  color: #ffffff;
+}
+
+/* Плавные переходы для всех интерактивных элементов */
+a, button, .circular-item, .btn {
+  transition: all 0.3s ease;
+}
+
+/* Анимации и интерактивность */
+.section {
+  opacity: 0;
+  transform: translateX(-100px);
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Улучшение мобильной навигации */
+@media (max-width: 768px) {
+  .nav {
+    display: none;
+  }
+
+  .burger-menu {
+    display: flex;
+  }
+
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .nav a {
+    font-size: 16px;
+  }
+
+  .title {
+    font-size: 60px;
+  }
+
+  .subtitle {
+    font-size: 40px;
+    text-align: center; /* Центрируем заголовок на мобильных */
+  }
+
+  .circular-item {
+    flex: 1 1 100%;
+    max-width: 100%;
+    padding-bottom: 100%;
+  }
+
+  .circular-item .gradient-text {
+    font-size: 18px;
+  }
+
+  .description-text {
+    font-size: 24px;
+  }
+
+  .mobile-description {
+    font-size: 18px;
+  }
+
+  #feedback-button {
+    height: 80px;
+    width: 80px;
+  }
+
+  .btn {
+    font-size: 18px;
+    padding: 12px 25px;
+  }
+
+  /* Мобильная адаптация для таймлайна */
+  .timeline {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .timeline-item {
+    margin-bottom: 40px;
+  }
+
+  .timeline-description,
+  .item-description {
+    position: static;
+    transform: none;
+    opacity: 1 !important;
+    pointer-events: auto;
+    margin-top: 10px;
+  }
+}
+
+/* Добавление плавных переходов для канваса */
+#background-canvas, #absolute-canvas {
+  transition: filter 0.5s ease;
+}
+
+#background-canvas:hover, #absolute-canvas:hover {
+  filter: brightness(1.1);
+}
+
+/* Дополнительные стили для улучшения дизайна */
+.item-list .item span.gradient-text {
+  display: inline-block;
+  position: relative;
+}
+
+.item-list .item span.gradient-text::after {
+  content: '';
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  background-color: #f00090;
+  left: 0;
+  bottom: -5px;
+  transition: width 0.3s ease;
+}
+
+.item-list .item span.gradient-text:hover::after {
+  width: 100%;
+}
+
+
+
+
+
+/* Общие стили для секций */
+.section {
+  
+  padding: 0px 0;
+  text-align: center;
+}
+
+.section-title {
+  /* font-size: 48px; */
+  margin-bottom: 0px;
+  margin-top: 0px;
+  color: #ffffff;
+  /* text-transform: uppercase; */
+}
+
+/* Стили для секции Преимущества */
+.features {
+  border-top:solid;
+  /* display: flex; */
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.advantages{
+  position: relative;
+  border-radius: 40px;
+  padding-left: 40px;
+  padding-right: 40px;
+  padding-top: 40px;
+  backdrop-filter: blur(10px);
+  display: inline-block;
+  background-color: #b4b4b41f;
+  /* width:calc(70% - 10vw); */
+  left:10vw;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.feature {
+  /* flex: 1; */
+  display: flex;
+  /* background-color: rgba(255, 0, 170, 0.2); */
+  border-bottom: solid;
+  border-width: 1px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  /* padding: 20px; */
+  /* border-radius: 10px; */
+  text-align: left;
+  transition: transform 0.3s ease;
+}
+
+.feature:hover {
+  transform: scale(1.05);
+}
+
+
+
+.feature-title {
+  text-align: left;
+  font-size:2vw;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.feature-description {
+  text-align: left;
+  color: #dddddd;
+}
+
+/* Стили для секции История */
+.story-timeline {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.story-item {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.story-item:hover {
+  transform: scale(1.05);
+}
+
+.story-year {
+  font-size: 32px;
+  color: #f00090;
+  margin-bottom: 15px;
+}
+
+.story-description {
+  color: #ffffff;
+}
+
+/* Стили для секции Услуги */
+.service-list {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.service-item {
+  flex: 1;
+  background-color: rgba(240, 0, 144, 0.2);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: left;
+  transition: transform 0.3s ease;
+}
+
+.service-item:hover {
+  transform: scale(1.05);
+}
+
+.service-item img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.service-title {
+  font-size: 24px;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.service-description {
+  color: #dddddd;
+}
+
+
