@@ -18,6 +18,7 @@ let tg = window.Telegram.WebApp;
 
 // Установка приложения в полноэкранный режим
 tg.expand();
+tg.disableVerticalSwipes(); 
 
 // Получение информации о пользователе и отображение приветствия
 let username = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.username : 'Guest';
