@@ -25,13 +25,17 @@ body {
 .tg-button {
   border: 0;
   padding: 10px 30px;
-  font-size:1.2em;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: space-around;
+  font-size:5.2vw;
   border-radius: 40px;
   color: #fff;
   text-transform: uppercase;
   cursor: pointer;
   margin: 20px;
-
+  height:100px;
   background: linear-gradient(135deg,  #3B89D4 0%,#3B89D4 40%,#ffffff 50%,#3B89D4 60%,#3B89D4 100%);
   animation: shark-wrap 2.5s infinite;;
   background-repeat: no-repeat;  
@@ -61,7 +65,7 @@ body {
   text-align: center;
   /* left: 50%; */
 
-  font-size: 24px;
+  font-size:5.2vw;
   color: #ffffff;
   z-index: 1;
 }
