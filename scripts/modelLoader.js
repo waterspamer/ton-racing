@@ -1,5 +1,37 @@
 // modelLoader.js
 
+
+
+function loadGarage(scene){
+  const loader = new THREE.FBXLoader();
+    const textureLoader = new THREE.TextureLoader();
+    const garageTexture = textureLoader.load('assets/env/bakedGarage.jpg');
+    const garageRoghness = textureLoader.load('assets/env/garage_mask.png');
+    let garageMaterial = new THREE.MeshPhysicalMaterial({
+/*       color: 0xFF0000, */
+      metalness: 0.0,
+      //roughness: 1.7,
+      roughnessMap: garageTexture,
+      map: garageTexture,
+      //envMap: envMap,
+      reflectivity: 0.8,
+      envMapIntensity: 1.00,});
+    loader.load('assets/env/garage.fbx', function (garage) {
+      // Масштабируем и позиционируем кузов, если необходимо
+      garage.scale.set(0.01, 0.01, 0.01);
+      garage.position.set(0, -0.05, 0);
+  
+      // Применяем материал к кузову
+      garage.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = garageMaterial;
+        }
+      });
+      scene.add(garage);
+    })
+}
+
+
 function loadCarModel(scene, onLoaded) {
     const loader = new THREE.FBXLoader();
     const textureLoader = new THREE.TextureLoader();

@@ -5,12 +5,14 @@ const scene = new THREE.Scene();
 
 // Настройка камеры
 const camera = new THREE.PerspectiveCamera(
-  45, // Угол обзора
+  65, // Угол обзора
   window.innerWidth / window.innerHeight, // Соотношение сторон
   0.1, // Ближняя плоскость отсечения
   1000 // Дальняя плоскость отсечения
 );
 camera.position.set(0, 5, 5);
+
+
 
 
 // Инициализация Telegram Web Apps
@@ -34,14 +36,19 @@ document.getElementById('garage-container').appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, .8);
+const directionalLight = new THREE.DirectionalLight(0xffffff, .5);
 directionalLight.position.set(5, 10, 7.5);
 scene.add(directionalLight);
+
+
+loadGarage(scene);
 
 // Загрузка модели автомобиля
 loadCarModel(scene, function(car) {
   // После загрузки автомобиля можно выполнить дополнительные действия
 });
+
+
 
 // Переменные для управления камерой
 let isMouseDown = false;
