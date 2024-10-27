@@ -1,191 +1,291 @@
 // modelLoader.js
 
-
-
-function loadGarage(scene){
+function loadGarage(scene) {
   const loader = new THREE.FBXLoader();
-    const textureLoader = new THREE.TextureLoader();
-    const garageTexture = textureLoader.load('assets/env/bakedGarage.jpg');
-    const garageRoghness = textureLoader.load('assets/env/garage_mask.png');
-    let garageMaterial = new THREE.MeshPhysicalMaterial({
-/*       color: 0xFF0000, */
-      metalness: 0.0,
-      //roughness: 1.7,
-      roughnessMap: garageTexture,
-      map: garageTexture,
-      //envMap: envMap,
-      reflectivity: 0.8,
-      envMapIntensity: 1.00,});
-    loader.load('assets/env/garage.fbx', function (garage) {
-      // Масштабируем и позиционируем кузов, если необходимо
-      garage.scale.set(0.01, 0.01, 0.01);
-      garage.position.set(0, -0.05, 0);
-  
-      // Применяем материал к кузову
-      garage.traverse(function (child) {
-        if (child.isMesh) {
-          child.material = garageMaterial;
-        }
-      });
-      scene.add(garage);
-    })
+  const textureLoader = new THREE.TextureLoader();
+  const garageTexture = textureLoader.load('assets/env/bakedGarage.jpg');
+  const garageRoughness = textureLoader.load('assets/env/garage_mask.png');
+
+  let garageMaterial = new THREE.MeshPhysicalMaterial({
+    metalness: 0.0,
+    roughnessMap: garageTexture,
+    map: garageTexture,
+    reflectivity: 0.8,
+    envMapIntensity: 1.00,
+  });
+
+  loader.load('assets/env/garage.fbx', function (garage) {
+    garage.scale.set(0.01, 0.01, 0.01);
+    garage.position.set(0, -0.05, 0);
+
+    garage.traverse(function (child) {
+      if (child.isMesh) {
+        child.material = garageMaterial;
+      }
+    });
+    scene.add(garage);
+  });
 }
 
-
 function loadCarModel(scene, onLoaded) {
-    const loader = new THREE.FBXLoader();
-    const textureLoader = new THREE.TextureLoader();
-  
-    // Загружаем текстуры
-    const envMap = textureLoader.load('assets/env/bgcolor.png');
-    envMap.mapping = THREE.EquirectangularReflectionMapping;
-envMap.encoding = THREE.sRGBEncoding; // Учитываем цветовое пространство
+  const loader = new THREE.FBXLoader();
+  const textureLoader = new THREE.TextureLoader();
 
-// Настройка центра вращения и отключение flipY для корректного вращения
-envMap.center.set(.5, .5);
-envMap.rotation = 100;
-envMap.flipY = false;
-envMap.flipX = false;
+  // Загружаем текстуры
+  const envMap = textureLoader.load('assets/env/bgcolor.png');
+  envMap.mapping = THREE.EquirectangularReflectionMapping;
+  envMap.encoding = THREE.sRGBEncoding;
+  envMap.center.set(0.5, 0.5);
+  envMap.rotation = 100;
+  envMap.flipY = false;
+  envMap.flipX = false;
 
+  const carBodyTexture = textureLoader.load('assets/cars/bmw/bmw_body_texture.jpg');
+  carBodyTexture.wrapS = THREE.RepeatWrapping;
+  carBodyTexture.wrapT = THREE.RepeatWrapping;
+  carBodyTexture.repeat.set(1, 1);
 
-    const carBodyTexture = textureLoader.load('assets/cars/bmw_body_texture.jpg');
-    carBodyTexture.wrapS = THREE.RepeatWrapping;
-    carBodyTexture.wrapT = THREE.RepeatWrapping;
-    carBodyTexture.repeat.set( 1, 1 );
-/*     const wheelTexture = textureLoader.load('textures/wheel_texture.jpg'); */
-  
-    // Создаем материалы с текстурами
-    let carGlassMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0x000000,
-        metalness: 0.0,
-        roughness: 0.0,
-        envMap: envMap,
-        reflectivity: 0.8,
-        envMapIntensity: 1.00,});
-    
+  const carOpticsTexture = textureLoader.load('assets/cars/bmw/lglass_baseColor.png');
+  carOpticsTexture.wrapS = THREE.RepeatWrapping;
+  carOpticsTexture.wrapT = THREE.RepeatWrapping;
+  carOpticsTexture.repeat.set(1, 1);
 
-    let carBodyMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        metalness: .0,
-        roughness: 0.1,
-        side:2,
-        map: carBodyTexture,
-        envMap: envMap,
-        //normalMap: faceNormalMap, // Добавлена карта нормалей
-        //normalScale: new THREE.Vector2(.8, .8), // Корректная настройка масштаба нормалей
-        //roughnessMap: faceMap,
-        envMapIntensity: 1.50,
-        clearcoat: 0.1,
-        clearcoatRoughness: 0.9,
-        reflectivity: 0.8,
-        // Добавляем эффект френеля через модификацию шейдера
-        onBeforeCompile: (shader) => {
-            shader.uniforms.fresnelColor = {
-                value: new THREE.Color(0xaa88ee),
-            }; // Фиолетовый цвет
-    
-            // Объявляем 'uniform vec3 fresnelColor;' в начале фрагментного шейдера
-            shader.fragmentShader =
-                'uniform vec3 fresnelColor;\n' + shader.fragmentShader;
-    
-            // Модифицируем фрагментный шейдер
-            shader.fragmentShader = shader.fragmentShader.replace(
-                '#include <output_fragment>',
-                `
-                #include <output_fragment>
-                vec3 normalDirection = normalize(vNormal);
-                vec3 viewDirection = normalize(vViewPosition);
-                float fresnel = abs(dot(normalDirection, viewDirection));
-                fresnel = pow(1.0 - fresnel, 4.0);
-                //float u = 0.5 - pow(1.0 - fresnel, 10.5);
-                //gl_FragColor.rgb -= fresnel * fresnelColor + u*.1;
-                //gl_FragColor.rgb -= pow(fresnel,30.0) * fresnelColor * 1.0;
-                gl_FragColor.rgb += pow(fresnel,2.0) * fresnelColor * 2.0;
-                `
-            );
-        },
+  const carTireTexture = textureLoader.load('assets/cars/bmw/tire_baseColor.png');
+  carOpticsTexture.wrapS = THREE.RepeatWrapping;
+  carOpticsTexture.wrapT = THREE.RepeatWrapping;
+  carOpticsTexture.repeat.set(1, 1);
+
+  // Создаем материалы
+  let carGlassMaterial = new THREE.MeshPhysicalMaterial({
+    transparent: true,
+    opacity: 0.9,
+    color: 0x000000,
+    metalness: 0.0,
+    roughness: 0.4,
+    envMap: envMap,
+    reflectivity: 0.8,
+    envMapIntensity: 0.00,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.1,
+    reflectivity: 0.8,
+  });
+
+  let carUnderMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0x111111,
+    metalness: 0.0,
+    roughness: 0.9,
+    envMap: envMap,
+    reflectivity: 0.1,
+    envMapIntensity: 1.00,
+  });
+
+  let carOpticsMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff,
+    emissive: 0xffffff,
+    metalness: 0.0,
+    roughness: 1.0,
+    emissiveMap: carOpticsTexture,
+    emissiveIntensity: 1.0,
+    map: carOpticsTexture,
+    envMap: envMap,
+    reflectivity: 0.8,
+    envMapIntensity: 1.00,
+  });
+
+  let carBodyMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff,
+    metalness: 0.0,
+    roughness: 0.1,
+    side: THREE.DoubleSide,
+    map: carBodyTexture,
+    envMap: envMap,
+    envMapIntensity: 1.50,
+    clearcoat: 0.1,
+    clearcoatRoughness: 0.9,
+    reflectivity: 0.8,
+    // Добавляем эффект френеля через модификацию шейдера
+    onBeforeCompile: (shader) => {
+      shader.uniforms.fresnelColor = {
+        value: new THREE.Color(0xaa88ee),
+      };
+
+      shader.fragmentShader =
+        'uniform vec3 fresnelColor;\n' + shader.fragmentShader;
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <output_fragment>',
+        `
+        #include <output_fragment>
+        vec3 normalDirection = normalize(vNormal);
+        vec3 viewDirection = normalize(vViewPosition);
+        float fresnel = abs(dot(normalDirection, viewDirection));
+        fresnel = pow(1.0 - fresnel, 4.0);
+        gl_FragColor.rgb += pow(fresnel, 2.0) * fresnelColor * 2.0;
+        `
+      );
+    },
+  });
+
+  const wheelMaterial = new THREE.MeshStandardMaterial({
+    color: 0xaaaaaa,
+    side: THREE.DoubleSide,
+    metalness: 1.0,
+    roughness: 0.2,
+    envMap: envMap,
+    //envMapIntensity: 10.50,
+    clearcoat: 0.1,
+    clearcoatRoughness: 0.9,
+    reflectivity: 0.8,
+    // Добавляем эффект френеля через модификацию шейдера
+    onBeforeCompile: (shader) => {
+      shader.uniforms.fresnelColor = {
+        value: new THREE.Color(0x999999),
+      };
+
+      shader.fragmentShader =
+        'uniform vec3 fresnelColor;\n' + shader.fragmentShader;
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <output_fragment>',
+        `
+        #include <output_fragment>
+        vec3 normalDirection = normalize(vNormal);
+        vec3 viewDirection = normalize(vViewPosition);
+        float fresnel = abs(dot(normalDirection, viewDirection));
+        fresnel = pow(1.0 - fresnel, 2.0);
+        gl_FragColor.rgb *= pow(fresnel, 2.0) * fresnelColor * 2.0;
+        `
+      );
+    },
+  });
+
+  const tireMaterial = new THREE.MeshStandardMaterial({
+    color: 0x777777,
+    side: THREE.DoubleSide,
+    map: carTireTexture,
+    metalness: 0.0,
+    roughness: 0.9,
+  });
+
+  // Загружаем кузов автомобиля
+  loader.load('assets/cars/bmw/bmw_body.fbx', function (body) {
+    body.scale.set(0.01, 0.01, 0.01);
+    body.position.set(0, 0, 0);
+
+    body.traverse(function (child) {
+      if (child.isMesh) {
+        child.material = carBodyMaterial;
+      }
     });
-    const wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x000000, 
-        side:2,
-        metalness: .0,
-        roughness: 0.1, /* map: wheelTexture  */});
-  
-    // Загружаем кузов автомобиля
-    loader.load('assets/cars/bmw_body.fbx', function (body) {
-      // Масштабируем и позиционируем кузов, если необходимо
-      body.scale.set(0.01, 0.01, 0.01);
-      body.position.set(0, 0, 0);
-  
-      // Применяем материал к кузову
-      body.traverse(function (child) {
+
+    loader.load('assets/cars/bmw/bmw_under.fbx', function (under) {
+      under.scale.set(1, 1, 1);
+
+      under.traverse(function (child) {
         if (child.isMesh) {
-          child.material = carBodyMaterial;
+          child.material = carUnderMaterial;
         }
       });
-  
-      // Создаем pivots для колес
-      const frontWheelPivot = new THREE.Object3D();
-      const backWheelPivot = new THREE.Object3D();
-  
-      // Позиционируем pivots
-      frontWheelPivot.position.set(0, 0, 0); // Примерное положение передних колес
-      backWheelPivot.position.set(0, 0, -275);   // Примерное положение задних колес
-  
-      body.add(frontWheelPivot);
-      body.add(backWheelPivot);
-  
-      loader.load('assets/cars/bmw_glass.fbx', function (glass) {
-        glass.scale.set(1, 1, 1);
-  
-        // Применяем материал к колесу
-        glass.traverse(function (child) {
-          if (child.isMesh) {
-            child.material = carGlassMaterial;
-          }
-        });
-  
-        body.add(glass);
 
+      body.add(under);
+    });
 
+    // Создаем pivots для колес
+    const frontWheelPivot = new THREE.Object3D();
+    const backWheelPivot = new THREE.Object3D();
 
+    // Позиционируем pivots
+    frontWheelPivot.position.set(0, 0, 0); // Передние колеса
+    backWheelPivot.position.set(0, 0, -275); // Задние колеса
+
+    body.add(frontWheelPivot);
+    body.add(backWheelPivot);
+
+    // Загружаем стекла автомобиля
+    loader.load('assets/cars/bmw/bmw_glass.fbx', function (glass) {
+      glass.scale.set(1, 1, 1);
+
+      glass.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = carGlassMaterial;
+        }
       });
+
+      body.add(glass);
+    });
+
+    // Загружаем оптику автомобиля
+    loader.load('assets/cars/bmw/bmw_optics.fbx', function (optics) {
+      optics.scale.set(1, 1, 1);
+
+      optics.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = carOpticsMaterial;
+        }
+      });
+
+      body.add(optics);
+    });
+
+    // Загружаем шину
+    loader.load('assets/cars/bmw/bmw_tire.fbx', function (tire) {
+      tire.scale.set(1, 1, 1);
+
+      // Применяем материал к шине
+      tire.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = tireMaterial;
+        }
+      });
+
       // Загружаем колесо
-      loader.load('assets/cars/bmw_wheel.fbx', function (wheel) {
+      loader.load('assets/cars/bmw/bmw_wheel.fbx', function (wheel) {
         wheel.scale.set(1, 1, 1);
-  
+
         // Применяем материал к колесу
         wheel.traverse(function (child) {
           if (child.isMesh) {
             child.material = wheelMaterial;
           }
         });
-  
-        // Клонируем колесо для передних колес
-        const frontLeftWheel = wheel.clone();
-        frontLeftWheel.position.set(0, 0, 0); // Левое переднее колесо
-        frontLeftWheel.scale.set(-1,1,1);
-        const frontRightWheel = wheel.clone();
-        frontRightWheel.position.set(0, 0, 0); // Правое переднее колесо
-  
+
+        // Создаем сборку колеса и шины
+        const wheelAssembly = new THREE.Group();
+        wheelAssembly.add(wheel);
+        wheelAssembly.add(tire.clone());
+
+        // Клонируем сборки колес для каждой позиции
+
+        // Переднее левое колесо
+        const frontLeftWheel = wheelAssembly.clone();
+        frontLeftWheel.position.set(0, 0, 0);
+        frontLeftWheel.scale.set(-1, 1, 1); // Отражаем по оси X для левой стороны
+
+        // Переднее правое колесо
+        const frontRightWheel = wheelAssembly.clone();
+        frontRightWheel.position.set(0, 0, 0);
+
         frontWheelPivot.add(frontLeftWheel);
         frontWheelPivot.add(frontRightWheel);
-  
-        // Клонируем колесо для задних колес
-        const backLeftWheel = wheel.clone();
-        backLeftWheel.position.set(0, 0, 0); // Левое заднее колесо
-        backLeftWheel.scale.set(-1,1,1);
-        const backRightWheel = wheel.clone();
-        backRightWheel.position.set(0, 0, 0); // Правое заднее колесо
-  
+
+        // Заднее левое колесо
+        const backLeftWheel = wheelAssembly.clone();
+        backLeftWheel.position.set(0, 0, 0);
+        backLeftWheel.scale.set(-1, 1, 1); // Отражаем по оси X для левой стороны
+
+        // Заднее правое колесо
+        const backRightWheel = wheelAssembly.clone();
+        backRightWheel.position.set(0, 0, 0);
+
         backWheelPivot.add(backLeftWheel);
         backWheelPivot.add(backRightWheel);
-  
+
         // Добавляем автомобиль в сцену
         scene.add(body);
-  
-        // Вызываем коллбэк после загрузки
+
+        // Вызываем коллбэк после полной загрузки автомобиля
         if (onLoaded) onLoaded(body);
       });
     });
-  }
-  
+  });
+}

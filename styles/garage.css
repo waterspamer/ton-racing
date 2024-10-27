@@ -20,22 +20,43 @@ body {
   background-color: #ffffff0c;
   box-shadow: 0px 0px 400px 40px rgba(0,0,0,.5);
   z-index: 2;
+  transition: all .5s;
 }
+
+.hide{
+  /* bottom: -400px !important; */
+  animation: hide-menu .5s ;
+  animation-fill-mode: forwards;
+}
+
+@keyframes hide-menu {
+  0% {
+    bottom: 0px; 
+}
+100% { 
+  bottom: -400px; 
+}
+}
+
+
+
+
 
 .tg-button {
   border: 0;
   padding: 10px 30px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0px 0px 4px 4px;
   text-align: center;
   justify-content: space-around;
-  font-size:5.2vw;
+  font-size:3.2vh;
   border-radius: 40px;
   color: #fff;
   text-transform: uppercase;
   cursor: pointer;
   margin: 20px;
-  height:100px;
+  height:30%;
   background: linear-gradient(135deg,  #3B89D4 0%,#3B89D4 40%,#ffffff 50%,#3B89D4 60%,#3B89D4 100%);
   animation: shark-wrap 2.5s infinite;;
   background-repeat: no-repeat;  
@@ -65,7 +86,7 @@ body {
   text-align: center;
   /* left: 50%; */
 
-  font-size:5.2vw;
+  font-size:3.2vh;
   color: #ffffff;
   z-index: 1;
 }

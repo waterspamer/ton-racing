@@ -22,6 +22,10 @@ let tg = window.Telegram.WebApp;
 // Установка приложения в полноэкранный режим
 tg.expand();
 tg.disableVerticalSwipes(); 
+
+document.getElementsByClassName('tg-button')[0].addEventListener('click', ()=>{
+  document.getElementById('garage-menu').classList.add('hide');
+});
 //tg.allow_vertical_swipe(false);
 
 // Получение информации о пользователе и отображение приветствия
