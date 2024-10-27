@@ -1,5 +1,7 @@
 body {
   margin: 0;
+  -webkit-user-select: none;
+    user-select: none;
   overflow: hidden; /* Предотвращаем прокрутку на мобильных устройствах */
   touch-action: none; /* Отключаем жесты прокрутки на сенсорных экранах */
   font-family: 'Dela Gothic One', sans-serif;
@@ -8,6 +10,39 @@ body {
 #garage-container {
   width: 100%;
   height: 100vh;
+}
+
+#loading-container{
+  
+  width:100%;
+  height:100vh;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 40%;
+  /* justify-content: space-between; */
+  background: linear-gradient(-225deg, rgb(18, 0, 37), rgb(0, 0, 0));
+}
+
+#loading-label{
+  color:#fff
+}
+
+
+#loading-bar-bg{
+  width:80%;
+  height:40px;
+  border-radius: 50px;
+  background-color: #2d1235;
+}
+
+#loading-bar{
+  width:0%;
+  transition: all 1.2s;
+  height:40px;
+  border-radius: 50px;
+  background: linear-gradient(45deg, rgb(22, 99, 187), rgb(153, 17, 165));
 }
 
 #garage-menu{
@@ -34,7 +69,7 @@ body {
     bottom: 0px; 
 }
 100% { 
-  bottom: -400px; 
+  bottom: -100%; 
 }
 }
 

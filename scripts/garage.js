@@ -50,6 +50,7 @@ loadGarage(scene);
 
 // Загрузка модели автомобиля
 loadCarModel(scene, function(car) {
+  //document.getElementById("loading-container").style = "display: none";
   // После загрузки автомобиля можно выполнить дополнительные действия
 });
 

@@ -10,11 +10,16 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-
+<div id="loading-container">
+  <div id ="loading-label">loading:</div>
+  <div id = "loading-bar-bg">
+    <div id = "loading-bar"></div>
+  </div>
+</div>
 <div id="garage-container"></div>
 <!-- Приветственное сообщение -->
 
-<div id ="garage-menu">
+<div id ="garage-menu" style = "display:none">
   <div id="greeting"></div>
   <!-- <p>Press start and hold <strong>UP</strong> to accelerate.</p>
 <input type="button" id="start" value="Start" />

@@ -1,5 +1,6 @@
 // modelLoader.js
 
+
 function loadGarage(scene) {
   const loader = new THREE.FBXLoader();
   const textureLoader = new THREE.TextureLoader();
@@ -14,6 +15,8 @@ function loadGarage(scene) {
     envMapIntensity: 1.00,
   });
 
+
+  document.getElementById("loading-label").innerText = "loading: garage";
   loader.load('assets/env/garage.fbx', function (garage) {
     garage.scale.set(0.01, 0.01, 0.01);
     garage.position.set(0, -0.05, 0);
@@ -30,7 +33,8 @@ function loadGarage(scene) {
 function loadCarModel(scene, onLoaded) {
   const loader = new THREE.FBXLoader();
   const textureLoader = new THREE.TextureLoader();
-
+  document.getElementById("loading-bar").style.width = '25%';
+  document.getElementById("loading-label").innerText = "loading: textures";
   // Загружаем текстуры
   const envMap = textureLoader.load('assets/env/bgcolor.png');
   envMap.mapping = THREE.EquirectangularReflectionMapping;
@@ -167,6 +171,8 @@ function loadCarModel(scene, onLoaded) {
     roughness: 0.9,
   });
 
+  document.getElementById("loading-bar").style.width = '60%';
+  document.getElementById("loading-label").innerText = "loading: car model";
   // Загружаем кузов автомобиля
   loader.load('assets/cars/bmw/bmw_body.fbx', function (body) {
     body.scale.set(0.01, 0.01, 0.01);
@@ -288,4 +294,10 @@ function loadCarModel(scene, onLoaded) {
       });
     });
   });
+  document.getElementById("loading-bar").style.width = '100%';
+  setTimeout(()=>{
+    document.getElementById('loading-container').style.display = 'none';
+    document.getElementById('garage-menu').style.display = '';
+  }, 1000);
+  
 }
