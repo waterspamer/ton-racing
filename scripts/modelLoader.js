@@ -2,6 +2,8 @@
 
 var floorCar;
 var body; // Глобальная переменная для автомобиля
+var front;
+var back;
 var canRenderBody = false; // Флаг для контроля рендеринга
 
 function loadGarage(scene) {
@@ -82,12 +84,17 @@ function loadCarModel(scene, onLoaded) {
   carTireTexture.wrapT = THREE.RepeatWrapping;
   carTireTexture.repeat.set(1, 1);
 
+  const carWheelTexture = textureLoader.load('assets/cars/bmw/bmw_wheel.jpg');
+  carWheelTexture.wrapS = THREE.RepeatWrapping;
+  carWheelTexture.wrapT = THREE.RepeatWrapping;
+  carWheelTexture.repeat.set(1, 1);
+
   // Создаем материалы
 
   let carFloorMaterial = new THREE.MeshPhysicalMaterial({
     color: 0xffffff,
     metalness: 0.0,
-    roughness: 1.0,
+    roughness: 0.2,
     map: carFloorTexture,
     reflectivity: 0.8,
     envMap: cubeRenderTarget.texture, // cubeRenderTarget должен быть глобальным
@@ -154,7 +161,7 @@ function loadCarModel(scene, onLoaded) {
     metalness: 0.0,
     roughness: 1.0,
     emissiveMap: carOpticsTexture,
-    emissiveIntensity: 100.0,
+    emissiveIntensity: 0.2,
     map: carOpticsTexture,
     envMap: envMap,
     reflectivity: 0.8,
@@ -195,17 +202,16 @@ function loadCarModel(scene, onLoaded) {
   });
 
   const wheelMaterial = new THREE.MeshStandardMaterial({
-    color: 0xaaaaaa,
-    side: THREE.DoubleSide,
-    metalness: 1.0,
-    roughness: 0.2,
-    envMap: envMap,
-    clearcoat: 0.1,
-    clearcoatRoughness: 0.9,
-    reflectivity: 0.8,
+    color: 0xffffff,
+    metalness: 0.2,
+    roughness: 0.8,
+    reflectivity: 0.3,
+    map: carWheelTexture,
+    envMap: cubeRenderTarget.texture,
+    envMapIntensity: 1.00,
     onBeforeCompile: (shader) => {
       shader.uniforms.fresnelColor = {
-        value: new THREE.Color(0x999999),
+        value: new THREE.Color(0xaaffee),
       };
 
       shader.fragmentShader =
@@ -218,8 +224,8 @@ function loadCarModel(scene, onLoaded) {
         vec3 normalDirection = normalize(vNormal);
         vec3 viewDirection = normalize(vViewPosition);
         float fresnel = abs(dot(normalDirection, viewDirection));
-        fresnel = pow(1.0 - fresnel, 2.0);
-        gl_FragColor.rgb *= pow(fresnel, 2.0) * fresnelColor * 2.0;
+        fresnel = pow(1.0 - fresnel, 3.0);
+        //gl_FragColor.rgb -= pow(fresnel, 3.0) * fresnelColor * 1.0;
         `
       );
     },
@@ -282,6 +288,32 @@ function loadCarModel(scene, onLoaded) {
       });
 
       loadedBody.add(glass);
+    });
+
+    loader.load('assets/cars/bmw/bmw_front.fbx', function (loadedFront) {
+      front = loadedFront;
+      front.scale.set(0, 1, 0);
+
+      front.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = carDefaultPaintMaterial;
+        }
+      });
+
+      loadedBody.add(front);
+    });
+
+    loader.load('assets/cars/bmw/bmw_back.fbx', function (loadedBack) {
+      back = loadedBack;
+      back.scale.set(0, 1, 0);
+
+      back.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = carDefaultPaintMaterial;
+        }
+      });
+
+      loadedBody.add(back);
     });
 
     // Загружаем пол под автомобиль

@@ -51,6 +51,7 @@ body {
   height:25vh;
   width: 100%;
   border-radius: 40px;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   background-color: #ffffff0c;
   box-shadow: 0px 0px 400px 40px rgba(0,0,0,.5);
@@ -86,7 +87,7 @@ body {
   text-align: center;
   justify-content: space-around;
   font-size:3.2vh;
-  border-radius: 40px;
+  border-radius: 100px;
   color: #fff;
   text-transform: uppercase;
   cursor: pointer;
@@ -113,6 +114,34 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   transition: all 0.5s;
+}
+
+#action-menu{
+  display: flex;
+  height:25vh;
+  border-radius: 40px;
+  background: linear-gradient(45deg, rgb(32, 2, 44), rgb(6, 19, 61));
+  bottom: 0%;
+  position: absolute;
+  vertical-align: middle;
+  justify-content: space-around;
+  width:100%;
+  height:20vh;
+}
+
+.action-button{
+  color: #90c1dd;
+  display: flex;
+  border-radius: 40px;
+  width: 45%;
+  font-size: 4vh;
+  /* box-shadow: 0px 0px 4px 4px rgb(34, 16, 100); */
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+  vertical-align: middle;
+  
+  text-align: center;
 }
 
 #greeting {

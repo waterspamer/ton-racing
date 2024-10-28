@@ -5,13 +5,13 @@ const scene = new THREE.Scene();
 
 // Настройка камеры
 const camera = new THREE.PerspectiveCamera(
-  65, // Угол обзора
+  75, // Угол обзора
   window.innerWidth / window.innerHeight, // Соотношение сторон
   0.1, // Ближняя плоскость отсечения
   1000 // Дальняя плоскость отсечения
 );
-camera.position.set(0, 3, 5);
-camera.rotation.set(-0.6, 0, 0);
+camera.position.set(2.5, 1, 4);
+camera.rotation.set(-0., .65, 0);
 
 
 const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
@@ -32,7 +32,17 @@ tg.disableVerticalSwipes();
 
 document.getElementsByClassName('tg-button')[0].addEventListener('click', () => {
   document.getElementById('garage-menu').classList.add('hide');
+  document.getElementById('action-menu').style.display = '';
 });
+
+document.getElementsByClassName('action-button')[0].addEventListener('click', () => {
+  document.getElementsByClassName('action-button')[0].style.display = 'none';
+  gsap.to(front.scale, { x: 1, z: 1, duration: .5 });
+  gsap.to(back.scale, { x: 1, z: 1, duration: .5 });
+  //front.scale.set(1, 1, 1);
+});
+
+
 
 // Получение информации о пользователе и отображение приветствия
 let username = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.username : 'guest';
