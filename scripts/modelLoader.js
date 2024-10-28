@@ -40,7 +40,7 @@ function loadGarage(scene) {
         child.material = garageMaterial;
       }
     });
-    scene.add(garage);
+    //scene.add(garage);
   });
 }
 
