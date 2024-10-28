@@ -36,11 +36,11 @@ document.getElementById('garage-container').appendChild(renderer.domElement);
 
 // Добавление света
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
-scene.add(ambientLight);
+//scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 directionalLight.position.set(0, 5, 7.5);
-//scene.add(directionalLight);
+scene.add(directionalLight);
 
 // Загрузка моделей
 loadGarage(scene);
