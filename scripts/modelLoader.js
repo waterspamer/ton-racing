@@ -4,14 +4,28 @@
 function loadGarage(scene) {
   const loader = new THREE.FBXLoader();
   const textureLoader = new THREE.TextureLoader();
+  document.getElementById("loading-bar").style.width = '25%';
+  document.getElementById("loading-label").innerText = "loading: textures";
+  // Загружаем текстуры
+  const envMap = textureLoader.load('assets/env/bgcolor.png');
+  envMap.mapping = THREE.EquirectangularReflectionMapping;
+  envMap.encoding = THREE.sRGBEncoding;
+  envMap.center.set(0.5, 0.5);
+  envMap.rotation = 100;
+  envMap.flipY = false;
+  envMap.flipX = false;
   const garageTexture = textureLoader.load('assets/env/bakedGarage.jpg');
-  const garageRoughness = textureLoader.load('assets/env/garage_mask.png');
+  const garageRoughness = textureLoader.load('assets/env/bakedGarageRough.jpg');
+  const garageMetallic = textureLoader.load('assets/env/bakedGarageMetal.jpg');
 
   let garageMaterial = new THREE.MeshPhysicalMaterial({
-    metalness: 0.0,
-    roughnessMap: garageTexture,
+    metalnessMap: garageMetallic,
+    metalness: 1.0,
+    roughness: 1.0,
+    roughnessMap: garageRoughness,
     map: garageTexture,
     reflectivity: 0.8,
+    envMap: envMap,
     envMapIntensity: 1.00,
   });
 
@@ -77,10 +91,30 @@ function loadCarModel(scene, onLoaded) {
   let carUnderMaterial = new THREE.MeshPhysicalMaterial({
     color: 0x111111,
     metalness: 0.0,
-    roughness: 0.9,
-    envMap: envMap,
-    reflectivity: 0.1,
+    roughness: 0.2,
+    //envMap: envMap,
+    reflectivity: 0.3,
     envMapIntensity: 1.00,
+    onBeforeCompile: (shader) => {
+      shader.uniforms.fresnelColor = {
+        value: new THREE.Color(0xffffee),
+      };
+
+      shader.fragmentShader =
+        'uniform vec3 fresnelColor;\n' + shader.fragmentShader;
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <output_fragment>',
+        `
+        #include <output_fragment>
+        vec3 normalDirection = normalize(vNormal);
+        vec3 viewDirection = normalize(vViewPosition);
+        float fresnel = abs(dot(normalDirection, viewDirection));
+        fresnel = pow(1.0 - fresnel, 3.0);
+        gl_FragColor.rgb += pow(fresnel, 1.0) * fresnelColor * 1.0;
+        `
+      );
+    },
   });
 
   let carOpticsMaterial = new THREE.MeshPhysicalMaterial({
@@ -89,7 +123,7 @@ function loadCarModel(scene, onLoaded) {
     metalness: 0.0,
     roughness: 1.0,
     emissiveMap: carOpticsTexture,
-    emissiveIntensity: 1.0,
+    emissiveIntensity: 100.0,
     map: carOpticsTexture,
     envMap: envMap,
     reflectivity: 0.8,
@@ -110,7 +144,7 @@ function loadCarModel(scene, onLoaded) {
     // Добавляем эффект френеля через модификацию шейдера
     onBeforeCompile: (shader) => {
       shader.uniforms.fresnelColor = {
-        value: new THREE.Color(0xaa88ee),
+        value: new THREE.Color(0xffffee),
       };
 
       shader.fragmentShader =
