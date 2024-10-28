@@ -321,7 +321,7 @@ function loadCarModel(scene, onLoaded) {
         backWheelPivot.add(backRightWheel);
 
         // Добавляем автомобиль в сцену
-        //scene.add(body);
+        scene.add(body);
 
         // Вызываем коллбэк после полной загрузки автомобиля
         if (onLoaded) onLoaded(body);
