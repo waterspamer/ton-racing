@@ -13,6 +13,16 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 3, 5);
 camera.rotation.set(-0.6, 0, 0);
 
+
+const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
+  generateMipmaps: true,
+  minFilter: THREE.LinearMipmapLinearFilter
+});
+
+const cubeCamera = new THREE.CubeCamera(1, 100000, cubeRenderTarget);
+scene.add(cubeCamera);
+
+
 // Инициализация Telegram Web Apps
 let tg = window.Telegram.WebApp;
 
@@ -40,7 +50,7 @@ scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 directionalLight.position.set(0, 5, 7.5);
-scene.add(directionalLight);
+//scene.add(directionalLight);
 
 // Загрузка моделей
 loadGarage(scene);
@@ -48,6 +58,7 @@ loadGarage(scene);
 
 // Загрузка модели автомобиля
 loadCarModel(scene, function(car) {
+  canRenderBody = true;
   // После загрузки автомобиля можно выполнить дополнительные действия
 });
 
@@ -154,6 +165,19 @@ renderer.domElement.addEventListener('touchend', function(event) {
 // Анимация
 function animate() {
   requestAnimationFrame(animate);
+  
+  if (body) {
+    // Временно скрываем объект body для обновления отражений
+    body.visible = false;
+    
+    // Обновляем CubeCamera, чтобы захватить отражения без объекта body
+    cubeCamera.update(renderer, scene);
+    
+    // Возвращаем объект body на место
+    body.visible = true;
+  }
+  
+  // Рендеринг сцены с использованием CubeCamera
   renderer.render(scene, camera);
 }
 animate();

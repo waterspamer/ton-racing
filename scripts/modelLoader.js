@@ -1,11 +1,15 @@
 // modelLoader.js
 
+var floorCar;
+var body; // Глобальная переменная для автомобиля
+var canRenderBody = false; // Флаг для контроля рендеринга
 
 function loadGarage(scene) {
   const loader = new THREE.FBXLoader();
   const textureLoader = new THREE.TextureLoader();
   document.getElementById("loading-bar").style.width = '25%';
   document.getElementById("loading-label").innerText = "loading: textures";
+  
   // Загружаем текстуры
   const envMap = textureLoader.load('assets/env/bgcolor.png');
   envMap.mapping = THREE.EquirectangularReflectionMapping;
@@ -29,7 +33,6 @@ function loadGarage(scene) {
     envMapIntensity: 1.00,
   });
 
-
   document.getElementById("loading-label").innerText = "loading: garage";
   loader.load('assets/env/garage.fbx', function (garage) {
     garage.scale.set(0.01, 0.01, 0.01);
@@ -49,6 +52,7 @@ function loadCarModel(scene, onLoaded) {
   const textureLoader = new THREE.TextureLoader();
   document.getElementById("loading-bar").style.width = '25%';
   document.getElementById("loading-label").innerText = "loading: textures";
+  
   // Загружаем текстуры
   const envMap = textureLoader.load('assets/env/bgcolor.png');
   envMap.mapping = THREE.EquirectangularReflectionMapping;
@@ -63,36 +67,63 @@ function loadCarModel(scene, onLoaded) {
   carBodyTexture.wrapT = THREE.RepeatWrapping;
   carBodyTexture.repeat.set(1, 1);
 
+  const carFloorTexture = textureLoader.load('assets/env/CarFloor.jpg');
+  carFloorTexture.wrapS = THREE.RepeatWrapping;
+  carFloorTexture.wrapT = THREE.RepeatWrapping;
+  carFloorTexture.repeat.set(1, 1);
+
   const carOpticsTexture = textureLoader.load('assets/cars/bmw/lglass_baseColor.png');
   carOpticsTexture.wrapS = THREE.RepeatWrapping;
   carOpticsTexture.wrapT = THREE.RepeatWrapping;
   carOpticsTexture.repeat.set(1, 1);
 
   const carTireTexture = textureLoader.load('assets/cars/bmw/tire_baseColor.png');
-  carOpticsTexture.wrapS = THREE.RepeatWrapping;
-  carOpticsTexture.wrapT = THREE.RepeatWrapping;
-  carOpticsTexture.repeat.set(1, 1);
+  carTireTexture.wrapS = THREE.RepeatWrapping;
+  carTireTexture.wrapT = THREE.RepeatWrapping;
+  carTireTexture.repeat.set(1, 1);
 
   // Создаем материалы
-  let carGlassMaterial = new THREE.MeshPhysicalMaterial({
-    transparent: true,
-    opacity: 0.9,
-    color: 0x000000,
+
+  let carFloorMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff,
     metalness: 0.0,
-    roughness: 0.4,
-    envMap: envMap,
+    roughness: 1.0,
+    map: carFloorTexture,
     reflectivity: 0.8,
-    envMapIntensity: 0.00,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.1,
-    reflectivity: 0.8,
+    envMap: cubeRenderTarget.texture, // cubeRenderTarget должен быть глобальным
+    envMapIntensity: 1.00,
   });
 
+  let carGlassMaterial = new THREE.MeshPhysicalMaterial({
+    transparent: true,
+    opacity: 0.95,
+    color: 0xffffff,
+    metalness: 1.0,
+    roughness: 0.0,
+    envMap: cubeRenderTarget.texture,
+    reflectivity: 0.8,
+    envMapIntensity: 1.00,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.1,
+    reflectivity: 1.0,
+  });
+
+  let carDefaultPaintMaterial = new THREE.MeshPhysicalMaterial({
+    map: carBodyTexture,
+    color: 0xffffff, // Пример красного цвета. Замените на желаемый цвет.
+    metalness: 0.0, // Низкая металлическость для крашеного металла.
+    roughness: 0.1, // Низкая шероховатость для гладкой поверхности.
+    envMap: cubeRenderTarget.texture, // Убедитесь, что окружение качественное.
+    reflectivity: 0.8, // Высокая, но не максимальная отражаемость.
+    envMapIntensity: 10.5, // Интенсивность отражений.
+    clearcoat: 0.9, // Добавление слоя блеска.
+    clearcoatRoughness: 0.03, // Гладкий слой блеска.
+  });
+  
   let carUnderMaterial = new THREE.MeshPhysicalMaterial({
     color: 0x111111,
     metalness: 0.0,
     roughness: 0.2,
-    //envMap: envMap,
     reflectivity: 0.3,
     envMapIntensity: 1.00,
     onBeforeCompile: (shader) => {
@@ -136,12 +167,11 @@ function loadCarModel(scene, onLoaded) {
     roughness: 0.1,
     side: THREE.DoubleSide,
     map: carBodyTexture,
-    envMap: envMap,
+    envMap: cubeRenderTarget.texture,
     envMapIntensity: 1.50,
-    clearcoat: 0.1,
+    clearcoat: 1.0,
     clearcoatRoughness: 0.9,
     reflectivity: 0.8,
-    // Добавляем эффект френеля через модификацию шейдера
     onBeforeCompile: (shader) => {
       shader.uniforms.fresnelColor = {
         value: new THREE.Color(0xffffee),
@@ -158,7 +188,7 @@ function loadCarModel(scene, onLoaded) {
         vec3 viewDirection = normalize(vViewPosition);
         float fresnel = abs(dot(normalDirection, viewDirection));
         fresnel = pow(1.0 - fresnel, 4.0);
-        gl_FragColor.rgb += pow(fresnel, 2.0) * fresnelColor * 2.0;
+        gl_FragColor.rgb += pow(fresnel, 3.0) * fresnelColor * 1.0;
         `
       );
     },
@@ -170,11 +200,9 @@ function loadCarModel(scene, onLoaded) {
     metalness: 1.0,
     roughness: 0.2,
     envMap: envMap,
-    //envMapIntensity: 10.50,
     clearcoat: 0.1,
     clearcoatRoughness: 0.9,
     reflectivity: 0.8,
-    // Добавляем эффект френеля через модификацию шейдера
     onBeforeCompile: (shader) => {
       shader.uniforms.fresnelColor = {
         value: new THREE.Color(0x999999),
@@ -207,17 +235,19 @@ function loadCarModel(scene, onLoaded) {
 
   document.getElementById("loading-bar").style.width = '60%';
   document.getElementById("loading-label").innerText = "loading: car model";
-  // Загружаем кузов автомобиля
-  loader.load('assets/cars/bmw/bmw_body.fbx', function (body) {
-    body.scale.set(0.01, 0.01, 0.01);
-    body.position.set(0, 0, 0);
 
-    body.traverse(function (child) {
+  // Загружаем кузов автомобиля
+  loader.load('assets/cars/bmw/bmw_body.fbx', function (loadedBody) {
+    loadedBody.scale.set(0.01, 0.01, 0.01);
+    loadedBody.position.set(0, 0, 0);
+
+    loadedBody.traverse(function (child) {
       if (child.isMesh) {
-        child.material = carBodyMaterial;
+        child.material = carDefaultPaintMaterial;
       }
     });
 
+    // Загрузка подкапотной части
     loader.load('assets/cars/bmw/bmw_under.fbx', function (under) {
       under.scale.set(1, 1, 1);
 
@@ -227,10 +257,10 @@ function loadCarModel(scene, onLoaded) {
         }
       });
 
-      body.add(under);
+      loadedBody.add(under);
     });
 
-    // Создаем pivots для колес
+    // Создаём pivots для колес
     const frontWheelPivot = new THREE.Object3D();
     const backWheelPivot = new THREE.Object3D();
 
@@ -238,8 +268,8 @@ function loadCarModel(scene, onLoaded) {
     frontWheelPivot.position.set(0, 0, 0); // Передние колеса
     backWheelPivot.position.set(0, 0, -275); // Задние колеса
 
-    body.add(frontWheelPivot);
-    body.add(backWheelPivot);
+    loadedBody.add(frontWheelPivot);
+    loadedBody.add(backWheelPivot);
 
     // Загружаем стекла автомобиля
     loader.load('assets/cars/bmw/bmw_glass.fbx', function (glass) {
@@ -251,7 +281,20 @@ function loadCarModel(scene, onLoaded) {
         }
       });
 
-      body.add(glass);
+      loadedBody.add(glass);
+    });
+
+    // Загружаем пол под автомобиль
+    loader.load('assets/env/carFloor.fbx', function (floor) {
+      floor.scale.set(1, 1, 1);
+
+      floor.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = carFloorMaterial;
+        }
+      });
+
+      loadedBody.add(floor);
     });
 
     // Загружаем оптику автомобиля
@@ -264,7 +307,7 @@ function loadCarModel(scene, onLoaded) {
         }
       });
 
-      body.add(optics);
+      loadedBody.add(optics);
     });
 
     // Загружаем шину
@@ -289,7 +332,7 @@ function loadCarModel(scene, onLoaded) {
           }
         });
 
-        // Создаем сборку колеса и шины
+        // Создаём сборку колеса и шины
         const wheelAssembly = new THREE.Group();
         wheelAssembly.add(wheel);
         wheelAssembly.add(tire.clone());
@@ -321,9 +364,16 @@ function loadCarModel(scene, onLoaded) {
         backWheelPivot.add(backRightWheel);
 
         // Добавляем автомобиль в сцену
-        scene.add(body);
+        scene.add(loadedBody);
+        cubeCamera.position.copy(loadedBody.position); // Убедитесь, что loadedBody присвоен body
 
-        // Вызываем коллбэк после полной загрузки автомобиля
+        // Присваиваем body глобальной переменной
+        body = loadedBody;
+
+        // Устанавливаем флаг, что тело готово к рендерингу
+        canRenderBody = true;
+
+        // Вызываем коллбек после полной загрузки автомобиля
         if (onLoaded) onLoaded(body);
       });
     });
@@ -333,5 +383,4 @@ function loadCarModel(scene, onLoaded) {
     document.getElementById('loading-container').style.display = 'none';
     document.getElementById('garage-menu').style.display = '';
   }, 1000);
-  
 }
