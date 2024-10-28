@@ -19,11 +19,11 @@ function loadGarage(scene) {
   const garageMetallic = textureLoader.load('assets/env/bakedGarageMetal.jpg');
 
   let garageMaterial = new THREE.MeshPhysicalMaterial({
-    //metalnessMap: garageMetallic,
+    metalnessMap: garageMetallic,
     metalness: 1.0,
     roughness: 1.0,
-    //roughnessMap: garageRoughness,
-    //map: garageTexture,
+    roughnessMap: garageRoughness,
+    map: garageTexture,
     reflectivity: 0.8,
     envMap: envMap,
     envMapIntensity: 1.00,
@@ -40,7 +40,7 @@ function loadGarage(scene) {
         child.material = garageMaterial;
       }
     });
-    //scene.add(garage);
+    scene.add(garage);
   });
 }
 
@@ -321,7 +321,7 @@ function loadCarModel(scene, onLoaded) {
         backWheelPivot.add(backRightWheel);
 
         // Добавляем автомобиль в сцену
-        scene.add(body);
+        //scene.add(body);
 
         // Вызываем коллбэк после полной загрузки автомобиля
         if (onLoaded) onLoaded(body);
