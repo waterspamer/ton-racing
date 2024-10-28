@@ -91,7 +91,7 @@ function initPostProcessing() {
   // Добавление UnrealBloomPass (Bloom)
   const bloomSize = new THREE.Vector2(window.innerWidth, window.innerHeight);
   bloomPass = new THREE.UnrealBloomPass(bloomSize, bloomParams.bloomStrength, bloomParams.bloomRadius, bloomParams.bloomThreshold);
-  composer.addPass(bloomPass);
+  //composer.addPass(bloomPass);
   
   // Добавление FXAAShader (Anti-Aliasing)
   fxaaPass = new THREE.ShaderPass(THREE.FXAAShader);
