@@ -50,63 +50,12 @@ loadCarModel(scene, function(car) {
   // После загрузки автомобиля можно выполнить дополнительные действия
 });
 
-// Настройка постобработки с эффектами Bloom, AO, SSR, AA и Grain
-let composer, renderPass, ssaoPass, bloomPass, fxaaPass, filmPass;
 
-// Параметры Bloom
-const bloomParams = {
-  exposure: 1,
-  bloomStrength: 0.3,
-  bloomThreshold: 0.2,
-  bloomRadius: 0
-};
 
-// Параметры SSAO (Ambient Occlusion)
-/* const ssaoParams = {
-  radius: 16,
-  samples: 32,
-  rings: 4,
-  distanceThreshold: 0.001,
-  distanceFalloff: 0.5,
-  luminanceInfluence: 0.5,
-  color: 0x000000
-}; */
+
 
 // Инициализация постобработки
-function initPostProcessing() {
-  // Создание EffectComposer
-  composer = new THREE.EffectComposer(renderer);
-  
-  // Добавление RenderPass
-  renderPass = new THREE.RenderPass(scene, camera);
-  composer.addPass(renderPass);
-  
-  // Добавление SSAOPass (Ambient Occlusion)
-   /* ssaoPass = new THREE.SSAOPass(scene, camera, window.innerWidth, window.innerHeight);
-  ssaoPass.kernelRadius = ssaoParams.radius;
-  ssaoPass.minDistance = ssaoParams.distanceThreshold;
-  ssaoPass.maxDistance = ssaoParams.distanceThreshold + ssaoParams.distanceFalloff;
-  composer.addPass(ssaoPass);  */
-  
-  // Добавление UnrealBloomPass (Bloom)
-  const bloomSize = new THREE.Vector2(window.innerWidth, window.innerHeight);
-  bloomPass = new THREE.UnrealBloomPass(bloomSize, bloomParams.bloomStrength, bloomParams.bloomRadius, bloomParams.bloomThreshold);
-  //composer.addPass(bloomPass);
-  
-  // Добавление FXAAShader (Anti-Aliasing)
-  fxaaPass = new THREE.ShaderPass(THREE.FXAAShader);
-  fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
-  fxaaPass.renderToScreen = false; // Не последняя пасса
-  composer.addPass(fxaaPass);
-  
-  // Добавление FilmPass (Film Grain)
-   /* filmPass = new THREE.FilmPass(0.35, 0.025, 648, false);
-  filmPass.renderToScreen = true; // Последняя пасса
-  composer.addPass(filmPass);  */
-}
-
-// Инициализация постобработки
-initPostProcessing();
+//initPostProcessing();
 
 // Функция обновления размеров окна
 function onWindowResize() {
@@ -117,16 +66,9 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   
   renderer.setSize(width, height);
-  composer.setSize(width, height);
+
   
-  // Обновление параметров пассов, требующих размеров
-  /* if (ssaoPass) {
-    ssaoPass.setSize(width, height);
-  } */
-  
-  if (fxaaPass) {
-    fxaaPass.uniforms['resolution'].value.set(1 / width, 1 / height);
-  }
+
 }
 window.addEventListener('resize', onWindowResize, false);
 
@@ -211,8 +153,8 @@ renderer.domElement.addEventListener('touchend', function(event) {
 // Анимация
 function animate() {
   requestAnimationFrame(animate);
-  
+  renderer.render(scene, camera);
   // Используем composer для рендеринга с эффектами постобработки
-  composer.render();
+  //composer.render();
 }
 animate();
