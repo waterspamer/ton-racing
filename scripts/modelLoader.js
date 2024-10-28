@@ -19,11 +19,11 @@ function loadGarage(scene) {
   const garageMetallic = textureLoader.load('assets/env/bakedGarageMetal.jpg');
 
   let garageMaterial = new THREE.MeshPhysicalMaterial({
-    metalnessMap: garageMetallic,
+    //metalnessMap: garageMetallic,
     metalness: 1.0,
     roughness: 1.0,
-    roughnessMap: garageRoughness,
-    map: garageTexture,
+    //roughnessMap: garageRoughness,
+    //map: garageTexture,
     reflectivity: 0.8,
     envMap: envMap,
     envMapIntensity: 1.00,
