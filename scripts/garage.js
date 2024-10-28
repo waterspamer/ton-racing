@@ -31,7 +31,7 @@ document.getElementById('greeting').innerHTML = `привет, <span class="grad
 // Настройка рендерера
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(window.devicePixelRatio); // Улучшение качества
+//renderer.setPixelRatio(window.devicePixelRatio); // Улучшение качества
 document.getElementById('garage-container').appendChild(renderer.domElement);
 
 // Добавление света
