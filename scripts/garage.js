@@ -45,6 +45,7 @@ directionalLight.position.set(0, 5, 7.5);
 // Загрузка моделей
 loadGarage(scene);
 
+
 // Загрузка модели автомобиля
 loadCarModel(scene, function(car) {
   // После загрузки автомобиля можно выполнить дополнительные действия
@@ -154,7 +155,5 @@ renderer.domElement.addEventListener('touchend', function(event) {
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
-  // Используем composer для рендеринга с эффектами постобработки
-  //composer.render();
 }
 animate();
