@@ -62,7 +62,7 @@ const bloomParams = {
 };
 
 // Параметры SSAO (Ambient Occlusion)
-const ssaoParams = {
+/* const ssaoParams = {
   radius: 16,
   samples: 32,
   rings: 4,
@@ -70,7 +70,7 @@ const ssaoParams = {
   distanceFalloff: 0.5,
   luminanceInfluence: 0.5,
   color: 0x000000
-};
+}; */
 
 // Инициализация постобработки
 function initPostProcessing() {
@@ -120,9 +120,9 @@ function onWindowResize() {
   composer.setSize(width, height);
   
   // Обновление параметров пассов, требующих размеров
-  if (ssaoPass) {
+  /* if (ssaoPass) {
     ssaoPass.setSize(width, height);
-  }
+  } */
   
   if (fxaaPass) {
     fxaaPass.uniforms['resolution'].value.set(1 / width, 1 / height);
