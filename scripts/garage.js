@@ -245,11 +245,42 @@ function initializeMenuActions() {
   // Обработчик кнопки "Гонка"
   const raceButton = document.getElementById('start-race');
   raceButton.addEventListener('click', () => {
-    gsap.to(garage.scale, { x: 0, y: 0, duration: .1 });
+    gsap.to(garage.scale, { x: 0, y: 0, duration: 0.1 });
     document.getElementById('action-menu').style.display = 'none';
-    gsap.to(camera.position, {x: -2, y : 3, z: -5, duration: 1.5});
+    gsap.to(camera.position, { x: -2, y: 3, z: -5, duration: 1.5 });
     loadRace(scene);
     //front.scale.set(1, 1, 1);
+  });
+
+  // Обработчики для вкладок "Тюнинг" и "Детейлинг"
+  const tuningTabs = document.querySelectorAll('.tuning-tab');
+  tuningTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Удалить класс active у всех вкладок
+      tuningTabs.forEach(t => t.classList.remove('active'));
+      // Добавить класс active к выбранной вкладке
+      tab.classList.add('active');
+
+      const selectedTab = tab.dataset.tab;
+
+      // Показать соответствующий контент
+      document.querySelectorAll('.tab-content').forEach(content => {
+        if (content.dataset.tabContent === selectedTab) {
+          content.style.display = '';
+        } else {
+          content.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Обработчики для опций краски
+  const paintOptions = document.querySelectorAll('.paint-option');
+  paintOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      const selectedColor = option.dataset.color;
+      applyPaint(selectedColor);
+    });
   });
 }
 
@@ -276,7 +307,7 @@ loadGarage(scene);
 
 // Загрузка модели автомобиля
 loadCarModel(scene, function(carModel) {
-  carDefaultPaintMaterial = carModel.material;
+  //carDefaultPaintMaterial = carModel.material; // Используем объявленную в другом файле переменную
   canRenderBody = true;
   // После загрузки автомобиля можно выполнить дополнительные действия
 });
@@ -399,3 +430,35 @@ function animate() {
   renderer.render(scene, camera);
 }
 animate();
+
+
+// Функция для применения краски к автомобилю
+function applyPaint(color) {
+  if (!carDefaultPaintMaterial) {
+    console.error('carDefaultPaintMaterial не определён.');
+    return;
+  }
+  if (color === 'map') {
+    carDefaultPaintMaterial.map = carBodyTexture; // Включаем карту текстуры
+    carDefaultPaintMaterial.metalness = (0.0);
+    carDefaultPaintMaterial.color.setHex(0xffffff); // Белый цвет, так как карта используется
+  } else {
+    carDefaultPaintMaterial.metalness = (0.3);
+    carDefaultPaintMaterial.map = null; // Отключаем карту
+    carDefaultPaintMaterial.color.setHex(color.toString(16));
+  }
+  carDefaultPaintMaterial.needsUpdate = true;
+
+  // Обновить материал на модели автомобиля
+  /* if (carModel) {
+    carModel.traverse(child => {
+      if (child.isMesh) {
+        child.material = carDefaultPaintMaterial;
+      }
+    });
+  } */
+
+  console.log(carDefaultPaintMaterial.color);
+  console.log(`Краска автомобиля изменена на: ${color === 'map' ? 'Текстурированный' : `#${color.toString(16)}`}`);
+}
+

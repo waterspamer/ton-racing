@@ -10,6 +10,8 @@ var canRenderBody = false; // Флаг для контроля рендерин�
 
 var carDefaultPaintMaterial;
 
+var carBodyTexture;
+
 
 function loadRace(scene){
   const loader = new THREE.FBXLoader();
@@ -143,7 +145,7 @@ function loadCarModel(scene, onLoaded) {
   envMap.flipY = false;
   envMap.flipX = false;
 
-  const carBodyTexture = textureLoader.load('assets/cars/bmw/bmw_body_texture.jpg');
+   carBodyTexture = textureLoader.load('assets/cars/bmw/bmw_body_texture.jpg');
   carBodyTexture.wrapS = THREE.RepeatWrapping;
   carBodyTexture.wrapT = THREE.RepeatWrapping;
   carBodyTexture.repeat.set(1, 1);
@@ -195,9 +197,9 @@ function loadCarModel(scene, onLoaded) {
   });
 
   carDefaultPaintMaterial = new THREE.MeshPhysicalMaterial({
-    map: carBodyTexture,
-    color: 0xffffff, // Пример красного цвета. Замените на желаемый цвет.
-    metalness: 1.0, // Низкая металлическость для крашеного металла.
+    //map: ,
+    color: 0x18fa63, // Пример красного цвета. Замените на желаемый цвет.
+    metalness: 0.0, // Низкая металлическость для крашеного металла.
     roughness: 0.9, // Низкая шероховатость для гладкой поверхности.
     envMap: cubeRenderTarget.texture, // Убедитесь, что окружение качественное.
     reflectivity: 0.8, // Высокая, но не максимальная отражаемость.

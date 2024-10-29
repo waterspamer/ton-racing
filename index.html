@@ -88,14 +88,20 @@
   <!-- Меню тюнинга -->
   <div id="tuning-menu" class="hidden">
     <div class="tuning-header">
-      <h2>Меню Тюнинга</h2>
+      <div class="tuning-tabs">
+        <button class="tuning-tab active" data-tab="tuning">Тюнинг</button>
+        <button class="tuning-tab" data-tab="detailing">Детейлинг</button>
+      </div>
       <button id="close-tuning" class="close-button">✖</button>
     </div>
+    
+    <!-- Вкладки "Тюнинг" и "Детейлинг" -->
+    
     
     <!-- Контейнеры для категорий и грейдов -->
     <div id="tuning-content">
       <!-- Контейнер для категорий улучшений (горизонтальный скролл) -->
-      <div id="upgrade-categories">
+      <div id="upgrade-categories" class="tab-content active" data-tab-content="tuning">
         <!-- Категории будут загружаться динамически из JSON -->
         <!-- Пример статичных категорий для наглядности -->
         <div class="upgrade-category active">Шины</div>
@@ -106,7 +112,7 @@
       </div>
       
       <!-- Контейнер для грейдов выбранной категории (вертикальный скролл) -->
-      <div id="upgrade-grades">
+      <div id="upgrade-grades" class="tab-content active" data-tab-content="tuning">
         <!-- Улучшения будут загружаться динамически из JSON -->
         <!-- Пример статичных улучшений для наглядности -->
         <div class="upgrade-grade">
@@ -118,6 +124,24 @@
           <button class="purchase-button">Купить</button>
         </div>
         <!-- Добавьте другие улучшения по необходимости -->
+      </div>
+      
+      <!-- Контейнер для Детейлинг -->
+      <div id="detailing-content" class="tab-content" data-tab-content="detailing" style="display: none;">
+        <!-- Раздел "Краска" -->
+        <div class="detailing-section">
+          <h3>Краска</h3>
+          <div class="paint-options">
+            <!-- Цвет 1 -->
+            <div class="paint-option" data-color="0x18fa63" style="background-color: #18fa63;" title="Красный"></div>
+            <!-- Цвет 2 -->
+            <div class="paint-option" data-color="0x0f1891" style="background-color: #0f1891;" title="Зелёный"></div>
+            <!-- Цвет 3 -->
+            <div class="paint-option" data-color="0xffa600" style="background-color: #ffa600;" title="Синий"></div>
+            <!-- Цвет 4 (с текстурой) -->
+            <div class="paint-option" data-color="map" style="background: linear-gradient(45deg, blue, white);" title="Текстурированный"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

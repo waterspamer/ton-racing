@@ -161,18 +161,17 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 28vh; /* Высота окна характеристик */
-  border-radius: 0px 0px 40px 40px;
+  height: 20vh; /* Высота окна характеристик */
   background: rgba(0, 0, 0, 0.85);
-  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  
-  /* justify-content: flex-start; */
+  justify-content: flex-start;
   z-index: 5;
   transition: transform 0.5s ease-in-out;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
 }
 
 #car-stats-window.hidden {
@@ -234,10 +233,9 @@ body {
   bottom: 0;
   left: 0;
   width: 100%; /* Занимает всю ширину */
-  height: 35vh; /* Увеличенная высота для более крупного меню */
+  height: 30vh; /* Нижнее меню тюнинга 30% от высоты экрана */
   background: rgba(0, 0, 0, 0.85);
   border-radius: 40px 40px 0px 0px;
-  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
@@ -275,17 +273,44 @@ body {
   cursor: pointer;
 }
 
+/* Вкладки "Тюнинг" и "Детейлинг" */
+.tuning-tabs {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2vh;
+}
+
+.tuning-tab {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  padding: 1vh 3vh;
+  margin: 0 1vh;
+  font-size: 1.5vh;
+  cursor: pointer;
+  border-radius: 2vh;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.tuning-tab.active,
+.tuning-tab:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+/* Контейнеры для категорий и грейдов */
 #tuning-content {
   display: flex;
-  flex-direction: column; /* Изменено на column */
+  flex-direction: column; /* Разместить вертикально */
   width: 90%;
   max-width: 1200px;
-  height: calc(30vh); /* Учитываем высоту заголовка */
+  height: calc(30vh - 8vh); /* Высота контейнера учитывая заголовок и вкладки */
 }
 
 /* Контейнер для категорий улучшений */
 #upgrade-categories {
-  flex: 0 0 10vh; /* Фиксированная высота 200px эквивалентна ~20vh */
+  flex: 0 0 10vh; /* Фиксированная высота 10vh */
   display: flex;
   overflow-x: auto;
   padding-right: 1vh;
@@ -415,4 +440,184 @@ body {
 /* Стили для скрытых элементов */
 .hidden {
   display: none;
+}
+
+/* Стили для вкладок */
+.tuning-tabs {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2vh;
+}
+
+.tuning-tab {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  padding: 1vh 3vh;
+  margin: 0 1vh;
+  font-size: 1.5vh;
+  cursor: pointer;
+  border-radius: 2vh;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.tuning-tab.active,
+.tuning-tab:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+/* Стили для раздела Детейлинг */
+.detailing-section {
+  margin-top: 2vh;
+}
+
+.detailing-section h3 {
+  color: #ffffff;
+  font-size: 1.5vh;
+  margin-bottom: 1vh;
+}
+
+.paint-options {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.paint-option {
+  width: 6vh;
+  height: 6vh;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 0.2vh solid #ffffff;
+  transition: transform 0.3s, border 0.3s;
+  background-size: cover;
+  background-position: center;
+}
+
+.paint-option:hover {
+  transform: scale(1.1);
+  border: 0.2vh solid #ff0099;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  /* Уменьшаем размеры блоков категорий */
+  .upgrade-category {
+    min-width: 10vh;
+    min-height: 10vh;
+    padding: 1.5vh;
+    font-size: 1.8vh;
+  }
+
+  /* Уменьшаем размеры улучшений */
+  .upgrade-grade {
+    padding: 1.5vh;
+    font-size: 1.8vh;
+  }
+
+  .purchase-button {
+    padding: 0.8vh 2vh;
+    font-size: 1.8vh;
+  }
+
+  /* Уменьшаем окно характеристик */
+  #car-stats-window {
+    height: 18vh;
+  }
+
+  .car-stats-header h2 {
+    font-size: 2.3vh;
+  }
+
+  .stat span {
+    font-size: 1.6vh;
+  }
+
+  .stat-bar {
+    height: 1.3vh;
+  }
+
+  .stat-fill {
+    height: 100%;
+    transition: width 0.3s ease-in-out;
+  }
+
+  /* Уменьшаем нижнее меню тюнинга */
+  #tuning-menu {
+    height: 25vh;
+  }
+
+  #tuning-content {
+    height: calc(25vh - 8vh);
+  }
+
+  /* Уменьшаем размеры вкладок */
+  .tuning-tab {
+    padding: 0.8vh 2vh;
+    font-size: 1.2vh;
+  }
+
+  /* Уменьшаем размеры опций краски */
+  .paint-option {
+    width: 5vh;
+    height: 5vh;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Дополнительные изменения для маленьких экранов */
+  .upgrade-category {
+    min-width: 8vh;
+    min-height: 8vh;
+    padding: 1vh;
+    font-size: 1.6vh;
+  }
+
+  .upgrade-grade {
+    padding: 1vh;
+    font-size: 1.6vh;
+  }
+
+  .purchase-button {
+    padding: 0.6vh 1.8vh;
+    font-size: 1.6vh;
+  }
+
+  #car-stats-window {
+    height: 15vh;
+  }
+
+  .car-stats-header h2 {
+    font-size: 2vh;
+  }
+
+  .stat span {
+    font-size: 1.4vh;
+  }
+
+  .stat-bar {
+    height: 1vh;
+  }
+
+  #tuning-menu {
+    height: 20vh;
+  }
+
+  #tuning-content {
+    height: calc(20vh - 8vh);
+  }
+
+  /* Уменьшаем размеры вкладок */
+  .tuning-tab {
+    padding: 0.6vh 1.5vh;
+    font-size: 1.2vh;
+  }
+
+  /* Уменьшаем размеры опций краски */
+  .paint-option {
+    width: 4vh;
+    height: 4vh;
+  }
 }
