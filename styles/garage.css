@@ -26,6 +26,7 @@ body {
 
 #loading-label {
   color: #fff;
+  font-size: 2vh; /* Размер шрифта зависим от высоты экрана */
 }
 
 #loading-bar-bg {
@@ -73,19 +74,19 @@ body {
 
 .tg-button {
   border: 0;
-  padding: 10px 30px;
+  padding: 1vh 3vh; /* Используем vh для зависимых размеров */
   display: flex;
   flex-direction: column;
-  box-shadow: 0px 0px 4px 4px;
+  box-shadow: 0px 0px 0.4vh 0.4vh;
   text-align: center;
   justify-content: space-around;
-  font-size: 3.2vh;
-  border-radius: 100px;
+  font-size: 3vh;
+  border-radius: 10vh;
   color: #fff;
   text-transform: uppercase;
   cursor: pointer;
-  margin: 20px;
-  height: 30%;
+  margin: 2vh;
+  height: 10vh;
   background: linear-gradient(135deg, #3B89D4 0%, #3B89D4 40%, #ffffff 50%, #3B89D4 60%, #3B89D4 100%);
   animation: shark-wrap 2.5s infinite;
   background-repeat: no-repeat;
@@ -140,14 +141,14 @@ body {
   content: '';
   display: block;
   width: 100%;
-  height: 2px;
+  height: 0.2vh; /* Используем vh для зависимых размеров */
   background: #90c1dd;
-  margin-top: 5px;
+  margin-top: 0.5vh;
 }
 
 #greeting {
   position: relative;
-  top: 10px;
+  top: 1vh;
   text-align: center;
   font-size: 3.2vh;
   color: #ffffff;
@@ -160,13 +161,16 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 20vh; /* Высота окна характеристик */
+  height: 28vh; /* Высота окна характеристик */
+  border-radius: 0px 0px 40px 40px;
   background: rgba(0, 0, 0, 0.85);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  
+  /* justify-content: flex-start; */
   z-index: 5;
   transition: transform 0.5s ease-in-out;
 }
@@ -181,12 +185,12 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 10px 0;
+  margin: 0vh 0;
 }
 
 .car-stats-header h2 {
   color: #ffffff;
-  font-size: 2.5vh;
+  font-size: 1.5vh;
 }
 
 #car-stats {
@@ -199,22 +203,22 @@ body {
 }
 
 .stat {
-  margin-bottom: 10px;
+  margin-bottom: .3vh;
 }
 
 .stat span {
   display: block;
   color: #90c1dd;
-  margin-bottom: 5px;
-  font-size: 1.8vh;
+  margin-bottom: 0.1vh;
+  font-size: 1.2vh;
 }
 
 .stat-bar {
   width: 100%;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: 1vh;
   overflow: hidden;
-  height: 15px;
+  height: 1.2vh;
 }
 
 .stat-fill {
@@ -230,9 +234,9 @@ body {
   bottom: 0;
   left: 0;
   width: 100%; /* Занимает всю ширину */
-  height: 60%; /* Увеличенная высота для более крупного меню */
+  height: 35vh; /* Увеличенная высота для более крупного меню */
   background: rgba(0, 0, 0, 0.85);
-  border-radius: 40px;
+  border-radius: 40px 40px 0px 0px;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   display: flex;
@@ -254,12 +258,13 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 20px 0;
+  margin: 2vh 0;
 }
 
 .tuning-header h2 {
   color: #ffffff;
-  font-size: 2.5vh;
+  font-weight: 300;
+  font-size: 1.5vh;
 }
 
 .close-button {
@@ -275,55 +280,55 @@ body {
   flex-direction: column; /* Изменено на column */
   width: 90%;
   max-width: 1200px;
-  height: calc(60% + 80px);
+  height: calc(30vh); /* Учитываем высоту заголовка */
 }
 
 /* Контейнер для категорий улучшений */
 #upgrade-categories {
-  flex: 0 0 200px; /* Фиксированная высота 200px */
+  flex: 0 0 10vh; /* Фиксированная высота 200px эквивалентна ~20vh */
   display: flex;
   overflow-x: auto;
-  padding-right: 10px;
+  padding-right: 1vh;
   scrollbar-width: thin;
   scrollbar-color: #3B89D4 rgba(0, 0, 0, 0.5);
 }
 
 #upgrade-categories::-webkit-scrollbar {
-  height: 8px;
+  height: 0.8vh; /* Используем vh для зависимых размеров */
 }
 
 #upgrade-categories::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.5);
-  border-radius: 4px;
+  border-radius: 0.4vh;
 }
 
 #upgrade-categories::-webkit-scrollbar-thumb {
   background-color: #3B89D4;
-  border-radius: 4px;
+  border-radius: 0.4vh;
 }
 
 /* Категории улучшений как квадратные блоки */
 .upgrade-category {
   flex: 0 0 auto;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  padding: 20px;
-  margin-right: 15px;
+  border-radius: 1.5vh;
+  padding: 2vh;
+  margin-right: 1.5vh;
   cursor: pointer;
-  min-width: 120px;
-  min-height: 120px;
+  min-width: 6vh; /* Используем vh вместо px */
+  max-height: 5vh; /* Используем vh вместо px */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2vh;
+  font-size: 1vh;
   color: #ffffff;
-  transition: background 0.3s, transform 0.3s;
+  transition: all 0.3s, transform 0.3s;
 }
 
 .upgrade-category:hover,
 .upgrade-category.active {
   background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
+  color:#ff0099;
 }
 
 /* Контейнер для грейдов улучшений */
@@ -332,37 +337,37 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding-left: 10px;
+  padding-left: 1vh;
   scrollbar-width: thin;
   scrollbar-color: #3B89D4 rgba(0, 0, 0, 0.5);
 }
 
 #upgrade-grades::-webkit-scrollbar {
-  width: 8px;
+  width: 0.8vh; /* Используем vh для зависимых размеров */
 }
 
 #upgrade-grades::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.5);
-  border-radius: 4px;
+  border-radius: 0.4vh;
 }
 
 #upgrade-grades::-webkit-scrollbar-thumb {
   background-color: #3B89D4;
-  border-radius: 4px;
+  border-radius: 0.4vh;
 }
 
 /* Улучшения как вертикальные блоки */
 .upgrade-grade {
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 15px;
+  border-radius: 1.5vh;
+  padding: 2vh;
+  margin-bottom: 1.5vh;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 2vh;
+  font-size: 1.5vh;
   color: #ffffff;
-  transition: background 0.3s, transform 0.3s;
+  transition: all 0.3s, transform 0.3s;
 }
 
 .upgrade-grade:hover {
@@ -376,14 +381,14 @@ body {
 }
 
 .upgrade-name {
-  font-size: 2.2vh;
-  margin-bottom: 5px;
+  font-size: 1.5vh;
+  margin-bottom: 0.5vh;
 }
 
 .upgrade-description {
-  font-size: 1.6vh;
+  font-size: 1.2vh;
   color: #d3d3d3;
-  margin-bottom: 5px;
+  margin-bottom: 0.5vh;
 }
 
 .upgrade-price {
@@ -396,7 +401,7 @@ body {
   border: none;
   border-radius: 50px;
   color: #fff;
-  padding: 10px 25px;
+  padding: 1vh 2.5vh; /* Используем vh для зависимых размеров */
   cursor: pointer;
   font-size: 2vh;
   transition: all 0.3s, transform 0.3s;
