@@ -1,7 +1,8 @@
+/* Общие стили */
 body {
   margin: 0;
   -webkit-user-select: none;
-    user-select: none;
+  user-select: none;
   overflow: hidden; /* Предотвращаем прокрутку на мобильных устройствах */
   touch-action: none; /* Отключаем жесты прокрутки на сенсорных экранах */
   font-family: 'Dela Gothic One', sans-serif;
@@ -12,9 +13,9 @@ body {
   height: 100vh;
 }
 
-#loading-container{
-  width:100%;
-  height:100vh;
+#loading-container {
+  width: 100%;
+  height: 100vh;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -23,47 +24,47 @@ body {
   background: linear-gradient(-225deg, rgb(18, 0, 37), rgb(0, 0, 0));
 }
 
-#loading-label{
-  color:#fff;
+#loading-label {
+  color: #fff;
 }
 
-#loading-bar-bg{
-  width:80%;
-  height:40px;
+#loading-bar-bg {
+  width: 80%;
+  height: 40px;
   border-radius: 50px;
   background-color: #2d1235;
 }
 
-#loading-bar{
-  width:0%;
+#loading-bar {
+  width: 0%;
   transition: all 1.2s;
-  height:40px;
+  height: 40px;
   border-radius: 50px;
   background: linear-gradient(45deg, rgb(22, 99, 187), rgb(153, 17, 165));
 }
 
-#garage-menu{
+#garage-menu {
   position: absolute;
-  bottom:0px;
-  height:25vh;
+  bottom: 0px;
+  height: 25vh;
   width: 100%;
   border-radius: 40px;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   background-color: #ffffff0c;
-  box-shadow: 0px 0px 400px 40px rgba(0,0,0,.5);
+  box-shadow: 0px 0px 400px 40px rgba(0,0,0,0.5);
   z-index: 2;
-  transition: all .5s;
+  transition: all 0.5s;
 }
 
-.hide{
-  animation: hide-menu .5s ;
+.hide {
+  animation: hide-menu 0.5s;
   animation-fill-mode: forwards;
 }
 
 @keyframes hide-menu {
   0% {
-    bottom: 0px; 
+    bottom: 0px;
   }
   100% { 
     bottom: -100%; 
@@ -78,26 +79,26 @@ body {
   box-shadow: 0px 0px 4px 4px;
   text-align: center;
   justify-content: space-around;
-  font-size:3.2vh;
+  font-size: 3.2vh;
   border-radius: 100px;
   color: #fff;
   text-transform: uppercase;
   cursor: pointer;
   margin: 20px;
-  height:30%;
-  background: linear-gradient(135deg,  #3B89D4 0%,#3B89D4 40%,#ffffff 50%,#3B89D4 60%,#3B89D4 100%);
+  height: 30%;
+  background: linear-gradient(135deg, #3B89D4 0%, #3B89D4 40%, #ffffff 50%, #3B89D4 60%, #3B89D4 100%);
   animation: shark-wrap 2.5s infinite;
-  background-repeat: no-repeat;  
-  background-position:0%;
-  background-size:300%; 
+  background-repeat: no-repeat;
+  background-position: 0%;
+  background-size: 300%;
 }
 
 @keyframes shark-wrap {
   0% {
-    background-position: 100%; 
+    background-position: 100%;
   }
   100% { 
-    background-position:0%; 
+    background-position: 0%; 
   }
 }
 
@@ -108,19 +109,19 @@ body {
   transition: all 0.5s;
 }
 
-#action-menu{
+#action-menu {
   display: flex;
-  height:20vh;
+  height: 20vh;
   border-radius: 40px;
   background: linear-gradient(45deg, rgb(32, 2, 44), rgb(6, 19, 61));
   bottom: 0%;
   position: absolute;
   vertical-align: middle;
   justify-content: space-around;
-  width:100%;
+  width: 100%;
 }
 
-.action-button{
+.action-button {
   color: #90c1dd;
   display: flex;
   border-radius: 40px;
@@ -134,13 +135,93 @@ body {
   cursor: pointer;
 }
 
+#open-tuning::after,
+#start-race::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #90c1dd;
+  margin-top: 5px;
+}
+
 #greeting {
-  position:relative;
+  position: relative;
   top: 10px;
   text-align: center;
-  font-size:3.2vh;
+  font-size: 3.2vh;
   color: #ffffff;
   z-index: 1;
+}
+
+/* Стили для окна характеристик автомобиля */
+#car-stats-window {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20vh; /* Высота окна характеристик */
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 5;
+  transition: transform 0.5s ease-in-out;
+}
+
+#car-stats-window.hidden {
+  transform: translateY(-100vh);
+}
+
+.car-stats-header {
+  width: 90%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.car-stats-header h2 {
+  color: #ffffff;
+  font-size: 2.5vh;
+}
+
+#car-stats {
+  width: 90%;
+  max-width: 1200px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.stat {
+  margin-bottom: 10px;
+}
+
+.stat span {
+  display: block;
+  color: #90c1dd;
+  margin-bottom: 5px;
+  font-size: 1.8vh;
+}
+
+.stat-bar {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  height: 15px;
+}
+
+.stat-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #3B89D4, #1f7fed);
+  width: 0%;
+  transition: width 0.5s ease-in-out;
 }
 
 /* Стили для Tuning Menu */
@@ -149,8 +230,10 @@ body {
   bottom: 0;
   left: 0;
   width: 100%; /* Занимает всю ширину */
-  height: 50%; /* Занимает половину экрана по высоте */
+  height: 60%; /* Увеличенная высота для более крупного меню */
   background: rgba(0, 0, 0, 0.85);
+  border-radius: 40px;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
@@ -176,45 +259,115 @@ body {
 
 .tuning-header h2 {
   color: #ffffff;
-  font-size: 3vh;
+  font-size: 2.5vh;
 }
 
 .close-button {
   background: transparent;
   border: none;
   color: #ffffff;
-  font-size: 3vh;
+  font-size: 2.5vh;
   cursor: pointer;
 }
 
-.tuning-content {
+#tuning-content {
+  display: flex;
+  flex-direction: column; /* Изменено на column */
   width: 90%;
   max-width: 1200px;
+  height: calc(60% + 80px);
+}
+
+/* Контейнер для категорий улучшений */
+#upgrade-categories {
+  flex: 0 0 200px; /* Фиксированная высота 200px */
+  display: flex;
+  overflow-x: auto;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #3B89D4 rgba(0, 0, 0, 0.5);
+}
+
+#upgrade-categories::-webkit-scrollbar {
+  height: 8px;
+}
+
+#upgrade-categories::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+}
+
+#upgrade-categories::-webkit-scrollbar-thumb {
+  background-color: #3B89D4;
+  border-radius: 4px;
+}
+
+/* Категории улучшений как квадратные блоки */
+.upgrade-category {
+  flex: 0 0 auto;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  border-radius: 15px;
   padding: 20px;
+  margin-right: 15px;
+  cursor: pointer;
+  min-width: 120px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2vh;
+  color: #ffffff;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.upgrade-category:hover,
+.upgrade-category.active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+/* Контейнер для грейдов улучшений */
+#upgrade-grades {
+  flex: 1; /* Занимает оставшуюся высоту */
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
-  max-height: 80vh;
+  padding-left: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #3B89D4 rgba(0, 0, 0, 0.5);
 }
 
-.category {
-  margin-bottom: 30px;
+#upgrade-grades::-webkit-scrollbar {
+  width: 8px;
 }
 
-.category h3 {
-  color: #90c1dd;
-  font-size: 2.5vh;
-  margin-bottom: 10px;
+#upgrade-grades::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
 }
 
-.upgrade {
+#upgrade-grades::-webkit-scrollbar-thumb {
+  background-color: #3B89D4;
+  border-radius: 4px;
+}
+
+/* Улучшения как вертикальные блоки */
+.upgrade-grade {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  font-size: 2vh;
+  color: #ffffff;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.upgrade-grade:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.02);
 }
 
 .upgrade-details {
@@ -223,19 +376,19 @@ body {
 }
 
 .upgrade-name {
-  color: #ffffff;
-  font-size: 2vh;
+  font-size: 2.2vh;
   margin-bottom: 5px;
 }
 
 .upgrade-description {
+  font-size: 1.6vh;
   color: #d3d3d3;
-  font-size: 1.8vh;
+  margin-bottom: 5px;
 }
 
 .upgrade-price {
+  font-size: 1.8vh;
   color: #ffd700;
-  font-size: 2vh;
 }
 
 .purchase-button {
@@ -243,12 +396,18 @@ body {
   border: none;
   border-radius: 50px;
   color: #fff;
-  padding: 10px 20px;
+  padding: 10px 25px;
   cursor: pointer;
   font-size: 2vh;
-  transition: all 0.3s;
+  transition: all 0.3s, transform 0.3s;
 }
 
 .purchase-button:hover {
   background: linear-gradient(135deg, #ffffff 0%, #3B89D4 100%);
+  transform: scale(1.05);
+}
+
+/* Стили для скрытых элементов */
+.hidden {
+  display: none;
 }

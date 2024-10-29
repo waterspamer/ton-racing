@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <title>Гараж</title>
 
-  <!-- Подключение остальных скриптов и стилей -->
-  <script src="/scripts/engine2.js"></script>
+  <!-- Подключение стилей -->
   <link rel="stylesheet" href="styles/garage.css">
   <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
   
   <!-- Подключение Telegram Web Apps SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   
+  <!-- Подключение библиотек -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fflate/umd/index.min.js"></script>
@@ -19,17 +19,6 @@
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r147/examples/js/loaders/FBXLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
 
-  <!-- Подключение постобработки (закомментировано) -->
-  <!-- <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/SSAOPass.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/FXAAShader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/FilmPass.js"></script> -->
-  
   <!-- Подключение собственных скриптов с отложенной загрузкой -->
   <script src="scripts/modelLoader.js" defer></script>
   <script src="scripts/garage.js" defer></script>
@@ -38,7 +27,7 @@
 <body>
   <!-- Контейнер для загрузки -->
   <div id="loading-container">
-    <div id="loading-label">loading :</div>
+    <div id="loading-label">Загрузка:</div>
     <div id="loading-bar-bg">
       <div id="loading-bar"></div>
     </div>
@@ -52,8 +41,8 @@
   
   <!-- Приветственное сообщение -->
   <div id="garage-menu" style="display:none">
-    <div id="greeting">логинься и поехали!</div>
-    <div class="tg-button">connect telegram</div>
+    <div id="greeting">Логинься и поехали!</div>
+    <div class="tg-button">Connect Telegram</div>
   </div>
 
   <!-- Меню действий -->
@@ -62,14 +51,74 @@
     <div class='action-button' id="start-race">Гонка</div>
   </div>
 
+  <!-- Отдельное окно для характеристик автомобиля -->
+  <div id="car-stats-window" class="hidden">
+    <div class="car-stats-header">
+      <h2>Характеристики Автомобиля</h2>
+    </div>
+    <div id="car-stats">
+      <div class="stat">
+        <span>Мощность (л.с.):</span>
+        <div class="stat-bar">
+          <div class="stat-fill" id="stat-power"></div>
+        </div>
+      </div>
+      <div class="stat">
+        <span>Крутящий момент (Нм):</span>
+        <div class="stat-bar">
+          <div class="stat-fill" id="stat-torque"></div>
+        </div>
+      </div>
+      <div class="stat">
+        <span>Сцепление:</span>
+        <div class="stat-bar">
+          <div class="stat-fill" id="stat-grip"></div>
+        </div>
+      </div>
+      <div class="stat">
+        <span>Сопротивление воздуха:</span>
+        <div class="stat-bar">
+          <div class="stat-fill" id="stat-drag"></div>
+        </div>
+      </div>
+      <!-- Добавьте другие характеристики по необходимости -->
+    </div>
+  </div>
+
   <!-- Меню тюнинга -->
   <div id="tuning-menu" class="hidden">
     <div class="tuning-header">
       <h2>Меню Тюнинга</h2>
       <button id="close-tuning" class="close-button">✖</button>
     </div>
-    <div class="tuning-content">
-      <!-- Здесь будут динамически добавляться категории и грейды улучшений -->
+    
+    <!-- Контейнеры для категорий и грейдов -->
+    <div id="tuning-content">
+      <!-- Контейнер для категорий улучшений (горизонтальный скролл) -->
+      <div id="upgrade-categories">
+        <!-- Категории будут загружаться динамически из JSON -->
+        <!-- Пример статичных категорий для наглядности -->
+        <div class="upgrade-category active">Шины</div>
+        <div class="upgrade-category">Аэродинамика</div>
+        <div class="upgrade-category">Двигатель</div>
+        <div class="upgrade-category">Выхлоп</div>
+        <!-- Добавьте другие категории по необходимости -->
+      </div>
+      
+      <!-- Контейнер для грейдов выбранной категории (вертикальный скролл) -->
+      <div id="upgrade-grades">
+        <!-- Улучшения будут загружаться динамически из JSON -->
+        <!-- Пример статичных улучшений для наглядности -->
+        <div class="upgrade-grade">
+          <div class="upgrade-details">
+            <div class="upgrade-name">Спортивные шины (Грейд 1)</div>
+            <div class="upgrade-description">Шины с улучшенным составом резины, обеспечивающие лучшее сцепление на сухой дороге.</div>
+            <div class="upgrade-price">Цена: 500 монет</div>
+          </div>
+          <button class="purchase-button">Купить</button>
+        </div>
+        <!-- Добавьте другие улучшения по необходимости -->
+      </div>
     </div>
   </div>
 </body>

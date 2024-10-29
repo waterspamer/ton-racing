@@ -70,6 +70,8 @@ function initializeTuningMenu() {
 function openTuningMenu() {
   const tuningMenu = document.getElementById('tuning-menu');
   tuningMenu.classList.add('visible');
+  const carStatsWindow = document.getElementById('car-stats-window');
+  carStatsWindow.classList.remove('hidden'); // Отображаем окно характеристик
   fetchUpgrades();
 }
 
@@ -77,83 +79,95 @@ function openTuningMenu() {
 function closeTuningMenu() {
   const tuningMenu = document.getElementById('tuning-menu');
   tuningMenu.classList.remove('visible');
+  const carStatsWindow = document.getElementById('car-stats-window');
+  carStatsWindow.classList.add('hidden'); // Скрываем окно характеристик
 }
 
 // Функция для загрузки данных улучшений из upgrades.json
 async function fetchUpgrades() {
   try {
-    const response = await fetch('./upgrades.json');
+    const response = await fetch('upgrades.json'); // Относительный путь
     if (!response.ok) throw new Error('Не удалось загрузить upgrades.json');
     const data = await response.json();
-    renderUpgrades(data.upgrades);
+    renderCategories(data.upgrades);
   } catch (error) {
     console.error('Ошибка при загрузке улучшений:', error);
+    alert('Не удалось загрузить данные улучшений. Пожалуйста, попробуйте позже.');
   }
 }
 
-// Функция для рендеринга улучшений в меню тюнинга
-function renderUpgrades(upgrades) {
-  const tuningContent = document.querySelector('#tuning-menu .tuning-content');
-  tuningContent.innerHTML = ''; // Очистить предыдущее содержимое
+// Функция для рендеринга категорий улучшений
+function renderCategories(upgrades) {
+  const categoriesContainer = document.getElementById('upgrade-categories');
+  categoriesContainer.innerHTML = ''; // Очистить предыдущие категории
 
-  upgrades.forEach(category => {
-    // Создать контейнер для категории
+  upgrades.forEach((category, index) => {
     const categoryDiv = document.createElement('div');
-    categoryDiv.classList.add('category');
+    categoryDiv.classList.add('upgrade-category');
+    categoryDiv.textContent = category.type;
+    categoryDiv.dataset.categoryIndex = index;
 
-    // Добавить заголовок категории
-    const categoryTitle = document.createElement('h3');
-    categoryTitle.textContent = category.type;
-    categoryDiv.appendChild(categoryTitle);
-
-    // Перебрать грейды в категории
-    category.grades.forEach(upgrade => {
-      // Создать контейнер для улучшения
-      const upgradeDiv = document.createElement('div');
-      upgradeDiv.classList.add('upgrade');
-
-      // Создать секцию деталей улучшения
-      const detailsDiv = document.createElement('div');
-      detailsDiv.classList.add('upgrade-details');
-
-      // Название улучшения
-      const name = document.createElement('div');
-      name.classList.add('upgrade-name');
-      name.textContent = `${upgrade.name} (Грейд ${upgrade.grade})`;
-      detailsDiv.appendChild(name);
-
-      // Описание улучшения
-      const description = document.createElement('div');
-      description.classList.add('upgrade-description');
-      description.textContent = upgrade.description;
-      detailsDiv.appendChild(description);
-
-      // Цена улучшения
-      const price = document.createElement('div');
-      price.classList.add('upgrade-price');
-      price.textContent = `Цена: ${upgrade.price} монет`;
-      detailsDiv.appendChild(price);
-
-      upgradeDiv.appendChild(detailsDiv);
-
-      // Кнопка покупки
-      const purchaseButton = document.createElement('button');
-      purchaseButton.classList.add('purchase-button');
-      purchaseButton.textContent = 'Купить';
-      purchaseButton.dataset.upgradeType = category.type;
-      purchaseButton.dataset.upgradeGrade = upgrade.grade;
-
-      // Добавить обработчик события для покупки
-      purchaseButton.addEventListener('click', () => handlePurchase(upgrade));
-
-      upgradeDiv.appendChild(purchaseButton);
-
-      // Добавить улучшение в категорию
-      categoryDiv.appendChild(upgradeDiv);
+    // Добавить обработчик клика
+    categoryDiv.addEventListener('click', () => {
+      // Убрать класс active с других категорий
+      document.querySelectorAll('.upgrade-category').forEach(cat => cat.classList.remove('active'));
+      // Добавить класс active к выбранной категории
+      categoryDiv.classList.add('active');
+      // Рендер грейдов выбранной категории
+      renderGrades(category.grades);
     });
 
-    // Добавить категорию в содержимое меню
-    tuningContent.appendChild(categoryDiv);
+    categoriesContainer.appendChild(categoryDiv);
+  });
+
+  // Автоматически выбрать первую категорию
+  const firstCategory = categoriesContainer.querySelector('.upgrade-category');
+  if (firstCategory) {
+    firstCategory.classList.add('active');
+    const firstIndex = firstCategory.dataset.categoryIndex;
+    renderGrades(upgrades[firstIndex].grades);
+  }
+}
+
+// Функция для рендеринга грейдов улучшений
+function renderGrades(grades) {
+  const gradesContainer = document.getElementById('upgrade-grades');
+  gradesContainer.innerHTML = ''; // Очистить предыдущие грейды
+
+  grades.forEach(upgrade => {
+    const gradeDiv = document.createElement('div');
+    gradeDiv.classList.add('upgrade-grade');
+
+    const detailsDiv = document.createElement('div');
+    detailsDiv.classList.add('upgrade-details');
+
+    const name = document.createElement('div');
+    name.classList.add('upgrade-name');
+    name.textContent = `${upgrade.name} (Грейд ${upgrade.grade})`;
+    detailsDiv.appendChild(name);
+
+    const description = document.createElement('div');
+    description.classList.add('upgrade-description');
+    description.textContent = upgrade.description;
+    detailsDiv.appendChild(description);
+
+    const price = document.createElement('div');
+    price.classList.add('upgrade-price');
+    price.textContent = `Цена: ${upgrade.price} монет`;
+    detailsDiv.appendChild(price);
+
+    gradeDiv.appendChild(detailsDiv);
+
+    const purchaseButton = document.createElement('button');
+    purchaseButton.classList.add('purchase-button');
+    purchaseButton.textContent = 'Купить';
+
+    // Добавить обработчик события для покупки
+    purchaseButton.addEventListener('click', () => handlePurchase(upgrade));
+
+    gradeDiv.appendChild(purchaseButton);
+
+    gradesContainer.appendChild(gradeDiv);
   });
 }
 
@@ -164,6 +178,7 @@ function handlePurchase(upgrade) {
     applyUpgrade(upgrade);
     alert(`Вы успешно купили ${upgrade.name} (Грейд ${upgrade.grade})!`);
     updateCoinsDisplay();
+    updateCarStats();
   } else {
     alert('Недостаточно монет для покупки этого улучшения.');
   }
@@ -171,38 +186,16 @@ function handlePurchase(upgrade) {
 
 // Функция для применения улучшения к автомобилю
 function applyUpgrade(upgrade) {
-  if (upgrade.changes.gripCoefficient) {
-    car.gripCoefficient += upgrade.changes.gripCoefficient;
-  }
-  if (upgrade.changes.dragCoefficient) {
-    car.dragCoefficient += upgrade.changes.dragCoefficient;
-  }
-  if (upgrade.changes.downforce) {
-    car.downforce += upgrade.changes.downforce;
-  }
-  if (upgrade.changes.powerIncreasePercentage) {
-    car.power *= (1 + upgrade.changes.powerIncreasePercentage);
-  }
-  if (upgrade.changes.torqueIncreasePercentage) {
-    car.torque *= (1 + upgrade.changes.torqueIncreasePercentage);
-  }
-  if (upgrade.changes.maxRPMIncrease) {
-    car.maxRPM += upgrade.changes.maxRPMIncrease;
-  }
-  if (upgrade.changes.throttleResponse) {
-    car.throttleResponse += upgrade.changes.throttleResponse;
-  }
-  if (upgrade.changes.shiftSpeedIncreasePercentage) {
-    car.shiftSpeed *= (1 + upgrade.changes.shiftSpeedIncreasePercentage);
-  }
-  if (upgrade.changes.clutchDurability) {
-    car.clutchDurability += upgrade.changes.clutchDurability;
-  }
-  if (upgrade.changes.gearRatiosOptimized) {
-    car.gearRatiosOptimized = true;
-  }
-  if (upgrade.changes.allowShiftWithoutClutch) {
-    car.allowShiftWithoutClutch = true;
+  // Обход изменений и обновление параметров автомобиля
+  for (let key in upgrade.changes) {
+    if (upgrade.changes.hasOwnProperty(key)) {
+      if (typeof car[key] === 'number') {
+        car[key] += upgrade.changes[key];
+      } else if (typeof car[key] === 'boolean') {
+        car[key] = upgrade.changes[key];
+      }
+      // Добавьте другие типы данных при необходимости
+    }
   }
 
   // Обновить параметры автомобиля в игре
@@ -215,6 +208,26 @@ function updateCoinsDisplay() {
   if (coinsElement) {
     coinsElement.textContent = `Монеты: ${playerCoins}`;
   }
+}
+
+// Функция для обновления отображения характеристик машины
+function updateCarStats() {
+  // Предполагаем, что максимальные значения:
+  const maxPower = 1000; // Пример
+  const maxTorque = 1000; // Пример
+  const maxGrip = 2.0; // Пример
+  const minDrag = -1.0; // Пример (чем ниже, тем лучше)
+
+  // Расчёт процентов для заполнения полос
+  const powerPercent = Math.min((car.power / maxPower) * 100, 100);
+  const torquePercent = Math.min((car.torque / maxTorque) * 100, 100);
+  const gripPercent = Math.min((car.gripCoefficient / maxGrip) * 100, 100);
+  const dragPercent = Math.min(((0.3 + car.dragCoefficient) / (0.3 + Math.abs(minDrag))) * 100, 100); // Пример расчёта
+
+  document.getElementById('stat-power').style.width = `${powerPercent}%`;
+  document.getElementById('stat-torque').style.width = `${torquePercent}%`;
+  document.getElementById('stat-grip').style.width = `${gripPercent}%`;
+  document.getElementById('stat-drag').style.width = `${100 - dragPercent}%`; // Чем меньше сопротивление, тем больше заполнение
 }
 
 // Функция для обновления параметров автомобиля в игре
@@ -240,10 +253,11 @@ function initializeMenuActions() {
   });
 }
 
-// Обработка событий мыши и сенсорных устройств (оставлено без изменений)
-let target = new THREE.Vector3(0, 0, 0); // Точка, вокруг которой вращается камера
-camera.lookAt(target);
+// Получение информации о пользователе и отображение приветствия
+let username = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.username : 'guest';
+document.getElementById('greeting').innerHTML = `Привет, <span class="gradient-text"> ${username}</span>`;
 
+// Настройка рендерера
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 //renderer.setPixelRatio(window.devicePixelRatio); // Улучшение качества
@@ -271,6 +285,7 @@ loadCarModel(scene, function(carModel) {
 document.addEventListener('DOMContentLoaded', () => {
   initializeMenuActions();
   updateCoinsDisplay();
+  updateCarStats(); // Отображение начальных характеристик
 });
 
 // Функция обновления размеров окна
@@ -363,6 +378,9 @@ renderer.domElement.addEventListener('touchend', function(event) {
 });
 
 // Анимация
+let target = new THREE.Vector3(0, 0, 0); // Точка, вокруг которой вращается камера
+camera.lookAt(target);
+
 function animate() {
   requestAnimationFrame(animate);
   

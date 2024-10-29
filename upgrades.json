@@ -75,8 +75,8 @@
             "name": "Чип-тюнинг",
             "price": 1200,
             "changes": {
-              "powerIncreasePercentage": 0.10,
-              "torqueIncreasePercentage": 0.08
+              "power": 20, 
+              "torque": 24
             },
             "description": "Перепрограммирование ЭБУ для оптимизации работы двигателя."
           },
@@ -85,9 +85,9 @@
             "name": "Спортивный распредвал",
             "price": 2000,
             "changes": {
-              "powerIncreasePercentage": 0.15,
-              "torqueIncreasePercentage": 0.12,
-              "maxRPMIncrease": 500
+              "power": 30,
+              "torque": 36,
+              "maxRPM": 500
             },
             "description": "Установка распредвала с улучшенными характеристиками для повышения производительности."
           },
@@ -96,8 +96,8 @@
             "name": "Турбонаддув",
             "price": 4000,
             "changes": {
-              "powerIncreasePercentage": 0.25,
-              "torqueIncreasePercentage": 0.20
+              "power": 50,
+              "torque": 60
             },
             "description": "Установка турбокомпрессора для значительного увеличения мощности."
           }
@@ -111,7 +111,7 @@
             "name": "Спортивный глушитель",
             "price": 400,
             "changes": {
-              "powerIncreasePercentage": 0.03,
+              "power": 6,
               "throttleResponse": 0.02
             },
             "description": "Глушитель с меньшим сопротивлением выхлопу."
@@ -121,8 +121,8 @@
             "name": "Прямоточная система",
             "price": 800,
             "changes": {
-              "powerIncreasePercentage": 0.05,
-              "torqueIncreasePercentage": 0.04
+              "power": 10,
+              "torque": 8
             },
             "description": "Выхлопная система с прямым потоком для улучшения вывода газов."
           },
@@ -131,45 +131,10 @@
             "name": "Полностью тюнингованная выхлопная система",
             "price": 1500,
             "changes": {
-              "powerIncreasePercentage": 0.08,
-              "torqueIncreasePercentage": 0.06
+              "power": 16,
+              "torque": 12
             },
             "description": "Полная замена выхлопной системы, включая коллектор, для максимальной эффективности."
-          }
-        ]
-      },
-      {
-        "type": "Transmission",
-        "grades": [
-          {
-            "grade": 1,
-            "name": "Спортивное сцепление",
-            "price": 1000,
-            "changes": {
-              "shiftSpeedIncreasePercentage": 0.05,
-              "clutchDurability": 0.10
-            },
-            "description": "Сцепление с повышенной фрикцией для более быстрого переключения."
-          },
-          {
-            "grade": 2,
-            "name": "Короткоходная КПП",
-            "price": 1800,
-            "changes": {
-              "shiftSpeedIncreasePercentage": 0.08,
-              "gearRatiosOptimized": true
-            },
-            "description": "Механизм переключения с уменьшенным ходом рычага и оптимизированными передачами."
-          },
-          {
-            "grade": 3,
-            "name": "Секвентальная коробка передач",
-            "price": 3500,
-            "changes": {
-              "shiftSpeedIncreasePercentage": 0.15,
-              "allowShiftWithoutClutch": true
-            },
-            "description": "Гоночная КПП, позволяющая быстро переключать передачи с минимальной потерей мощности."
           }
         ]
       }
