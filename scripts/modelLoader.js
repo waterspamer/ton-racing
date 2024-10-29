@@ -4,7 +4,85 @@ var floorCar;
 var body; // Глобальная переменная для автомобиля
 var front;
 var back;
+var garage;
+var road;
 var canRenderBody = false; // Флаг для контроля рендеринга
+
+var carDefaultPaintMaterial;
+
+
+function loadRace(scene){
+  const loader = new THREE.FBXLoader();
+  const textureLoader = new THREE.TextureLoader();
+  
+  const buildTexture = textureLoader.load('assets/env/build_albedo.jpg');
+
+  const roadTexture = textureLoader.load('assets/env/road_albedo.jpg');
+  const roadRoughness = textureLoader.load('assets/env/road_roughness.jpg');
+  const roadNormal = textureLoader.load('assets/env/road_normal.jpg');
+
+  let roadMaterial = new THREE.MeshPhysicalMaterial({
+    //metalnessMap: garageMetallic,
+    metalness: 0.0,
+    roughness: 1.0,
+    roughnessMap: roadRoughness,
+    map: roadTexture,
+    reflectivity: 0.8,
+    //envMap: envMap,
+    //envMapIntensity: 1.00,
+  });
+
+  let buildMaterial = new THREE.MeshPhysicalMaterial({
+    //metalnessMap: garageMetallic,
+    metalness: 0.0,
+    roughness: 1.0,
+    roughnessMap: roadRoughness,
+    map: buildTexture,
+    reflectivity: 0.8,
+    //envMap: envMap,
+    //envMapIntensity: 1.00,
+  });
+
+  
+
+  //document.getElementById("loading-label").innerText = "loading: garage";
+  loader.load('assets/env/road.fbx', function (loadedRoad) {
+    road = loadedRoad;
+    road.scale.set(0.01, 0.01, 0.01);
+    road.position.set(0, -0.05, 0);
+
+    road.traverse(function (child) {
+      if (child.isMesh) {
+        child.material = roadMaterial;
+      }
+    });
+
+    var building;
+    loader.load('assets/env/build.fbx', function (loadedB) {
+      building = loadedB;
+      building.scale.set(1, 1, 1);
+      building.position.set(0, -0.05, 0);
+
+      building.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = buildMaterial;
+
+          for (let i = 0; i < 20; i++){
+            var clonedRoad = road.clone();
+            clonedRoad.position.z += i*15;
+            clonedRoad.add(building.clone());
+            scene.add(clonedRoad);
+          }
+        }
+      });
+      //scene.add(garage);
+    });
+
+
+    
+    
+  });
+}
 
 function loadGarage(scene) {
   const loader = new THREE.FBXLoader();
@@ -36,7 +114,8 @@ function loadGarage(scene) {
   });
 
   document.getElementById("loading-label").innerText = "loading: garage";
-  loader.load('assets/env/garage.fbx', function (garage) {
+  loader.load('assets/env/garage.fbx', function (loadedGarage) {
+    garage = loadedGarage;
     garage.scale.set(0.01, 0.01, 0.01);
     garage.position.set(0, -0.05, 0);
 
@@ -115,11 +194,11 @@ function loadCarModel(scene, onLoaded) {
     reflectivity: 1.0,
   });
 
-  let carDefaultPaintMaterial = new THREE.MeshPhysicalMaterial({
+  carDefaultPaintMaterial = new THREE.MeshPhysicalMaterial({
     map: carBodyTexture,
     color: 0xffffff, // Пример красного цвета. Замените на желаемый цвет.
-    metalness: 0.0, // Низкая металлическость для крашеного металла.
-    roughness: 0.1, // Низкая шероховатость для гладкой поверхности.
+    metalness: 1.0, // Низкая металлическость для крашеного металла.
+    roughness: 0.9, // Низкая шероховатость для гладкой поверхности.
     envMap: cubeRenderTarget.texture, // Убедитесь, что окружение качественное.
     reflectivity: 0.8, // Высокая, но не максимальная отражаемость.
     envMapIntensity: 10.5, // Интенсивность отражений.

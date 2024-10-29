@@ -37,8 +37,26 @@ document.getElementsByClassName('tg-button')[0].addEventListener('click', () => 
 
 document.getElementsByClassName('action-button')[0].addEventListener('click', () => {
   document.getElementsByClassName('action-button')[0].style.display = 'none';
-  gsap.to(front.scale, { x: 1, z: 1, duration: .5 });
-  gsap.to(back.scale, { x: 1, z: 1, duration: .5 });
+
+  gsap.to(camera.position, {x: -1, y : 0.3, z: 4, duration: .5});
+  gsap.to(front.scale, { x: 1, z: 1, duration: .5, delay: .5 });
+  
+  gsap.to(camera.position, {x: -1, y : 0.2, z: -3, duration: .8, delay: 1});
+  gsap.to(back.scale, { x: 1, z: 1, duration: .5, delay: 1.5 });
+
+  gsap.to(camera.position, {x: 2.5, y : 1, z: 4, duration: 1, delay: 2});
+  gsap.to(carDefaultPaintMaterial, {metalness: 0.0, duration: .5, delay: 2.5});
+  //front.scale.set(1, 1, 1);
+});
+
+let target = new THREE.Vector3(0, 0, 0); // Точка, вокруг которой вращается камера
+camera.lookAt(target);
+document.getElementsByClassName('action-button')[1].addEventListener('click', () => {
+  gsap.to(garage.scale, { x: 0, y: 0, duration: .1 });
+  document.getElementsByClassName('action-button')[0].style.display = 'none';
+  document.getElementsByClassName('action-button')[1].style.display = 'none';
+  gsap.to(camera.position, {x: -2, y : 3, z: -5, duration: 1.5});
+  loadRace(scene);
   //front.scale.set(1, 1, 1);
 });
 
@@ -100,7 +118,6 @@ let previousMousePosition = { x: 0, y: 0 };
 
 // Параметры вращения камеры
 let rotationSpeed = 0.005;
-let target = new THREE.Vector3(0, 0, 0); // Точка, вокруг которой вращается камера
 
 // Обработчики событий мыши
 renderer.domElement.addEventListener('mousedown', function(event) {
@@ -186,7 +203,7 @@ function animate() {
     // Возвращаем объект body на место
     body.visible = true;
   }
-  
+  camera.lookAt(target);
   // Рендеринг сцены с использованием CubeCamera
   renderer.render(scene, camera);
 }

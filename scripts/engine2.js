@@ -1,9 +1,9 @@
 window.onload = function(){
-    var start = document.getElementById("start"),
+    var start = document.getElementsByClassName("action-button")[1],
         stop = document.getElementById("stop"),
         audioCtx = new (window.AudioContext || window.webkitAudioContext)(),
         xhr = new XMLHttpRequest(),
-        pitch = {step: 0, min: 0.8, max: 4.2},
+        pitch = {step: 0, min: 0.8, max: 8.2},
         source, intervalId;
   
     function createPitchStep(n) {
@@ -19,7 +19,7 @@ window.onload = function(){
     xhr.onload = function(e){
       var audioData = this.response;
   
-      window.addEventListener("keydown", createPitchStep(0.02))
+      window.addEventListener("keydown", createPitchStep(0.03))
       window.addEventListener("keyup", createPitchStep(-0.02))
   
       start.addEventListener("click", function(e){
@@ -40,7 +40,7 @@ window.onload = function(){
                 (pitch.step > 0 && currPitch < pitch.max)) {
               source.playbackRate.value += pitch.step;
             }
-          }, 10);
+          }, 2);
         }
       });
   
