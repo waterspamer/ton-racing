@@ -19,6 +19,7 @@ const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
 });
 
 const cubeCamera = new THREE.CubeCamera(1, 100000, cubeRenderTarget);
+cubeCamera.position.y = 3;
 scene.add(cubeCamera);
 
 // Инициализация Telegram Web Apps
@@ -69,6 +70,7 @@ function initializeTuningMenu() {
 // Функция для открытия меню тюнинга
 function openTuningMenu() {
   const tuningMenu = document.getElementById('tuning-menu');
+  //document.getElementById('garage-container').addEventListener('click', ()=>closeTuningMenu());
   tuningMenu.classList.add('visible');
   const carStatsWindow = document.getElementById('car-stats-window');
   carStatsWindow.classList.remove('hidden'); // Отображаем окно характеристик

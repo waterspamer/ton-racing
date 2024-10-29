@@ -253,16 +253,24 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1vh 3vw;
+  /* padding: 1vh 3vw; */
   width: 100%;
 }
 
 .tuning-tabs {
+  width: 100%;
   display: flex;
-  gap: 1vh;
+  /* padding-left: 1vh; */
+  
+  justify-content: space-around;
+  
 }
 
+
 .tuning-tab {
+  font-family: 'Dela Gothic One', sans-serif;
+  width: 30%;
+  height:5vh;
   background: rgba(255, 255, 255, 0.1);
   border: none;
   color: #ffffff;
@@ -270,7 +278,7 @@ body {
   font-size: 1.5vh;
   cursor: pointer;
   border-radius: 2vh;
-  transition: background 0.3s, transform 0.3s;
+  transition: all 0.3s, transform 0.3s;
 }
 
 .tuning-tab.active,
@@ -350,9 +358,11 @@ body {
 
 #upgrade-grades {
   display: flex;
+  overflow-y: scroll;
+  height: 18vh;
   flex-direction: column;
   gap: 1vh;
-  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 #upgrade-grades::-webkit-scrollbar {
@@ -489,7 +499,7 @@ body {
   }
 
   .tuning-header {
-    padding: 1vh 2vw;
+    padding: 1vh 0vw;
   }
 
   .tuning-tab {
@@ -529,7 +539,7 @@ body {
   }
 
   .tuning-header {
-    padding: 0.8vh 1.5vw;
+    padding: 0.8vh 0vw;
   }
 
   .tuning-tab {

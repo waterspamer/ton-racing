@@ -198,7 +198,7 @@ function loadCarModel(scene, onLoaded) {
 
   carDefaultPaintMaterial = new THREE.MeshPhysicalMaterial({
     //map: ,
-    color: 0xff0000, // Пример красного цвета. Замените на желаемый цвет.
+    color: 0xffffff, // Пример красного цвета. Замените на желаемый цвет.
     metalness: 0.3, // Низкая металлическость для крашеного металла.
     roughness: 0.9, // Низкая шероховатость для гладкой поверхности.
     envMap: cubeRenderTarget.texture, // Убедитесь, что окружение качественное.
