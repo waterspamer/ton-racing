@@ -198,13 +198,13 @@ function loadCarModel(scene, onLoaded) {
 
   carDefaultPaintMaterial = new THREE.MeshPhysicalMaterial({
     //map: ,
-    color: 0x18fa63, // Пример красного цвета. Замените на желаемый цвет.
-    metalness: 0.0, // Низкая металлическость для крашеного металла.
+    color: 0xff0000, // Пример красного цвета. Замените на желаемый цвет.
+    metalness: 0.3, // Низкая металлическость для крашеного металла.
     roughness: 0.9, // Низкая шероховатость для гладкой поверхности.
     envMap: cubeRenderTarget.texture, // Убедитесь, что окружение качественное.
     reflectivity: 0.8, // Высокая, но не максимальная отражаемость.
-    envMapIntensity: 10.5, // Интенсивность отражений.
-    clearcoat: 0.9, // Добавление слоя блеска.
+    envMapIntensity: 5.5, // Интенсивность отражений.
+    clearcoat: 0.7, // Добавление слоя блеска.
     clearcoatRoughness: 0.03, // Гладкий слой блеска.
   });
   

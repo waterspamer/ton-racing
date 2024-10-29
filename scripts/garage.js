@@ -438,27 +438,121 @@ function applyPaint(color) {
     console.error('carDefaultPaintMaterial не определён.');
     return;
   }
+
   if (color === 'map') {
     carDefaultPaintMaterial.map = carBodyTexture; // Включаем карту текстуры
-    carDefaultPaintMaterial.metalness = (0.0);
-    carDefaultPaintMaterial.color.setHex(0xffffff); // Белый цвет, так как карта используется
+    //carDefaultPaintMaterial.metalness = (0.0);
+    carDefaultPaintMaterial.color.set(0xffffff); // Белый цвет, так как карта используется
   } else {
-    carDefaultPaintMaterial.metalness = (0.3);
-    carDefaultPaintMaterial.map = null; // Отключаем карту
-    carDefaultPaintMaterial.color.setHex(color.toString(16));
+    carDefaultPaintMaterial.map = null; // Отключаем карт
+    //carDefaultPaintMaterial.metalness = (0.3);
+    carDefaultPaintMaterial.color.setHex(color);
   }
   carDefaultPaintMaterial.needsUpdate = true;
 
-  // Обновить материал на модели автомобиля
-  /* if (carModel) {
-    carModel.traverse(child => {
-      if (child.isMesh) {
-        child.material = carDefaultPaintMaterial;
-      }
-    });
-  } */
 
-  console.log(carDefaultPaintMaterial.color);
   console.log(`Краска автомобиля изменена на: ${color === 'map' ? 'Текстурированный' : `#${color.toString(16)}`}`);
+}
+
+function applyMetallic(met) {
+  if (!carDefaultPaintMaterial) {
+    console.error('carDefaultPaintMaterial не определён.');
+    return;
+  }
+
+  if (met === 'gl') {
+    carDefaultPaintMaterial.metalness = (0.3);
+    carDefaultPaintMaterial.clearCoat = 0.7;
+    carDefaultPaintMaterial.envMapIntensity = 5.5;
+
+  } else if (met === 'met') {
+
+    carDefaultPaintMaterial.metalness = (0.5);
+    carDefaultPaintMaterial.clearCoat = 0.9;
+    carDefaultPaintMaterial.envMapIntensity = 10.5;
+
+  } else if (met === 'mat') {
+
+    carDefaultPaintMaterial.metalness = (0.0);
+    carDefaultPaintMaterial.clearCoat = 0.1;
+    carDefaultPaintMaterial.envMapIntensity = 1.5;
+
+  }
+  carDefaultPaintMaterial.needsUpdate = true;
+
+}
+
+
+
+
+// Функция для инициализации меню тюнинга и действий
+function initializeMenuActions() {
+  // Инициализация меню тюнинга
+  initializeTuningMenu();
+
+  // Обработчик кнопки "Гонка"
+  const raceButton = document.getElementById('start-race');
+  raceButton.addEventListener('click', () => {
+    gsap.to(garage.scale, { x: 0, y: 0, duration: 0.1 });
+    document.getElementById('action-menu').style.display = 'none';
+    gsap.to(camera.position, { x: -2, y: 3, z: -5, duration: 1.5 });
+    loadRace(scene);
+    //front.scale.set(1, 1, 1);
+  });
+
+  // Обработчики для вкладок "Тюнинг" и "Детейлинг"
+  const tuningTabs = document.querySelectorAll('.tuning-tab');
+  tuningTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Удалить класс active у всех вкладок
+      tuningTabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      // Добавить класс active к выбранной вкладке
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+
+      const selectedTab = tab.dataset.tab;
+
+      // Показать соответствующий контент и скрыть остальные
+      document.querySelectorAll('.tab-content').forEach(content => {
+        if (content.dataset.tabContent === selectedTab) {
+          content.classList.add('active');
+          content.removeAttribute('hidden');
+          content.setAttribute('aria-hidden', 'false');
+        } else {
+          content.classList.remove('active');
+          content.setAttribute('hidden', '');
+          content.setAttribute('aria-hidden', 'true');
+        }
+      });
+    });
+  });
+
+  // Обработчики для опций краски
+  const paintOptions = document.querySelectorAll('.paint-option');
+  paintOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      const selectedColor = option.dataset.color;
+      applyPaint(selectedColor);
+      // Добавляем визуальный индикатор выбранной краски
+      paintOptions.forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+  });
+
+
+  // Обработчики для опций металлик
+  const metOptions = document.querySelectorAll('.metallic-option');
+  metOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      const selectedMet = option.dataset.met;
+      applyMetallic(selectedMet);
+      // Добавляем визуальный индикатор выбранной краски
+      metOptions.forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+  });
 }
 

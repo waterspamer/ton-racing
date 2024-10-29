@@ -85,65 +85,61 @@
     </div>
   </div>
 
-  <!-- Меню тюнинга -->
-  <div id="tuning-menu" class="hidden">
-    <div class="tuning-header">
-      <div class="tuning-tabs">
-        <button class="tuning-tab active" data-tab="tuning">Тюнинг</button>
-        <button class="tuning-tab" data-tab="detailing">Детейлинг</button>
+<!-- Меню тюнинга -->
+<div id="tuning-menu" class="hidden" aria-hidden="true">
+  <div class="tuning-header">
+    <div class="tuning-tabs" role="tablist">
+      <button class="tuning-tab active" data-tab="tuning" role="tab" aria-selected="true">Тюнинг</button>
+      <button class="tuning-tab" data-tab="detailing" role="tab" aria-selected="false">Детейлинг</button>
+    </div>
+    <button id="close-tuning" class="close-button" aria-label="Закрыть меню тюнинга">✖</button>
+  </div>
+  
+  <!-- Контейнеры для вкладок -->
+  <div id="tuning-content">
+    <!-- Контент для вкладки "Тюнинг" -->
+    <div class="tab-content active" data-tab-content="tuning" role="tabpanel">
+      <!-- Контейнер для категорий улучшений (горизонтальный скролл) -->
+      <div id="upgrade-categories">
+        <!-- Категории будут загружаться динамически из JSON -->
       </div>
-      <button id="close-tuning" class="close-button">✖</button>
+      
+      <!-- Контейнер для грейдов улучшений (вертикальный скролл) -->
+      <div id="upgrade-grades">
+        <!-- Грейды улучшений будут загружаться динамически из JSON -->
+      </div>
     </div>
     
-    <!-- Вкладки "Тюнинг" и "Детейлинг" -->
-    
-    
-    <!-- Контейнеры для категорий и грейдов -->
-    <div id="tuning-content">
-      <!-- Контейнер для категорий улучшений (горизонтальный скролл) -->
-      <div id="upgrade-categories" class="tab-content active" data-tab-content="tuning">
-        <!-- Категории будут загружаться динамически из JSON -->
-        <!-- Пример статичных категорий для наглядности -->
-        <div class="upgrade-category active">Шины</div>
-        <div class="upgrade-category">Аэродинамика</div>
-        <div class="upgrade-category">Двигатель</div>
-        <div class="upgrade-category">Выхлоп</div>
-        <!-- Добавьте другие категории по необходимости -->
-      </div>
-      
-      <!-- Контейнер для грейдов выбранной категории (вертикальный скролл) -->
-      <div id="upgrade-grades" class="tab-content active" data-tab-content="tuning">
-        <!-- Улучшения будут загружаться динамически из JSON -->
-        <!-- Пример статичных улучшений для наглядности -->
-        <div class="upgrade-grade">
-          <div class="upgrade-details">
-            <div class="upgrade-name">Спортивные шины (Грейд 1)</div>
-            <div class="upgrade-description">Шины с улучшенным составом резины, обеспечивающие лучшее сцепление на сухой дороге.</div>
-            <div class="upgrade-price">Цена: 500 монет</div>
-          </div>
-          <button class="purchase-button">Купить</button>
+    <!-- Контент для вкладки "Детейлинг" -->
+    <div class="tab-content" data-tab-content="detailing" role="tabpanel" hidden>
+      <!-- Раздел "Краска" -->
+      <section class="detailing-section">
+        <h3>Краска</h3>
+        <div class="paint-options">
+          <!-- Цвет 1 -->
+          <button class="paint-option" data-color="0xff0000" style="background-color: #ff0000;" title="Красный" aria-label="Красный"></button>
+          <!-- Цвет 2 -->
+          <button class="paint-option" data-color="0xffffff" style="background-color: #ffffff;" title="Зелёный" aria-label="Зелёный"></button>
+          <!-- Цвет 3 -->
+          <button class="paint-option" data-color="0xdaa90b" style="background-color: #daa90b;" title="Синий" aria-label="Синий"></button>
+          <!-- Цвет 4 (с текстурой) -->
+          <button class="paint-option" data-color="map" style="background: linear-gradient(45deg, blue, white);" title="Текстурированный" aria-label="Текстурированный"></button>
         </div>
-        <!-- Добавьте другие улучшения по необходимости -->
-      </div>
-      
-      <!-- Контейнер для Детейлинг -->
-      <div id="detailing-content" class="tab-content" data-tab-content="detailing" style="display: none;">
-        <!-- Раздел "Краска" -->
-        <div class="detailing-section">
-          <h3>Краска</h3>
-          <div class="paint-options">
-            <!-- Цвет 1 -->
-            <div class="paint-option" data-color="0x18fa63" style="background-color: #18fa63;" title="Красный"></div>
-            <!-- Цвет 2 -->
-            <div class="paint-option" data-color="0x0f1891" style="background-color: #0f1891;" title="Зелёный"></div>
-            <!-- Цвет 3 -->
-            <div class="paint-option" data-color="0xffa600" style="background-color: #ffa600;" title="Синий"></div>
-            <!-- Цвет 4 (с текстурой) -->
-            <div class="paint-option" data-color="map" style="background: linear-gradient(45deg, blue, white);" title="Текстурированный"></div>
-          </div>
+        <h3>Тип краски</h3>
+        <div class="metallic-options">
+          <!-- Цвет 1 -->
+          <button class="metallic-option" data-met="gl" style="background-color: #d3d3d3;">Глянец</button>
+          <!-- Цвет 2 -->
+          <button class="metallic-option" data-met="met" style="background-color: #747474;">Металлик</button>
+          <!-- Цвет 3 -->
+          <button class="metallic-option" data-met="mat" style="background-color: #3a3a3a;">Матовый</button>
+          
         </div>
-      </div>
+      </section>
     </div>
   </div>
+</div>
+
+
 </body>
 </html>
