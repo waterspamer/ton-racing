@@ -1,0 +1,178 @@
+{
+    "upgrades": [
+      {
+        "type": "Tires",
+        "grades": [
+          {
+            "grade": 1,
+            "name": "Спортивные шины",
+            "price": 500,
+            "changes": {
+              "gripCoefficient": 0.05
+            },
+            "description": "Шины с улучшенным составом резины, обеспечивающие лучшее сцепление на сухой дороге."
+          },
+          {
+            "grade": 2,
+            "name": "Полуслики",
+            "price": 1000,
+            "changes": {
+              "gripCoefficient": 0.10
+            },
+            "description": "Шины с минимальным протектором для максимального контакта с дорогой, подходят для гонок на трассах."
+          },
+          {
+            "grade": 3,
+            "name": "Слики",
+            "price": 1500,
+            "changes": {
+              "gripCoefficient": 0.15
+            },
+            "description": "Гоночные шины без протектора, обеспечивают наилучшее сцепление, но менее эффективны на мокрой поверхности."
+          }
+        ]
+      },
+      {
+        "type": "Aerodynamics",
+        "grades": [
+          {
+            "grade": 1,
+            "name": "Стандартный аэродинамический пакет",
+            "price": 800,
+            "changes": {
+              "dragCoefficient": -0.03,
+              "downforce": 0.00
+            },
+            "description": "Улучшенные бамперы и спойлеры для снижения сопротивления воздуха."
+          },
+          {
+            "grade": 2,
+            "name": "Продвинутый аэродинамический пакет",
+            "price": 1500,
+            "changes": {
+              "dragCoefficient": -0.05,
+              "downforce": 0.05
+            },
+            "description": "Аэродинамические элементы из легких материалов, оптимизирующие поток воздуха вокруг автомобиля."
+          },
+          {
+            "grade": 3,
+            "name": "Гоночный аэродинамический пакет",
+            "price": 2500,
+            "changes": {
+              "dragCoefficient": -0.07,
+              "downforce": 0.10
+            },
+            "description": "Профессиональные аэродинамические компоненты, обеспечивающие максимальную стабильность на высоких скоростях."
+          }
+        ]
+      },
+      {
+        "type": "Engine",
+        "grades": [
+          {
+            "grade": 1,
+            "name": "Чип-тюнинг",
+            "price": 1200,
+            "changes": {
+              "powerIncreasePercentage": 0.10,
+              "torqueIncreasePercentage": 0.08
+            },
+            "description": "Перепрограммирование ЭБУ для оптимизации работы двигателя."
+          },
+          {
+            "grade": 2,
+            "name": "Спортивный распредвал",
+            "price": 2000,
+            "changes": {
+              "powerIncreasePercentage": 0.15,
+              "torqueIncreasePercentage": 0.12,
+              "maxRPMIncrease": 500
+            },
+            "description": "Установка распредвала с улучшенными характеристиками для повышения производительности."
+          },
+          {
+            "grade": 3,
+            "name": "Турбонаддув",
+            "price": 4000,
+            "changes": {
+              "powerIncreasePercentage": 0.25,
+              "torqueIncreasePercentage": 0.20
+            },
+            "description": "Установка турбокомпрессора для значительного увеличения мощности."
+          }
+        ]
+      },
+      {
+        "type": "Exhaust",
+        "grades": [
+          {
+            "grade": 1,
+            "name": "Спортивный глушитель",
+            "price": 400,
+            "changes": {
+              "powerIncreasePercentage": 0.03,
+              "throttleResponse": 0.02
+            },
+            "description": "Глушитель с меньшим сопротивлением выхлопу."
+          },
+          {
+            "grade": 2,
+            "name": "Прямоточная система",
+            "price": 800,
+            "changes": {
+              "powerIncreasePercentage": 0.05,
+              "torqueIncreasePercentage": 0.04
+            },
+            "description": "Выхлопная система с прямым потоком для улучшения вывода газов."
+          },
+          {
+            "grade": 3,
+            "name": "Полностью тюнингованная выхлопная система",
+            "price": 1500,
+            "changes": {
+              "powerIncreasePercentage": 0.08,
+              "torqueIncreasePercentage": 0.06
+            },
+            "description": "Полная замена выхлопной системы, включая коллектор, для максимальной эффективности."
+          }
+        ]
+      },
+      {
+        "type": "Transmission",
+        "grades": [
+          {
+            "grade": 1,
+            "name": "Спортивное сцепление",
+            "price": 1000,
+            "changes": {
+              "shiftSpeedIncreasePercentage": 0.05,
+              "clutchDurability": 0.10
+            },
+            "description": "Сцепление с повышенной фрикцией для более быстрого переключения."
+          },
+          {
+            "grade": 2,
+            "name": "Короткоходная КПП",
+            "price": 1800,
+            "changes": {
+              "shiftSpeedIncreasePercentage": 0.08,
+              "gearRatiosOptimized": true
+            },
+            "description": "Механизм переключения с уменьшенным ходом рычага и оптимизированными передачами."
+          },
+          {
+            "grade": 3,
+            "name": "Секвентальная коробка передач",
+            "price": 3500,
+            "changes": {
+              "shiftSpeedIncreasePercentage": 0.15,
+              "allowShiftWithoutClutch": true
+            },
+            "description": "Гоночная КПП, позволяющая быстро переключать передачи с минимальной потерей мощности."
+          }
+        ]
+      }
+    ]
+  }
+  

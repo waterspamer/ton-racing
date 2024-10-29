@@ -13,7 +13,6 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(2.5, 1, 4);
 camera.rotation.set(-0., .65, 0);
 
-
 const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
   generateMipmaps: true,
   minFilter: THREE.LinearMipmapLinearFilter
@@ -22,7 +21,6 @@ const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
 const cubeCamera = new THREE.CubeCamera(1, 100000, cubeRenderTarget);
 scene.add(cubeCamera);
 
-
 // Инициализация Telegram Web Apps
 let tg = window.Telegram.WebApp;
 
@@ -30,43 +28,222 @@ let tg = window.Telegram.WebApp;
 tg.expand();
 tg.disableVerticalSwipes(); 
 
-document.getElementsByClassName('tg-button')[0].addEventListener('click', () => {
+// Обработчик кнопки подключения Telegram
+document.querySelector('.tg-button').addEventListener('click', () => {
   document.getElementById('garage-menu').classList.add('hide');
   document.getElementById('action-menu').style.display = '';
 });
 
-document.getElementsByClassName('action-button')[0].addEventListener('click', () => {
-  document.getElementsByClassName('action-button')[0].style.display = 'none';
+// Инициализация переменных для 3D-моделей
+//let front, back, carDefaultPaintMaterial, garage, body;
 
-  gsap.to(camera.position, {x: -1, y : 0.3, z: 4, duration: .5});
-  gsap.to(front.scale, { x: 1, z: 1, duration: .5, delay: .5 });
-  
-  gsap.to(camera.position, {x: -1, y : 0.2, z: -3, duration: .8, delay: 1});
-  gsap.to(back.scale, { x: 1, z: 1, duration: .5, delay: 1.5 });
+// Предполагаемый объект автомобиля
+let car = {
+  gripCoefficient: 1.0,
+  dragCoefficient: 0.3,
+  downforce: 0.0,
+  power: 200, // л.с.
+  torque: 300, // Нм
+  maxRPM: 7000,
+  throttleResponse: 1.0,
+  shiftSpeed: 1.0,
+  clutchDurability: 1.0,
+  gearRatiosOptimized: false,
+  allowShiftWithoutClutch: false,
+  // ... другие параметры
+};
 
-  gsap.to(camera.position, {x: 2.5, y : 1, z: 4, duration: 1, delay: 2});
-  gsap.to(carDefaultPaintMaterial, {metalness: 0.0, duration: .5, delay: 2.5});
-  //front.scale.set(1, 1, 1);
-});
+// Предполагаемая переменная для монет игрока
+let playerCoins = 5000; // Начальное количество монет
 
+// Инициализация меню тюнинга
+function initializeTuningMenu() {
+  const tuningButton = document.getElementById('open-tuning');
+  const closeTuningButton = document.getElementById('close-tuning');
+  const tuningMenu = document.getElementById('tuning-menu');
+
+  tuningButton.addEventListener('click', openTuningMenu);
+  closeTuningButton.addEventListener('click', closeTuningMenu);
+}
+
+// Функция для открытия меню тюнинга
+function openTuningMenu() {
+  const tuningMenu = document.getElementById('tuning-menu');
+  tuningMenu.classList.add('visible');
+  fetchUpgrades();
+}
+
+// Функция для закрытия меню тюнинга
+function closeTuningMenu() {
+  const tuningMenu = document.getElementById('tuning-menu');
+  tuningMenu.classList.remove('visible');
+}
+
+// Функция для загрузки данных улучшений из upgrades.json
+async function fetchUpgrades() {
+  try {
+    const response = await fetch('/upgrades.json');
+    if (!response.ok) throw new Error('Не удалось загрузить upgrades.json');
+    const data = await response.json();
+    renderUpgrades(data.upgrades);
+  } catch (error) {
+    console.error('Ошибка при загрузке улучшений:', error);
+  }
+}
+
+// Функция для рендеринга улучшений в меню тюнинга
+function renderUpgrades(upgrades) {
+  const tuningContent = document.querySelector('#tuning-menu .tuning-content');
+  tuningContent.innerHTML = ''; // Очистить предыдущее содержимое
+
+  upgrades.forEach(category => {
+    // Создать контейнер для категории
+    const categoryDiv = document.createElement('div');
+    categoryDiv.classList.add('category');
+
+    // Добавить заголовок категории
+    const categoryTitle = document.createElement('h3');
+    categoryTitle.textContent = category.type;
+    categoryDiv.appendChild(categoryTitle);
+
+    // Перебрать грейды в категории
+    category.grades.forEach(upgrade => {
+      // Создать контейнер для улучшения
+      const upgradeDiv = document.createElement('div');
+      upgradeDiv.classList.add('upgrade');
+
+      // Создать секцию деталей улучшения
+      const detailsDiv = document.createElement('div');
+      detailsDiv.classList.add('upgrade-details');
+
+      // Название улучшения
+      const name = document.createElement('div');
+      name.classList.add('upgrade-name');
+      name.textContent = `${upgrade.name} (Грейд ${upgrade.grade})`;
+      detailsDiv.appendChild(name);
+
+      // Описание улучшения
+      const description = document.createElement('div');
+      description.classList.add('upgrade-description');
+      description.textContent = upgrade.description;
+      detailsDiv.appendChild(description);
+
+      // Цена улучшения
+      const price = document.createElement('div');
+      price.classList.add('upgrade-price');
+      price.textContent = `Цена: ${upgrade.price} монет`;
+      detailsDiv.appendChild(price);
+
+      upgradeDiv.appendChild(detailsDiv);
+
+      // Кнопка покупки
+      const purchaseButton = document.createElement('button');
+      purchaseButton.classList.add('purchase-button');
+      purchaseButton.textContent = 'Купить';
+      purchaseButton.dataset.upgradeType = category.type;
+      purchaseButton.dataset.upgradeGrade = upgrade.grade;
+
+      // Добавить обработчик события для покупки
+      purchaseButton.addEventListener('click', () => handlePurchase(upgrade));
+
+      upgradeDiv.appendChild(purchaseButton);
+
+      // Добавить улучшение в категорию
+      categoryDiv.appendChild(upgradeDiv);
+    });
+
+    // Добавить категорию в содержимое меню
+    tuningContent.appendChild(categoryDiv);
+  });
+}
+
+// Функция для обработки покупки улучшения
+function handlePurchase(upgrade) {
+  if (playerCoins >= upgrade.price) {
+    playerCoins -= upgrade.price;
+    applyUpgrade(upgrade);
+    alert(`Вы успешно купили ${upgrade.name} (Грейд ${upgrade.grade})!`);
+    updateCoinsDisplay();
+  } else {
+    alert('Недостаточно монет для покупки этого улучшения.');
+  }
+}
+
+// Функция для применения улучшения к автомобилю
+function applyUpgrade(upgrade) {
+  if (upgrade.changes.gripCoefficient) {
+    car.gripCoefficient += upgrade.changes.gripCoefficient;
+  }
+  if (upgrade.changes.dragCoefficient) {
+    car.dragCoefficient += upgrade.changes.dragCoefficient;
+  }
+  if (upgrade.changes.downforce) {
+    car.downforce += upgrade.changes.downforce;
+  }
+  if (upgrade.changes.powerIncreasePercentage) {
+    car.power *= (1 + upgrade.changes.powerIncreasePercentage);
+  }
+  if (upgrade.changes.torqueIncreasePercentage) {
+    car.torque *= (1 + upgrade.changes.torqueIncreasePercentage);
+  }
+  if (upgrade.changes.maxRPMIncrease) {
+    car.maxRPM += upgrade.changes.maxRPMIncrease;
+  }
+  if (upgrade.changes.throttleResponse) {
+    car.throttleResponse += upgrade.changes.throttleResponse;
+  }
+  if (upgrade.changes.shiftSpeedIncreasePercentage) {
+    car.shiftSpeed *= (1 + upgrade.changes.shiftSpeedIncreasePercentage);
+  }
+  if (upgrade.changes.clutchDurability) {
+    car.clutchDurability += upgrade.changes.clutchDurability;
+  }
+  if (upgrade.changes.gearRatiosOptimized) {
+    car.gearRatiosOptimized = true;
+  }
+  if (upgrade.changes.allowShiftWithoutClutch) {
+    car.allowShiftWithoutClutch = true;
+  }
+
+  // Обновить параметры автомобиля в игре
+  updateCarParameters();
+}
+
+// Функция для обновления отображения монет
+function updateCoinsDisplay() {
+  const coinsElement = document.getElementById('coins-display');
+  if (coinsElement) {
+    coinsElement.textContent = `Монеты: ${playerCoins}`;
+  }
+}
+
+// Функция для обновления параметров автомобиля в игре
+function updateCarParameters() {
+  // Реализуйте обновление параметров автомобиля в соответствии с объектом car
+  // Например, обновить физику движения, визуальные параметры и т.д.
+  console.log('Параметры автомобиля обновлены:', car);
+}
+
+// Функция для инициализации меню тюнинга и действий
+function initializeMenuActions() {
+  // Инициализация меню тюнинга
+  initializeTuningMenu();
+
+  // Обработчик кнопки "Гонка"
+  const raceButton = document.getElementById('start-race');
+  raceButton.addEventListener('click', () => {
+    gsap.to(garage.scale, { x: 0, y: 0, duration: .1 });
+    document.getElementById('action-menu').style.display = 'none';
+    gsap.to(camera.position, {x: -2, y : 3, z: -5, duration: 1.5});
+    loadRace(scene);
+    //front.scale.set(1, 1, 1);
+  });
+}
+
+// Обработка событий мыши и сенсорных устройств (оставлено без изменений)
 let target = new THREE.Vector3(0, 0, 0); // Точка, вокруг которой вращается камера
 camera.lookAt(target);
-document.getElementsByClassName('action-button')[1].addEventListener('click', () => {
-  gsap.to(garage.scale, { x: 0, y: 0, duration: .1 });
-  document.getElementsByClassName('action-button')[0].style.display = 'none';
-  document.getElementsByClassName('action-button')[1].style.display = 'none';
-  gsap.to(camera.position, {x: -2, y : 3, z: -5, duration: 1.5});
-  loadRace(scene);
-  //front.scale.set(1, 1, 1);
-});
 
-
-
-// Получение информации о пользователе и отображение приветствия
-let username = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.username : 'guest';
-document.getElementById('greeting').innerHTML = `привет, <span class="gradient-text"> ${username}</span>`;
-
-// Настройка рендерера
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 //renderer.setPixelRatio(window.devicePixelRatio); // Улучшение качества
@@ -83,19 +260,18 @@ directionalLight.position.set(0, 5, 7.5);
 // Загрузка моделей
 loadGarage(scene);
 
-
 // Загрузка модели автомобиля
-loadCarModel(scene, function(car) {
+loadCarModel(scene, function(carModel) {
+  carDefaultPaintMaterial = carModel.material;
   canRenderBody = true;
   // После загрузки автомобиля можно выполнить дополнительные действия
 });
 
-
-
-
-
-// Инициализация постобработки
-//initPostProcessing();
+// Инициализация меню действий после загрузки DOM
+document.addEventListener('DOMContentLoaded', () => {
+  initializeMenuActions();
+  updateCoinsDisplay();
+});
 
 // Функция обновления размеров окна
 function onWindowResize() {
@@ -106,9 +282,6 @@ function onWindowResize() {
   camera.updateProjectionMatrix();
   
   renderer.setSize(width, height);
-
-  
-
 }
 window.addEventListener('resize', onWindowResize, false);
 

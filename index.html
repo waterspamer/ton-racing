@@ -3,10 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Гараж</title>
-  
 
-
-  
   <!-- Подключение остальных скриптов и стилей -->
   <script src="/scripts/engine2.js"></script>
   <link rel="stylesheet" href="styles/garage.css">
@@ -19,12 +16,10 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fflate/umd/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r147/examples/js/loaders/FBXLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r147/examples/js/loaders/FBXLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
 
-
-    
-    <!-- Подключение постобработки -->
+  <!-- Подключение постобработки (закомментировано) -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/SSAOPass.js"></script>
@@ -41,12 +36,18 @@
   <script src="scripts/race.js" defer></script>
 </head>
 <body>
+  <!-- Контейнер для загрузки -->
   <div id="loading-container">
     <div id="loading-label">loading :</div>
     <div id="loading-bar-bg">
       <div id="loading-bar"></div>
     </div>
   </div>
+
+  <!-- Отображение монет -->
+  <div id="coins-display">Монеты: 5000</div>
+
+  <!-- Контейнер для 3D-сцены -->
   <div id="garage-container"></div>
   
   <!-- Приветственное сообщение -->
@@ -55,10 +56,21 @@
     <div class="tg-button">connect telegram</div>
   </div>
 
-  <div id ="action-menu" style = 'display: none;'>
-    <div class = 'action-button'>Тюнинг</div>
-    <div class = 'action-button'>Гонка</div>
+  <!-- Меню действий -->
+  <div id="action-menu" style='display: none;'>
+    <div class='action-button' id="open-tuning">Тюнинг</div>
+    <div class='action-button' id="start-race">Гонка</div>
   </div>
 
+  <!-- Меню тюнинга -->
+  <div id="tuning-menu" class="hidden">
+    <div class="tuning-header">
+      <h2>Меню Тюнинга</h2>
+      <button id="close-tuning" class="close-button">✖</button>
+    </div>
+    <div class="tuning-content">
+      <!-- Здесь будут динамически добавляться категории и грейды улучшений -->
+    </div>
+  </div>
 </body>
 </html>

@@ -13,7 +13,6 @@ body {
 }
 
 #loading-container{
-  
   width:100%;
   height:100vh;
   text-align: center;
@@ -21,14 +20,12 @@ body {
   flex-direction: column;
   align-items: center;
   padding-top: 40%;
-  /* justify-content: space-between; */
   background: linear-gradient(-225deg, rgb(18, 0, 37), rgb(0, 0, 0));
 }
 
 #loading-label{
-  color:#fff
+  color:#fff;
 }
-
 
 #loading-bar-bg{
   width:80%;
@@ -60,7 +57,6 @@ body {
 }
 
 .hide{
-  /* bottom: -400px !important; */
   animation: hide-menu .5s ;
   animation-fill-mode: forwards;
 }
@@ -68,15 +64,11 @@ body {
 @keyframes hide-menu {
   0% {
     bottom: 0px; 
+  }
+  100% { 
+    bottom: -100%; 
+  }
 }
-100% { 
-  bottom: -100%; 
-}
-}
-
-
-
-
 
 .tg-button {
   border: 0;
@@ -94,7 +86,7 @@ body {
   margin: 20px;
   height:30%;
   background: linear-gradient(135deg,  #3B89D4 0%,#3B89D4 40%,#ffffff 50%,#3B89D4 60%,#3B89D4 100%);
-  animation: shark-wrap 2.5s infinite;;
+  animation: shark-wrap 2.5s infinite;
   background-repeat: no-repeat;  
   background-position:0%;
   background-size:300%; 
@@ -103,10 +95,10 @@ body {
 @keyframes shark-wrap {
   0% {
     background-position: 100%; 
-}
-100% { 
+  }
+  100% { 
     background-position:0%; 
-}
+  }
 }
 
 .gradient-text {
@@ -118,7 +110,7 @@ body {
 
 #action-menu{
   display: flex;
-  height:25vh;
+  height:20vh;
   border-radius: 40px;
   background: linear-gradient(45deg, rgb(32, 2, 44), rgb(6, 19, 61));
   bottom: 0%;
@@ -126,7 +118,6 @@ body {
   vertical-align: middle;
   justify-content: space-around;
   width:100%;
-  height:20vh;
 }
 
 .action-button{
@@ -135,22 +126,129 @@ body {
   border-radius: 40px;
   width: 45%;
   font-size: 4vh;
-  /* box-shadow: 0px 0px 4px 4px rgb(34, 16, 100); */
   flex-direction: column;
   justify-content: space-around;
   height: 100%;
   vertical-align: middle;
-  
   text-align: center;
+  cursor: pointer;
 }
 
 #greeting {
   position:relative;
   top: 10px;
   text-align: center;
-  /* left: 50%; */
-
   font-size:3.2vh;
   color: #ffffff;
   z-index: 1;
+}
+
+/* Стили для Tuning Menu */
+#tuning-menu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%; /* Занимает всю ширину */
+  height: 50%; /* Занимает половину экрана по высоте */
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 4;
+  transform: translateY(100%); /* Изначально скрыто за нижней границей */
+  transition: transform 0.5s ease-in-out;
+}
+
+#tuning-menu.visible {
+  transform: translateY(0); /* Появляется на экране */
+}
+
+.tuning-header {
+  width: 90%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.tuning-header h2 {
+  color: #ffffff;
+  font-size: 3vh;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 3vh;
+  cursor: pointer;
+}
+
+.tuning-content {
+  width: 90%;
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 20px;
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+.category {
+  margin-bottom: 30px;
+}
+
+.category h3 {
+  color: #90c1dd;
+  font-size: 2.5vh;
+  margin-bottom: 10px;
+}
+
+.upgrade {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.upgrade-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.upgrade-name {
+  color: #ffffff;
+  font-size: 2vh;
+  margin-bottom: 5px;
+}
+
+.upgrade-description {
+  color: #d3d3d3;
+  font-size: 1.8vh;
+}
+
+.upgrade-price {
+  color: #ffd700;
+  font-size: 2vh;
+}
+
+.purchase-button {
+  background: linear-gradient(135deg, #3B89D4 0%, #3B89D4 40%, #ffffff 50%, #3B89D4 60%, #3B89D4 100%);
+  border: none;
+  border-radius: 50px;
+  color: #fff;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 2vh;
+  transition: all 0.3s;
+}
+
+.purchase-button:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #3B89D4 100%);
 }
