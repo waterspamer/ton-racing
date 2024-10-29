@@ -82,7 +82,7 @@ function closeTuningMenu() {
 // Функция для загрузки данных улучшений из upgrades.json
 async function fetchUpgrades() {
   try {
-    const response = await fetch('/upgrades.json');
+    const response = await fetch('./upgrades.json');
     if (!response.ok) throw new Error('Не удалось загрузить upgrades.json');
     const data = await response.json();
     renderUpgrades(data.upgrades);
