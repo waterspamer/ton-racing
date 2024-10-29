@@ -14,6 +14,7 @@ var carBodyTexture;
 
 
 function loadRace(scene){
+  floorCar.visible = false;
   const loader = new THREE.FBXLoader();
   const textureLoader = new THREE.TextureLoader();
   
@@ -25,11 +26,14 @@ function loadRace(scene){
 
   let roadMaterial = new THREE.MeshPhysicalMaterial({
     //metalnessMap: garageMetallic,
-    metalness: 0.0,
-    roughness: 1.0,
+    color:0x444444,
+    envMap: cubeRenderTarget.texture,
+    envMapIntensity: 10.00,
+    metalness: 0.3,
+    roughness: 0.085,
     roughnessMap: roadRoughness,
     map: roadTexture,
-    reflectivity: 0.8,
+    reflectivity: 0.1,
     //envMap: envMap,
     //envMapIntensity: 1.00,
   });
@@ -37,7 +41,7 @@ function loadRace(scene){
   let buildMaterial = new THREE.MeshPhysicalMaterial({
     //metalnessMap: garageMetallic,
     metalness: 0.0,
-    roughness: 1.0,
+    roughness: 0.3,
     roughnessMap: roadRoughness,
     map: buildTexture,
     reflectivity: 0.8,
@@ -72,7 +76,13 @@ function loadRace(scene){
           for (let i = 0; i < 20; i++){
             var clonedRoad = road.clone();
             clonedRoad.position.z += i*15;
-            clonedRoad.add(building.clone());
+            var b1 = building.clone();
+            var b2 = b1.clone();
+            b1.position.set(90, 16, 0);
+            b2.position.set(-90, 16, 0);
+            b2.scale.set(-1, 1, 1);
+            clonedRoad.add(b1);
+            clonedRoad.add(b2);
             scene.add(clonedRoad);
           }
         }
@@ -373,7 +383,7 @@ function loadCarModel(scene, onLoaded) {
 
     loader.load('assets/cars/bmw/bmw_front.fbx', function (loadedFront) {
       front = loadedFront;
-      front.scale.set(0, 1, 0);
+      front.scale.set(1, 1, 1);
 
       front.traverse(function (child) {
         if (child.isMesh) {
@@ -386,7 +396,7 @@ function loadCarModel(scene, onLoaded) {
 
     loader.load('assets/cars/bmw/bmw_back.fbx', function (loadedBack) {
       back = loadedBack;
-      back.scale.set(0, 1, 0);
+      back.scale.set(1, 1, 1);
 
       back.traverse(function (child) {
         if (child.isMesh) {
@@ -398,16 +408,17 @@ function loadCarModel(scene, onLoaded) {
     });
 
     // Загружаем пол под автомобиль
-    loader.load('assets/env/carFloor.fbx', function (floor) {
-      floor.scale.set(1, 1, 1);
+    loader.load('assets/env/carFloor.fbx', function (loadedFloor) {
+      floorCar = loadedFloor;
+      floorCar.scale.set(1, 1, 1);
 
-      floor.traverse(function (child) {
+      floorCar.traverse(function (child) {
         if (child.isMesh) {
           child.material = carFloorMaterial;
         }
       });
 
-      loadedBody.add(floor);
+      loadedBody.add(floorCar);
     });
 
     // Загружаем оптику автомобиля
