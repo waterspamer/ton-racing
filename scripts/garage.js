@@ -244,16 +244,6 @@ function initializeMenuActions() {
   // Инициализация меню тюнинга
   initializeTuningMenu();
 
-  // Обработчик кнопки "Гонка"
-  const raceButton = document.getElementById('start-race');
-  raceButton.addEventListener('click', () => {
-    gsap.to(garage.scale, { x: 0, y: 0, duration: 0.1 });
-    document.getElementById('action-menu').style.display = 'none';
-    gsap.to(camera.position, { x: -2, y: 3, z: -5, duration: 1.5 });
-    loadRace(scene);
-    //front.scale.set(1, 1, 1);
-  });
-
   // Обработчики для вкладок "Тюнинг" и "Детейлинг"
   const tuningTabs = document.querySelectorAll('.tuning-tab');
   tuningTabs.forEach(tab => {
@@ -495,6 +485,8 @@ function initializeMenuActions() {
   // Обработчик кнопки "Гонка"
   const raceButton = document.getElementById('start-race');
   raceButton.addEventListener('click', () => {
+    document.getElementsByClassName('race-gui')[0].classList.add('show');
+    document.getElementsByClassName('race-gui')[0].classList.remove('hide');
     gsap.to(garage.scale, { x: 0, y: 0, duration: 0.1 });
     document.getElementById('action-menu').style.display = 'none';
     gsap.to(camera.position, { x: -2, y: 3, z: -5, duration: 1.5 });

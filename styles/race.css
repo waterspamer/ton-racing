@@ -1,0 +1,59 @@
+.race-gui{
+    position: absolute;
+    border-radius: 40px 40px 0px 0px;
+    display: flex;
+    width: 100%;
+    height: 20vh;
+    background-color: rgba(110, 110, 110, 0.151);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    transition: all .5s;
+}
+
+.race-gui.show{
+bottom:0vh;
+}
+
+.race-gui.hide{
+    bottom:-100vh;
+    }
+
+
+#visuals{
+width:50%;
+}
+
+#speedometer{
+    position: relative;
+    top:40px;
+    left:40px;
+    border-radius: 10vh;
+    background-color: rgb(142, 184, 74);
+    width:15vh;
+    height:15vh;
+}
+
+#controls{
+width:50%;
+}
+
+#gas-pedal{
+    position: absolute;
+    scale:1.2;
+    height: 18.5vh; 
+    width: 11vh;
+    right:40px;
+    object-fit:fill ;
+ background-image: url('/assets/img/gas.png');
+ transition: all .05s;
+}
+
+.pressed{
+    filter: drop-shadow(0 0px 4mm rgb(160, 0, 210));
+    scale:1.1 !important;
+}
+
+
+#shift-pedal{
+
+}

@@ -14,6 +14,15 @@ let gameState = {
     // ... другие необходимые переменные
   };
   
+
+  document.getElementById('gas-pedal').addEventListener('pointerdown', ()=>{
+    document.getElementById('gas-pedal').classList.add('pressed');
+  });
+  document.getElementById('gas-pedal').addEventListener('pointerup', ()=>{
+    document.getElementById('gas-pedal').classList.remove('pressed');
+  });
+
+
   /**
    * Инициализация гонки
    * Устанавливает начальные значения и запускает отсчет до старта
