@@ -2,6 +2,7 @@
     position: absolute;
     border-radius: 40px 40px 0px 0px;
     display: flex;
+    flex-direction: column;
     width: 100%;
     height: 20vh;
     background-color: rgba(110, 110, 110, 0.151);
@@ -20,36 +21,75 @@ bottom:0vh;
 
 
 #visuals{
-width:50%;
+    position: absolute;
+    top:-5vh;
+width:100%;
+height:5vh;
 }
 
 #speedometer{
     position: relative;
-    top:40px;
-    left:40px;
+    width:calc(100% - 2vh);
+    top:2vh;
+    left:1vh;
     border-radius: 10vh;
-    background-color: rgb(142, 184, 74);
-    width:15vh;
-    height:15vh;
+    background-color: rgb(185, 185, 185);
+    height:2vh;
+}
+
+#speed{
+    width:25%;
+    top: 1vh;
+    border-radius: 10vh;
+    background-color: rgb(187, 224, 22);
+    height: 2vh;
 }
 
 #controls{
-width:50%;
+width:100%;
+perspective: 500px;
 }
 
 #gas-pedal{
+    outline: solid;
+    outline-color: #b9b9b9;
+    color: rgb(37, 37, 37);
+    transform: rotateX(-10deg);
+    display: flex;
+    text-align: center;
+    box-shadow: inset 0px 0px 10px 4px rgb(104, 104, 104);
+    flex-direction: column;
+    justify-content: space-around;
     position: absolute;
+    background: linear-gradient(0deg, #c9c9c9, #575757);
+    background-color: rgb(194, 194, 194);
+    border-radius: 3vh 1vh 3vh 1vh; 
     scale:1.2;
-    height: 18.5vh; 
+    height: 15.5vh; 
     width: 11vh;
     right:40px;
+    z-index: 4;
     object-fit:fill ;
- background-image: url('/assets/img/gas.png');
+    /* opacity: .5; */
+ /* background-image: url('/assets/img/gas.png'); */
  transition: all .05s;
 }
 
+#gas-pedal-leg{
+    position: absolute;
+    width:1vh;
+    left: 5vh;
+    height: 5vh;
+    bottom: -4vh;
+    z-index: 3;
+    /* box-shadow: inset 0px 10px 1px 1px rgb(104, 104, 104); */
+    background-color: rgb(194, 194, 194);
+}
+
 .pressed{
-    filter: drop-shadow(0 0px 4mm rgb(160, 0, 210));
+    color: rgb(0, 0, 0) !important;
+    transform: rotateX(10deg) !important;
+    filter: drop-shadow(0 0px 10px rgb(160, 0, 210));
     scale:1.1 !important;
 }
 

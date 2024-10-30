@@ -13,6 +13,8 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(2.5, 1, 4);
 camera.rotation.set(-0., .65, 0);
 
+var cameraControlled = true;
+
 const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
   generateMipmaps: true,
   minFilter: THREE.LinearMipmapLinearFilter
@@ -366,6 +368,7 @@ renderer.domElement.addEventListener('mousemove', function(event) {
 
 // Обработка сенсорных событий для touch-устройств
 renderer.domElement.addEventListener('touchstart', function(event) {
+  if (!cameraControlled) return;
   if (event.touches.length === 1) {
     isMouseDown = true;
     previousMousePosition = { x: event.touches[0].clientX, y: event.touches[0].clientY };
@@ -373,6 +376,7 @@ renderer.domElement.addEventListener('touchstart', function(event) {
 });
 
 renderer.domElement.addEventListener('touchmove', function(event) {
+  if (!cameraControlled) return;
   if (isMouseDown && event.touches.length === 1) {
     let deltaX = event.touches[0].clientX - previousMousePosition.x;
     let deltaY = event.touches[0].clientY - previousMousePosition.y;
@@ -397,6 +401,7 @@ renderer.domElement.addEventListener('touchmove', function(event) {
 });
 
 renderer.domElement.addEventListener('touchend', function(event) {
+  if (!cameraControlled) return;
   isMouseDown = false;
 });
 
@@ -485,6 +490,7 @@ function initializeMenuActions() {
   // Обработчик кнопки "Гонка"
   const raceButton = document.getElementById('start-race');
   raceButton.addEventListener('click', () => {
+    cameraControlled = false;
     document.getElementsByClassName('race-gui')[0].classList.add('show');
     document.getElementsByClassName('race-gui')[0].classList.remove('hide');
     gsap.to(garage.scale, { x: 0, y: 0, duration: 0.1 });
