@@ -182,17 +182,14 @@ function loadCarModel(scene, onLoaded) {
   carWheelTexture.wrapT = THREE.RepeatWrapping;
   carWheelTexture.repeat.set(1, 1);
 
+  const carSaloonTexture = textureLoader.load('assets/cars/bmw/bmw_saloon.jpg');
+  carWheelTexture.wrapS = THREE.RepeatWrapping;
+  carWheelTexture.wrapT = THREE.RepeatWrapping;
+  carWheelTexture.repeat.set(1, 1);
+
   // Создаем материалы
 
-  let carFloorMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xffffff,
-    metalness: 0.0,
-    roughness: 0.2,
-    map: carFloorTexture,
-    reflectivity: 0.8,
-    envMap: cubeRenderTarget.texture, // cubeRenderTarget должен быть глобальным
-    envMapIntensity: 1.00,
-  });
+  
 
   carGlassMaterial = new THREE.MeshPhysicalMaterial({
     transparent: true,
@@ -208,6 +205,8 @@ function loadCarModel(scene, onLoaded) {
     reflectivity: 1.0,
   });
 
+  
+
   carDefaultPaintMaterial = new THREE.MeshPhysicalMaterial({
     map: carBodyTexture,
     side:2,
@@ -221,11 +220,27 @@ function loadCarModel(scene, onLoaded) {
     clearcoatRoughness: 0.03, // Гладкий слой блеска.
   });
   
+
+
+
+
+let carFloorMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0xffffff,
+  metalness: 0.0,
+  roughness: 0.2,
+  map: carFloorTexture,
+  reflectivity: 0.8,
+  envMap: cubeRenderTarget.texture, // cubeRenderTarget должен быть глобальным
+  envMapIntensity: 1.00,
+});
+
+
+
   let carUnderMaterial = new THREE.MeshPhysicalMaterial({
     color: 0x111111,
     metalness: 0.0,
-    roughness: 0.2,
-    reflectivity: 0.3,
+    roughness: 0.6,
+    reflectivity: 0.1,
     envMapIntensity: 1.00,
     onBeforeCompile: (shader) => {
       shader.uniforms.fresnelColor = {
@@ -243,23 +258,79 @@ function loadCarModel(scene, onLoaded) {
         vec3 viewDirection = normalize(vViewPosition);
         float fresnel = abs(dot(normalDirection, viewDirection));
         fresnel = pow(1.0 - fresnel, 3.0);
-        gl_FragColor.rgb += pow(fresnel, 1.0) * fresnelColor * 1.0;
+        gl_FragColor.rgb += pow(fresnel, 1.0) * fresnelColor * 0.2;
         `
       );
     },
   });
 
   let carOpticsMaterial = new THREE.MeshPhysicalMaterial({
+    transparent:true,
+    opacity:0.7,
+    //alphaMap:carOpticsTexture,
     color: 0xffffff,
     emissive: 0xffffff,
-    metalness: 0.0,
-    roughness: 1.0,
+    metalness: 1.0,
+    roughness: 0.0,
     emissiveMap: carOpticsTexture,
-    emissiveIntensity: 0.2,
+    emissiveIntensity: 1.9,
+    //alphaMap:carOpticsTexture,
+    map: carOpticsTexture,
+    envMap: envMap,
+    reflectivity: 0.8,
+    envMapIntensity: 3.0,
+  });
+
+  let grillMaterial = new THREE.MeshPhysicalMaterial({
+    //transparent:true,
+    //opacity:9,
+    //alphaMap:carOpticsTexture,
+    color: 0xffffff,
+    emissive: 0x111111,
+    metalness: 1.0,
+    roughness: 0.8,
+    //emissiveMap: carOpticsTexture,
+    //emissiveIntensity: 10.9,
     map: carOpticsTexture,
     envMap: envMap,
     reflectivity: 0.8,
     envMapIntensity: 1.00,
+  });
+
+  let carOpticsUnderMaterial = new THREE.MeshPhysicalMaterial({
+    //transparent:true,
+    //opacity:.8,
+    //alphaMap:carOpticsTexture,
+    color: 0xaaaaaa,
+    //emissive: 0xffffff,
+    metalness: 1.0,
+    roughness: 0.1,
+    //emissiveMap: carOpticsTexture,
+    //emissiveIntensity: 0.01,
+    //map: carOpticsTexture,
+    envMap: envMap,
+    reflectivity: 0.8,
+    envMapIntensity: 10.00,
+    onBeforeCompile: (shader) => {
+      shader.uniforms.fresnelColor = {
+        value: new THREE.Color(0xffffff),
+      };
+
+      shader.fragmentShader =
+        'uniform vec3 fresnelColor;\n' + shader.fragmentShader;
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <output_fragment>',
+        `
+        #include <output_fragment>
+        vec3 normalDirection = normalize(vNormal);
+        vec3 viewDirection = normalize(vViewPosition);
+        float fresnel = abs(dot(normalDirection, vec3(0.0,0.0,1.0)));
+        fresnel = pow(1.0 - fresnel, 6.0);
+        gl_FragColor.rgb = fresnel * fresnelColor * 2.2;
+        `
+      );
+    },
   });
 
   let carBodyMaterial = new THREE.MeshPhysicalMaterial({
@@ -333,6 +404,15 @@ function loadCarModel(scene, onLoaded) {
     roughness: 0.9,
   });
 
+  const saloonMaterial = new THREE.MeshStandardMaterial({
+    color: 0x777777,
+    side: THREE.DoubleSide,
+    map: carSaloonTexture,
+    metalness: 0.0,
+    roughness: 0.9,
+  });
+
+
   document.getElementById("loading-bar").style.width = '60%';
   document.getElementById("loading-label").innerText = "loading: car model";
 
@@ -360,6 +440,18 @@ function loadCarModel(scene, onLoaded) {
       loadedBody.add(under);
     });
 
+    loader.load('assets/cars/bmw/bmw_saloon.fbx', function (saloon) {
+      saloon.scale.set(1, 1, 1);
+
+      saloon.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = saloonMaterial;
+        }
+      });
+
+      loadedBody.add(saloon);
+    });
+
     // Создаём pivots для колес
     const frontWheelPivot = new THREE.Object3D();
     const backWheelPivot = new THREE.Object3D();
@@ -384,6 +476,18 @@ function loadCarModel(scene, onLoaded) {
       loadedBody.add(glass);
     });
 
+    loader.load('assets/cars/bmw/bmw_optics_under.fbx', function (glass) {
+      glass.scale.set(1, 1, 1);
+
+      glass.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = carOpticsUnderMaterial;
+        }
+      });
+
+      loadedBody.add(glass);
+    });
+
     loader.load('assets/cars/bmw/bmw_front.fbx', function (loadedFront) {
       front = loadedFront;
       front.scale.set(1, 1, 1);
@@ -391,6 +495,19 @@ function loadCarModel(scene, onLoaded) {
       front.traverse(function (child) {
         if (child.isMesh) {
           child.material = carDefaultPaintMaterial;
+        }
+      });
+
+      loadedBody.add(front);
+    });
+
+    loader.load('assets/cars/bmw/bmw_grill.fbx', function (loadedFront) {
+      front = loadedFront;
+      front.scale.set(1, 1, 1);
+
+      front.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = grillMaterial;
         }
       });
 

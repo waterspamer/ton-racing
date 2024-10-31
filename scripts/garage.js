@@ -3,6 +3,31 @@
 // Инициализация сцены, камеры и рендерера
 const scene = new THREE.Scene();
 
+
+
+// Создание RenderTarget для глубины
+const width = window.innerWidth;
+const height = window.innerHeight;
+
+// Буфер глубины
+const depthRenderTarget = new THREE.WebGLRenderTarget(width, height);
+depthRenderTarget.texture.format = THREE.RGBAFormat;
+depthRenderTarget.texture.minFilter = THREE.NearestFilter;
+depthRenderTarget.texture.magFilter = THREE.NearestFilter;
+depthRenderTarget.texture.generateMipmaps = false;
+depthRenderTarget.stencilBuffer = false;
+depthRenderTarget.depthBuffer = true;
+
+// Буфер нормалей
+const normalRenderTarget = new THREE.WebGLRenderTarget(width, height);
+normalRenderTarget.texture.format = THREE.RGBAFormat;
+normalRenderTarget.texture.minFilter = THREE.NearestFilter;
+normalRenderTarget.texture.magFilter = THREE.NearestFilter;
+normalRenderTarget.texture.generateMipmaps = false;
+normalRenderTarget.stencilBuffer = false;
+normalRenderTarget.depthBuffer = true;
+
+
 // Настройка камеры
 const camera = new THREE.PerspectiveCamera(
   75, // Угол обзора
@@ -521,11 +546,11 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('garage-container').appendChild(renderer.domElement);
 
 // Добавление света
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-directionalLight.position.set(0, 5, 7.5);
+const directionalLight = new THREE.DirectionalLight(0xffffff, .5);
+directionalLight.position.set(0, 2, 0);
 //scene.add(directionalLight);
 
 // Загрузка моделей
