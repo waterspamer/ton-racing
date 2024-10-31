@@ -454,8 +454,8 @@ body {
 }
 
 .paint-option {
-  width: 6vh;
-  height: 6vh;
+  width: 10vw;
+  height: 10vw;
   border-radius: 50%;
   cursor: pointer;
   border: 0.2vh solid #ffffff;
@@ -529,8 +529,8 @@ body {
   }
 
   .paint-option {
-    width: 5vh;
-    height: 5vh;
+    width: 10vw;
+  height: 10vw;
   }
 }
 
