@@ -88,14 +88,14 @@
   </div>
 
 
-<div class = "race-gui hide">
-  <div id = "visuals">
-    <div id = "speedometer">
-      <div id ="speed"></div>
+<div class="race-gui hide">
+  <div id="visuals">
+    <div id="speedometer">
+      <div id="speed"></div>
     </div>
   </div>
-  <div id = "controls">
-    <div id = 'gas-pedal'>GAS<div id = "gas-pedal-leg"></div></div>
+  <div id="controls">
+    <div id='gas-pedal'>GAS<div id="gas-pedal-leg"></div></div>
     
   </div>
 </div>
@@ -107,11 +107,11 @@
     <div class="tuning-tabs" role="tablist">
       <button class="tuning-tab active" data-tab="tuning" role="tab" aria-selected="true">Тюнинг</button>
       <button class="tuning-tab" data-tab="detailing" role="tab" aria-selected="false">Детейлинг</button>
-      <button class="tuning-tab" data-tab="detailing" role="tab" aria-selected="false">Стайлинг</button>
+      <button class="tuning-tab" data-tab="styling" role="tab" aria-selected="false">Стайлинг</button>
     </div>
-    <button id="close-tuning" class="close-button"  aria-label="Закрыть меню тюнинга">✖</button>
+    <button id="close-tuning" class="close-button" aria-label="Закрыть меню тюнинга">✖</button>
   </div>
-  
+
   <!-- Контейнеры для вкладок -->
   <div id="tuning-content">
     <!-- Контент для вкладки "Тюнинг" -->
@@ -120,49 +120,146 @@
       <div id="upgrade-categories">
         <!-- Категории будут загружаться динамически из JSON -->
       </div>
-      
+
       <!-- Контейнер для грейдов улучшений (вертикальный скролл) -->
       <div id="upgrade-grades">
         <!-- Грейды улучшений будут загружаться динамически из JSON -->
       </div>
     </div>
-    
+
     <!-- Контент для вкладки "Детейлинг" -->
     <div class="tab-content" data-tab-content="detailing" role="tabpanel" hidden>
-      <!-- Раздел "Краска" -->
-      <section class="detailing-section">
-        <h3>Краска</h3>
-        <div class="paint-options">
-          <!-- Цвет 1 -->
-          <button class="paint-option" data-color="0xff0000" style="background-color: #ff0000;" title="Красный" aria-label="Красный"></button>
-          <!-- Цвет 2 -->
-          <button class="paint-option" data-color="0xffffff" style="background-color: #ffffff;" title="Зелёный" aria-label="Зелёный"></button>
-          <!-- Цвет 3 -->
-          <button class="paint-option" data-color="0x0bda5a" style="background-color: #0bda5a;" title="Синий" aria-label="Синий"></button>
+      <!-- Внутренние суб-вкладки для Детейлинга -->
+      <div class="detailing-subtabs" role="tablist">
+        <button class="detailing-subtab active" data-subtab="paint" role="tab" aria-selected="true">Краска</button>
+        <button class="detailing-subtab" data-subtab="metallic" role="tab" aria-selected="false">Тип краски</button>
+        <button class="detailing-subtab" data-subtab="tinting" role="tab" aria-selected="false">Тонировка стекол</button>
+        <button class="detailing-subtab" data-subtab="wheels" role="tab" aria-selected="false">Цвет дисков</button>
+      </div>
 
-          <button class="paint-option" data-color="0x0bdad0" style="background-color: #0bdad0;" title="Синий" aria-label="Синий"></button>
-
-          <button class="paint-option" data-color="0xda0bc9" style="background-color: #da0bc9;" title="Синий" aria-label="Синий"></button>
-
-          <button class="paint-option" data-color="0x000000" style="background-color: #000000;" title="Синий" aria-label="Синий"></button>
-
-          <button class="paint-option" data-color="0x0b0eda" style="background-color: #0b0eda;" title="Синий" aria-label="Синий"></button>
-          <!-- Цвет 4 (с текстурой) -->
-          <button class="paint-option" data-color="map" style="background: linear-gradient(45deg, blue, white);" title="Текстурированный" aria-label="Текстурированный"></button>
+      <!-- Контейнер для опций детейлинга (вертикальный скролл) -->
+      <div id="detailing-options" class="detailing-options">
+        <!-- Опции для подраздела "Краска" -->
+        <div class="detailing-subcontent active" data-subtab-content="paint">
+          <section class="detailing-section">
+            <div class="paint-options">
+              <!-- Ряд 1: Смешанные оттенки -->
+              <div class="paint-row">
+                <button class="paint-option" data-color="map" style="background: linear-gradient(blue, white)" title="Вивидный оранжевый" aria-label="Вивидный оранжевый"></button>
+                <button class="paint-option" data-color="0xff8d1a" style="background-color: #ff8d1a;" title="Ярко-оранжевый" aria-label="Ярко-оранжевый"></button>
+                <button class="paint-option" data-color="0xffc300" style="background-color: #ffc300;" title="Желтый" aria-label="Желтый"></button>
+                <button class="paint-option" data-color="0xdaf7a6" style="background-color: #daf7a6;" title="Светло-зеленый" aria-label="Светло-зеленый"></button>
+                <button class="paint-option" data-color="0x33ff57" style="background-color: #33ff57;" title="Ярко-зеленый" aria-label="Ярко-зеленый"></button>
+                <button class="paint-option" data-color="0x33ffc1" style="background-color: #33ffc1;" title="Циановый" aria-label="Циановый"></button>
+                <button class="paint-option" data-color="0x3375ff" style="background-color: #3375ff;" title="Ярко-синий" aria-label="Ярко-синий"></button>
+                <button class="paint-option" data-color="0x9d33ff" style="background-color: #9d33ff;" title="Фиолетовый" aria-label="Фиолетовый"></button>
+              </div>
+              
+              <!-- Ряд 2: Смешанные оттенки -->
+              <div class="paint-row">
+                <button class="paint-option" data-color="0xff33a8" style="background-color: #ff33a8;" title="Горячий розовый" aria-label="Горячий розовый"></button>
+                <button class="paint-option" data-color="0xff3333" style="background-color: #ff3333;" title="Красный" aria-label="Красный"></button>
+                <button class="paint-option" data-color="0x33ffbd" style="background-color: #33ffbd;" title="Мятный" aria-label="Мятный"></button>
+                <button class="paint-option" data-color="0x33a1ff" style="background-color: #33a1ff;" title="Небесно-синий" aria-label="Небесно-синий"></button>
+                <button class="paint-option" data-color="0x8d33ff" style="background-color: #8d33ff;" title="Сиреневый" aria-label="Сиреневый"></button>
+                <button class="paint-option" data-color="0xffbd33" style="background-color: #ffbd33;" title="Золотой" aria-label="Золотой"></button>
+                <button class="paint-option" data-color="0x33ff57" style="background-color: #33ff57;" title="Лаймовый" aria-label="Лаймовый"></button>
+                <button class="paint-option" data-color="0x33fff6" style="background-color: #33fff6;" title="Бирюзовый" aria-label="Бирюзовый"></button>
+              </div>
+              
+              
+            </div>
+            
+            
+          </section>
         </div>
-        <h3>Тип краски</h3>
-        <div class="metallic-options">
-          <!-- Цвет 1 -->
-          <button class="metallic-option" data-met="gl" style="background-color: #d3d3d3;">Глянец</button>
-          <!-- Цвет 2 -->
-          <button class="metallic-option" data-met="met" style="background-color: #747474;">Металлик</button>
-          <!-- Цвет 3 -->
-          <button class="metallic-option" data-met="mat" style="background-color: #3a3a3a;">Матовый</button>
-          
+
+        <!-- Опции для подраздела "Тип краски" -->
+        <div class="detailing-subcontent" data-subtab-content="metallic" hidden>
+          <section class="detailing-section">
+            <div class="metallic-options">
+              <button class="metallic-option" data-met="gl" style="background-color: #d3d3d3;">Глянец</button>
+              <button class="metallic-option" data-met="met" style="background-color: #747474;">Металлик</button>
+              <button class="metallic-option" data-met="mat" style="background-color: #3a3a3a;">Матовый</button>
+            </div>
+          </section>
         </div>
-      </section>
+
+        <!-- Опции для подраздела "Тонировка стекол" -->
+        <div class="detailing-subcontent" data-subtab-content="tinting" hidden>
+          <section class="detailing-section">
+            <div class="tint-options">
+              <div class="tint-opacity-slider">
+                <label for="tint-opacity">Степень тонировки:</label>
+                <input type="range" id="tint-opacity" min="0" max="1" step="0.01" value="0.5">
+              </div>
+              <!-- Опции цвета тонировки -->
+              <div class="tint-color-options">
+                <!-- Ряд 1: Смешанные оттенки -->
+                <div class="paint-row">
+                  <button class="tint-color-option" data-color="0xff5733" style="background-color: #ff5733;" title="Вивидный оранжевый" aria-label="Вивидный оранжевый"></button>
+                  <button class="tint-color-option" data-color="0xff8d1a" style="background-color: #ff8d1a;" title="Ярко-оранжевый" aria-label="Ярко-оранжевый"></button>
+                  <button class="tint-color-option" data-color="0xffc300" style="background-color: #ffc300;" title="Желтый" aria-label="Желтый"></button>
+                  <button class="tint-color-option" data-color="0xdaf7a6" style="background-color: #daf7a6;" title="Светло-зеленый" aria-label="Светло-зеленый"></button>
+                  <button class="tint-color-option" data-color="0x33ff57" style="background-color: #33ff57;" title="Ярко-зеленый" aria-label="Ярко-зеленый"></button>
+                  <button class="tint-color-option" data-color="0x33ffc1" style="background-color: #33ffc1;" title="Циановый" aria-label="Циановый"></button>
+                  <button class="tint-color-option" data-color="0x3375ff" style="background-color: #3375ff;" title="Ярко-синий" aria-label="Ярко-синий"></button>
+                  <button class="tint-color-option" data-color="0x9d33ff" style="background-color: #9d33ff;" title="Фиолетовый" aria-label="Фиолетовый"></button>
+                </div>
+                
+               
+              </div>
+              <!-- Слайдер для степени тонировки -->
+              
+            </div>
+          </section>
+        </div>
+
+        <!-- Опции для подраздела "Цвет дисков" -->
+        <div class="detailing-subcontent" data-subtab-content="wheels" hidden>
+          <section class="detailing-section">
+            <div class="wheel-color-options">
+              <!-- Ряд 1: Смешанные оттенки -->
+              <div class="paint-row">
+                <button class="wheel-color-option" data-color="0xff5733" style="background-color: #ff5733;" title="Вивидный оранжевый" aria-label="Вивидный оранжевый"></button>
+                <button class="wheel-color-option" data-color="0xff8d1a" style="background-color: #ff8d1a;" title="Ярко-оранжевый" aria-label="Ярко-оранжевый"></button>
+                <button class="wheel-color-option" data-color="0xffc300" style="background-color: #ffc300;" title="Желтый" aria-label="Желтый"></button>
+                <button class="wheel-color-option" data-color="0xdaf7a6" style="background-color: #daf7a6;" title="Светло-зеленый" aria-label="Светло-зеленый"></button>
+                <button class="wheel-color-option" data-color="0x33ff57" style="background-color: #33ff57;" title="Ярко-зеленый" aria-label="Ярко-зеленый"></button>
+                <button class="wheel-color-option" data-color="0x33ffc1" style="background-color: #33ffc1;" title="Циановый" aria-label="Циановый"></button>
+                <button class="wheel-color-option" data-color="0x3375ff" style="background-color: #3375ff;" title="Ярко-синий" aria-label="Ярко-синий"></button>
+                <button class="wheel-color-option" data-color="0x9d33ff" style="background-color: #9d33ff;" title="Фиолетовый" aria-label="Фиолетовый"></button>
+              </div>
+              
+              <!-- Ряд 2: Смешанные оттенки -->
+              <div class="paint-row">
+                <button class="wheel-color-option" data-color="0xff33a8" style="background-color: #ff33a8;" title="Горячий розовый" aria-label="Горячий розовый"></button>
+                <button class="wheel-color-option" data-color="0xff3333" style="background-color: #ff3333;" title="Красный" aria-label="Красный"></button>
+                <button class="wheel-color-option" data-color="0x33ffbd" style="background-color: #33ffbd;" title="Мятный" aria-label="Мятный"></button>
+                <button class="wheel-color-option" data-color="0x33a1ff" style="background-color: #33a1ff;" title="Небесно-синий" aria-label="Небесно-синий"></button>
+                <button class="wheel-color-option" data-color="0x8d33ff" style="background-color: #8d33ff;" title="Сиреневый" aria-label="Сиреневый"></button>
+                <button class="wheel-color-option" data-color="0xffbd33" style="background-color: #ffbd33;" title="Золотой" aria-label="Золотой"></button>
+                <button class="wheel-color-option" data-color="0x33ff57" style="background-color: #33ff57;" title="Лаймовый" aria-label="Лаймовый"></button>
+                <button class="wheel-color-option" data-color="0x33fff6" style="background-color: #33fff6;" title="Бирюзовый" aria-label="Бирюзовый"></button>
+              </div>
+              
+              
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Контент для вкладки "Стайлинг" -->
+    <div class="tab-content" data-tab-content="styling" role="tabpanel" hidden>
+      Здесь в будущем обновлении появится стайлинг
+      <!-- Здесь вы можете добавить содержимое для вкладки "Стайлинг" -->
     </div>
   </div>
+</div>
+
+
+</div>
 </div>
 
 

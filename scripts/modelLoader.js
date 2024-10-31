@@ -9,6 +9,8 @@ var road;
 var canRenderBody = false; // Флаг для контроля рендеринга
 
 var carDefaultPaintMaterial;
+var wheelMaterial;
+var carGlassMaterial;
 
 var carBodyTexture;
 
@@ -192,9 +194,9 @@ function loadCarModel(scene, onLoaded) {
     envMapIntensity: 1.00,
   });
 
-  let carGlassMaterial = new THREE.MeshPhysicalMaterial({
+  carGlassMaterial = new THREE.MeshPhysicalMaterial({
     transparent: true,
-    opacity: 0.95,
+    opacity: 0.5,
     color: 0xffffff,
     metalness: 1.0,
     roughness: 0.0,
@@ -208,6 +210,7 @@ function loadCarModel(scene, onLoaded) {
 
   carDefaultPaintMaterial = new THREE.MeshPhysicalMaterial({
     map: carBodyTexture,
+    side:2,
     color: 0xffffff, // Пример красного цвета. Замените на желаемый цвет.
     metalness: 0.5, // Низкая металлическость для крашеного металла.
     roughness: 0.9, // Низкая шероховатость для гладкой поверхности.
@@ -292,10 +295,10 @@ function loadCarModel(scene, onLoaded) {
     },
   });
 
-  const wheelMaterial = new THREE.MeshStandardMaterial({
+  wheelMaterial = new THREE.MeshStandardMaterial({
     color: 0xffffff,
-    metalness: 0.2,
-    roughness: 0.8,
+    metalness: 0.3,
+    roughness: 0.2,
     reflectivity: 0.3,
     map: carWheelTexture,
     envMap: cubeRenderTarget.texture,

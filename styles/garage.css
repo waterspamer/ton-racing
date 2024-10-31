@@ -239,7 +239,7 @@ body {
   -webkit-backdrop-filter: blur(10px); /* Для поддержки в Safari */
   border-radius: 40px 40px 0 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   z-index: 4;
   transform: translateY(100%);
   transition: transform 0.5s ease-in-out;
@@ -304,6 +304,7 @@ body {
 }
 
 .tab-content {
+  color: #ffffff;
   flex: 1;
   display: none;
   flex-direction: column;
@@ -571,4 +572,226 @@ body {
     width: 4vh;
     height: 4vh;
   }
+}
+
+
+
+/* Стили для раздела Тонировка стекол */
+.tint-options {
+  display: flex;
+  flex-direction: row;
+  gap: 1vh;
+}
+
+.tint-color-options {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1vh;
+}
+
+.tint-color-option {
+  width: 6vh;
+  height: 6vh;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 0.2vh solid #ffffff;
+  transition: transform 0.3s, border 0.3s;
+  background-size: cover;
+  background-position: center;
+}
+
+.tint-color-option:hover {
+  transform: scale(1.1);
+  border: 0.2vh solid #ff0099;
+}
+
+.tint-opacity-slider {
+  display: flex;
+  align-items: center;
+  gap: 1vh;
+  padding: 1vh 0;
+}
+
+.tint-opacity-slider label {
+  color: #ffffff;
+  font-size: 1.4vh;
+}
+
+.tint-opacity-slider input[type="range"] {
+  width: 100%;
+}
+
+/* Стили для раздела Цвет дисков */
+.wheel-color-options {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1vh;
+}
+
+.wheel-color-option {
+  width: 6vh;
+  height: 6vh;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 0.2vh solid #ffffff;
+  transition: transform 0.3s, border 0.3s;
+  background-size: cover;
+  background-position: center;
+}
+
+.wheel-color-option:hover {
+  transform: scale(1.1);
+  border: 0.2vh solid #ff0099;
+}
+
+
+/* Стили для навигации по подразделам детейлинга */
+#detailing-categories {
+  display: flex;
+  overflow-x: auto;
+  gap: 1vh;
+  padding-bottom: 2vh;
+}
+
+#detailing-categories::-webkit-scrollbar {
+  height: 0.8vh;
+}
+
+#detailing-categories::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0.4vh;
+}
+
+#detailing-categories::-webkit-scrollbar-thumb {
+  background-color: #3B89D4;
+  border-radius: 0.4vh;
+}
+
+.detailing-category {
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1.5vh;
+  padding: 1vh 3vh;
+  cursor: pointer;
+  min-width: 10vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2vh;
+  color: #ffffff;
+  transition: background 0.3s, color 0.3s, transform 0.3s;
+}
+
+.detailing-category.active,
+.detailing-category:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #ff0099;
+  transform: scale(1.05);
+}
+
+/* Стили для контейнера опций детейлинга */
+.detailing-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+  overflow-y: auto;
+  max-height: 70vh; /* Настройте в зависимости от высоты экрана */
+  padding-right: 1vh;
+}
+
+.detailing-options::-webkit-scrollbar {
+  width: 0.8vh;
+}
+
+.detailing-options::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0.4vh;
+}
+
+.detailing-options::-webkit-scrollbar-thumb {
+  background-color: #3B89D4;
+  border-radius: 0.4vh;
+}
+
+.detailing-option {
+  display: none;
+}
+
+.detailing-option.active {
+  display: block;
+}
+
+/* Стили для секций внутри опций детейлинга */
+.detailing-section {
+  margin-bottom: 2vh;
+}
+
+.detailing-section h3 {
+  color: #ffffff;
+  font-size: 1.6vh;
+  margin-bottom: 1vh;
+}
+
+.paint-options,
+.tint-options,
+.wheel-color-options {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1vh;
+}
+
+/* Остальные стили уже присутствуют в вашем CSS */
+/* Добавляем в ваш existing CSS */
+
+/* Стили для внутренних суб-вкладок в Детейлинге */
+.detailing-subtabs {
+  display: flex;
+  justify-content: center;
+  gap: 1vh;
+  margin-bottom: 2vh;
+}
+
+.detailing-subtab {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  padding: 1vh 2vw;
+  font-size: 1.4vh;
+  cursor: pointer;
+  border-radius: 2vh;
+  transition: all 0.3s, transform 0.3s;
+}
+
+.detailing-subtab.active,
+.detailing-subtab:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #ff0099;
+  transform: scale(1.05);
+}
+
+/* Стили для субконтейнеров опций Детейлинга */
+.detailing-subcontent {
+  display: none;
+}
+
+.detailing-subcontent.active {
+  display: block;
+}
+
+/* Убедитесь, что уже существующие стили для .detailing-option и .detailing-subcontent не конфликтуют */
+
+/* Добавляем стили для избранных опций */
+.paint-option.selected,
+.metallic-option.selected,
+.tint-color-option.selected,
+.wheel-color-option.selected {
+  border: 0.3vh solid #ff0099; /* Выделение выбранной опции */
+  transform: scale(1.1);
 }

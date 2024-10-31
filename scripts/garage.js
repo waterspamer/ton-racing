@@ -13,13 +13,14 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(2.5, 1, 4);
 camera.rotation.set(-0., .65, 0);
 
-var cameraControlled = true;
+// Переменная для контроля вращения камеры
+let cameraControlled = true;
 
+// Настройка CubeCamera для отражений
 const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
   generateMipmaps: true,
   minFilter: THREE.LinearMipmapLinearFilter
 });
-
 const cubeCamera = new THREE.CubeCamera(1, 100000, cubeRenderTarget);
 cubeCamera.position.y = 3;
 scene.add(cubeCamera);
@@ -37,9 +38,6 @@ document.querySelector('.tg-button').addEventListener('click', () => {
   document.getElementById('action-menu').style.display = '';
 });
 
-// Инициализация переменных для 3D-моделей
-//let front, back, carDefaultPaintMaterial, garage, body;
-
 // Предполагаемый объект автомобиля
 let car = {
   gripCoefficient: 1.0,
@@ -56,7 +54,7 @@ let car = {
   // ... другие параметры
 };
 
-// Предполагаемая переменная для монет игрока
+// Переменная для монет игрока
 let playerCoins = 5000; // Начальное количество монет
 
 // Инициализация меню тюнинга
@@ -72,10 +70,11 @@ function initializeTuningMenu() {
 // Функция для открытия меню тюнинга
 function openTuningMenu() {
   const tuningMenu = document.getElementById('tuning-menu');
-  //document.getElementById('garage-container').addEventListener('click', ()=>closeTuningMenu());
   tuningMenu.classList.add('visible');
+  
   const carStatsWindow = document.getElementById('car-stats-window');
   carStatsWindow.classList.remove('hidden'); // Отображаем окно характеристик
+
   fetchUpgrades();
 }
 
@@ -83,6 +82,7 @@ function openTuningMenu() {
 function closeTuningMenu() {
   const tuningMenu = document.getElementById('tuning-menu');
   tuningMenu.classList.remove('visible');
+  
   const carStatsWindow = document.getElementById('car-stats-window');
   carStatsWindow.classList.add('hidden'); // Скрываем окно характеристик
 }
@@ -92,6 +92,7 @@ async function fetchUpgrades() {
   try {
     const response = await fetch('upgrades.json'); // Относительный путь
     if (!response.ok) throw new Error('Не удалось загрузить upgrades.json');
+    
     const data = await response.json();
     renderCategories(data.upgrades);
   } catch (error) {
@@ -106,31 +107,43 @@ function renderCategories(upgrades) {
   categoriesContainer.innerHTML = ''; // Очистить предыдущие категории
 
   upgrades.forEach((category, index) => {
-    const categoryDiv = document.createElement('div');
-    categoryDiv.classList.add('upgrade-category');
-    categoryDiv.textContent = category.type;
-    categoryDiv.dataset.categoryIndex = index;
+    const categoryButton = document.createElement('button');
+    categoryButton.classList.add('upgrade-category');
+    categoryButton.textContent = category.type;
+    categoryButton.dataset.categoryIndex = index;
+    categoryButton.setAttribute('aria-controls', `grades-${index}`);
+    categoryButton.setAttribute('role', 'tab');
 
     // Добавить обработчик клика
-    categoryDiv.addEventListener('click', () => {
-      // Убрать класс active с других категорий
-      document.querySelectorAll('.upgrade-category').forEach(cat => cat.classList.remove('active'));
-      // Добавить класс active к выбранной категории
-      categoryDiv.classList.add('active');
-      // Рендер грейдов выбранной категории
-      renderGrades(category.grades);
+    categoryButton.addEventListener('click', () => {
+      setActiveCategory(categoryButton, upgrades);
     });
 
-    categoriesContainer.appendChild(categoryDiv);
+    categoriesContainer.appendChild(categoryButton);
   });
 
   // Автоматически выбрать первую категорию
   const firstCategory = categoriesContainer.querySelector('.upgrade-category');
   if (firstCategory) {
-    firstCategory.classList.add('active');
-    const firstIndex = firstCategory.dataset.categoryIndex;
-    renderGrades(upgrades[firstIndex].grades);
+    setActiveCategory(firstCategory, upgrades);
   }
+}
+
+// Функция для установки активной категории
+function setActiveCategory(selectedButton, upgrades) {
+  const categories = document.querySelectorAll('.upgrade-category');
+  categories.forEach(cat => {
+    cat.classList.remove('active');
+    cat.setAttribute('aria-selected', 'false');
+  });
+
+  selectedButton.classList.add('active');
+  selectedButton.setAttribute('aria-selected', 'true');
+
+  const selectedIndex = selectedButton.dataset.categoryIndex;
+  const selectedCategory = upgrades[selectedIndex];
+  
+  renderGrades(selectedCategory.grades);
 }
 
 // Функция для рендеринга грейдов улучшений
@@ -241,42 +254,261 @@ function updateCarParameters() {
   console.log('Параметры автомобиля обновлены:', car);
 }
 
+// Функция для применения краски к автомобилю
+function applyPaint(color) {
+  if (!carDefaultPaintMaterial) {
+    console.error('carDefaultPaintMaterial не определён.');
+    return;
+  }
+
+  if (color === 'map') {
+    carDefaultPaintMaterial.map = carBodyTexture; // Включаем карту текстуры
+    carDefaultPaintMaterial.color.set(0xffffff); // Белый цвет, так как карта используется
+  } else {
+    carDefaultPaintMaterial.map = null; // Отключаем карту
+    carDefaultPaintMaterial.color.setHex(color);
+  }
+  carDefaultPaintMaterial.needsUpdate = true;
+
+  /* // Обновить материал на модели автомобиля
+  if (carModel) {
+    carModel.traverse(child => {
+      if (child.isMesh) {
+        child.material = carDefaultPaintMaterial;
+      }
+    });
+  } */
+
+  console.log(`Краска автомобиля изменена на: ${color === 'map' ? 'Текстурированный' : `#${color.toString(16)}`}`);
+}
+
+// Функция для применения металлика к автомобилю
+function applyMetallic(met) {
+  if (!carDefaultPaintMaterial) {
+    console.error('carDefaultPaintMaterial не определён.');
+    return;
+  }
+
+  switch (met) {
+    case 'gl':
+      carDefaultPaintMaterial.metalness = 0.3;
+      carDefaultPaintMaterial.clearCoat = 0.7;
+      carDefaultPaintMaterial.envMapIntensity = 5.5;
+      break;
+    case 'met':
+      carDefaultPaintMaterial.metalness = 0.5;
+      carDefaultPaintMaterial.clearCoat = 0.9;
+      carDefaultPaintMaterial.envMapIntensity = 10.5;
+      break;
+    case 'mat':
+      carDefaultPaintMaterial.metalness = 0.0;
+      carDefaultPaintMaterial.clearCoat = 0.1;
+      carDefaultPaintMaterial.envMapIntensity = 1.5;
+      break;
+    default:
+      console.warn('Неизвестный тип металлика:', met);
+  }
+  carDefaultPaintMaterial.needsUpdate = true;
+
+  console.log(`Металлик автомобиля изменён на: ${met}`);
+}
+
+// Функция для применения цвета тонировки к стеклам
+function applyTintColor(color) {
+  if (!carGlassMaterial) {
+    console.error('carGlassMaterial не определён.');
+    return;
+  }
+
+  carGlassMaterial.color.setHex(color);
+  carGlassMaterial.needsUpdate = true;
+
+  console.log(`Цвет тонировки изменён на: #${color.toString(16)}`);
+}
+
+// Функция для применения степени тонировки (прозрачности) к стеклам
+function applyTintOpacity(opacity) {
+  if (!carGlassMaterial) {
+    console.error('carGlassMaterial не определён.');
+    return;
+  }
+
+  carGlassMaterial.opacity = opacity;
+  carGlassMaterial.transparent = opacity < 1.0;
+  carGlassMaterial.needsUpdate = true;
+
+  console.log(`Степень тонировки изменена на: ${opacity}`);
+}
+
+// Функция для применения цвета дисков
+function applyWheelColor(color) {
+  if (!wheelMaterial) {
+    console.error('wheelMaterial не определён.');
+    return;
+  }
+
+  wheelMaterial.color.setHex(color);
+  wheelMaterial.needsUpdate = true;
+
+  console.log(`Цвет дисков изменён на: #${color.toString(16)}`);
+}
+
+
+
 // Функция для инициализации меню тюнинга и действий
 function initializeMenuActions() {
-  // Инициализация меню тюнинга
-  initializeTuningMenu();
+  // Инициализация открытия и закрытия меню тюнинга
+  const tuningButton = document.getElementById('open-tuning');
+  const closeTuningButton = document.getElementById('close-tuning');
+  const tuningMenu = document.getElementById('tuning-menu');
 
-  // Обработчики для вкладок "Тюнинг" и "Детейлинг"
+  tuningButton.addEventListener('click', openTuningMenu);
+  closeTuningButton.addEventListener('click', closeTuningMenu);
+
+  // Обработчик кнопки "Гонка"
+  const raceButton = document.getElementById('start-race');
+  raceButton.addEventListener('click', () => {
+    cameraControlled = false;
+    const raceGui = document.querySelector('.race-gui');
+    if (raceGui) {
+      raceGui.classList.add('show');
+      raceGui.classList.remove('hide');
+    }
+    gsap.to(garage.scale, { x: 0, y: 0, duration: 0.1 });
+    document.getElementById('action-menu').style.display = 'none';
+    gsap.to(camera.position, { x: -2, y: 3, z: -5, duration: 1.5 });
+    loadRace(scene);
+    // front.scale.set(1, 1, 1); // Раскомментируйте при необходимости
+  });
+
+  // Обработчики для основных вкладок "Тюнинг", "Детейлинг" и "Стайлинг"
   const tuningTabs = document.querySelectorAll('.tuning-tab');
   tuningTabs.forEach(tab => {
     tab.addEventListener('click', () => {
       // Удалить класс active у всех вкладок
-      tuningTabs.forEach(t => t.classList.remove('active'));
+      tuningTabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+
       // Добавить класс active к выбранной вкладке
       tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
 
       const selectedTab = tab.dataset.tab;
 
-      // Показать соответствующий контент
+      // Показать соответствующий контент и скрыть остальные
       document.querySelectorAll('.tab-content').forEach(content => {
         if (content.dataset.tabContent === selectedTab) {
-          content.style.display = '';
+          content.classList.add('active');
+          content.removeAttribute('hidden');
+          content.setAttribute('aria-hidden', 'false');
         } else {
-          content.style.display = 'none';
+          content.classList.remove('active');
+          content.setAttribute('hidden', '');
+          content.setAttribute('aria-hidden', 'true');
         }
       });
     });
   });
 
-  // Обработчики для опций краски
+  // **Логика для вкладки "Детейлинг"**
+
+  // Обработчики для суб-вкладок Детейлинга
+  const detailingSubtabs = document.querySelectorAll('.detailing-subtab');
+  detailingSubtabs.forEach(subtab => {
+    subtab.addEventListener('click', () => {
+      // Удалить класс active у всех суб-вкладок
+      detailingSubtabs.forEach(st => {
+        st.classList.remove('active');
+        st.setAttribute('aria-selected', 'false');
+      });
+
+      // Добавить класс active к выбранной суб-вкладке
+      subtab.classList.add('active');
+      subtab.setAttribute('aria-selected', 'true');
+
+      const selectedSubtab = subtab.dataset.subtab;
+
+      // Показать соответствующий субконтейнер опций и скрыть остальные
+      const detailingSubcontents = document.querySelectorAll('.detailing-subcontent');
+      detailingSubcontents.forEach(subcontent => {
+        if (subcontent.dataset.subtabContent === selectedSubtab) {
+          subcontent.classList.add('active');
+          subcontent.removeAttribute('hidden');
+        } else {
+          subcontent.classList.remove('active');
+          subcontent.setAttribute('hidden', '');
+        }
+      });
+    });
+  });
+
+  // **Обработчики для опций детайлнинга**
+
+  // Краска
   const paintOptions = document.querySelectorAll('.paint-option');
   paintOptions.forEach(option => {
     option.addEventListener('click', () => {
       const selectedColor = option.dataset.color;
       applyPaint(selectedColor);
+      // Добавляем визуальный индикатор выбранной краски
+      paintOptions.forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+  });
+
+  // Тип краски
+  const metOptions = document.querySelectorAll('.metallic-option');
+  metOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      const selectedMet = option.dataset.met;
+      applyMetallic(selectedMet);
+      // Добавляем визуальный индикатор выбранной опции металлика
+      metOptions.forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+  });
+
+  // Тонировка стекол - Цвет
+  const tintColorOptions = document.querySelectorAll('.tint-color-option');
+  tintColorOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      const selectedColor = option.dataset.color;
+      applyTintColor(selectedColor);
+
+      // Добавляем визуальный индикатор выбранной опции
+      tintColorOptions.forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+  });
+
+  // Тонировка стекол - Степень
+  const tintOpacitySlider = document.getElementById('tint-opacity');
+  tintOpacitySlider.addEventListener('input', () => {
+    const selectedOpacity = parseFloat(tintOpacitySlider.value);
+    applyTintOpacity(selectedOpacity);
+  });
+
+  // Цвет дисков
+  const wheelColorOptions = document.querySelectorAll('.wheel-color-option');
+  wheelColorOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      const selectedColor = option.dataset.color;
+      applyWheelColor(selectedColor);
+
+      // Добавляем визуальный индикатор выбранной опции
+      wheelColorOptions.forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
     });
   });
 }
+
+
+
+
+
+
 
 // Получение информации о пользователе и отображение приветствия
 let username = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.username : 'guest';
@@ -326,41 +558,41 @@ function onWindowResize() {
 window.addEventListener('resize', onWindowResize, false);
 
 // Переменные для управления камерой
-let isMouseDown = false;
+let isDragging = false;
 let previousMousePosition = { x: 0, y: 0 };
+let velocity = { x: 0, y: 0 };
 
-// Параметры вращения камеры
-let rotationSpeed = 0.005;
+const rotationSpeed = 0.005;
+const dampingFactor = 0.95;
+
+// Ограничения для вертикального угла (в радианах)
+const minPolarAngle = Math.PI / 6; // 30 градусов
+const maxPolarAngle = Math.PI / 2; // 90 градусов
 
 // Обработчики событий мыши
 renderer.domElement.addEventListener('mousedown', function(event) {
-  isMouseDown = true;
+  isDragging = true;
   previousMousePosition = { x: event.clientX, y: event.clientY };
+  velocity = { x: 0, y: 0 }; // Сбрасываем скорость
 });
 
 renderer.domElement.addEventListener('mouseup', function(event) {
-  isMouseDown = false;
+  isDragging = false;
 });
 
 renderer.domElement.addEventListener('mousemove', function(event) {
-  if (isMouseDown) {
-    let deltaX = event.clientX - previousMousePosition.x;
-    let deltaY = event.clientY - previousMousePosition.y;
+  if (isDragging && cameraControlled) {
+    const deltaX = event.clientX - previousMousePosition.x;
+    const deltaY = event.clientY - previousMousePosition.y;
 
-    let rotationMatrix = new THREE.Matrix4();
+    const deltaAzimuthAngle = deltaX * rotationSpeed;
+    const deltaPolarAngle = deltaY * rotationSpeed;
 
-    // Вращение вокруг оси Y (вертикальная ось)
-    rotationMatrix.makeRotationY(-deltaX * rotationSpeed);
-    camera.position.applyMatrix4(rotationMatrix);
+    rotateCamera(deltaAzimuthAngle, deltaPolarAngle);
 
-    // Вращение вокруг оси X (горизонтальная ось)
-    let axis = new THREE.Vector3(0, 1, 0);
-    axis.cross(camera.position.clone().sub(target)).normalize();
-    rotationMatrix.makeRotationAxis(axis, -deltaY * rotationSpeed);
-    camera.position.applyMatrix4(rotationMatrix);
-
-    // Обновляем направление камеры на цель
-    camera.lookAt(target);
+    // Обновляем скорость для инерции
+    velocity.x = deltaAzimuthAngle;
+    velocity.y = deltaPolarAngle;
 
     previousMousePosition = { x: event.clientX, y: event.clientY };
   }
@@ -370,189 +602,89 @@ renderer.domElement.addEventListener('mousemove', function(event) {
 renderer.domElement.addEventListener('touchstart', function(event) {
   if (!cameraControlled) return;
   if (event.touches.length === 1) {
-    isMouseDown = true;
+    isDragging = true;
     previousMousePosition = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+    velocity = { x: 0, y: 0 }; // Сбрасываем скорость
   }
 });
 
 renderer.domElement.addEventListener('touchmove', function(event) {
-  if (!cameraControlled) return;
-  if (isMouseDown && event.touches.length === 1) {
-    let deltaX = event.touches[0].clientX - previousMousePosition.x;
-    let deltaY = event.touches[0].clientY - previousMousePosition.y;
+  if (isDragging && cameraControlled && event.touches.length === 1) {
+    const deltaX = event.touches[0].clientX - previousMousePosition.x;
+    const deltaY = event.touches[0].clientY - previousMousePosition.y;
 
-    let rotationMatrix = new THREE.Matrix4();
+    const deltaAzimuthAngle = deltaX * rotationSpeed;
+    const deltaPolarAngle = deltaY * rotationSpeed;
 
-    // Вращение вокруг оси Y
-    rotationMatrix.makeRotationY(-deltaX * rotationSpeed);
-    camera.position.applyMatrix4(rotationMatrix);
+    rotateCamera(deltaAzimuthAngle, deltaPolarAngle);
 
-    // Вращение вокруг оси X
-    let axis = new THREE.Vector3(0, 1, 0);
-    axis.cross(camera.position.clone().sub(target)).normalize();
-    rotationMatrix.makeRotationAxis(axis, -deltaY * rotationSpeed);
-    camera.position.applyMatrix4(rotationMatrix);
-
-    // Обновляем направление камеры на цель
-    camera.lookAt(target);
+    // Обновляем скорость для инерции
+    velocity.x = deltaAzimuthAngle;
+    velocity.y = deltaPolarAngle;
 
     previousMousePosition = { x: event.touches[0].clientX, y: event.touches[0].clientY };
   }
 });
 
 renderer.domElement.addEventListener('touchend', function(event) {
-  if (!cameraControlled) return;
-  isMouseDown = false;
+  isDragging = false;
 });
 
+// Функция для вращения камеры с учетом ограничений
+function rotateCamera(deltaAzimuthAngle, deltaPolarAngle) {
+  const offset = camera.position.clone().sub(target);
+
+  // Преобразуем смещение в сферические координаты
+  const spherical = new THREE.Spherical();
+  spherical.setFromVector3(offset);
+
+  // Применяем вращения
+  spherical.theta -= deltaAzimuthAngle; // Азимутальный угол
+  spherical.phi -= deltaPolarAngle;     // Полярный угол
+
+  // Ограничиваем полярный угол
+  const EPS = 0.000001;
+  spherical.phi = Math.max(minPolarAngle, Math.min(maxPolarAngle, spherical.phi));
+  spherical.makeSafe(); // Обеспечиваем, что phi находится в допустимом диапазоне
+
+  // Преобразуем обратно в декартовы координаты
+  offset.setFromSpherical(spherical);
+
+  camera.position.copy(target.clone().add(offset));
+  camera.lookAt(target);
+}
+
 // Анимация
-let target = new THREE.Vector3(0, 0, 0); // Точка, вокруг которой вращается камера
+const target = new THREE.Vector3(0, 0, 0); // Точка, вокруг которой вращается камера
 camera.lookAt(target);
 
 function animate() {
   requestAnimationFrame(animate);
-  
+
   if (body) {
     // Временно скрываем объект body для обновления отражений
     body.visible = false;
-    
-    // Обновляем CubeCamera, чтобы захватить отражения без объекта body
     cubeCamera.update(renderer, scene);
-    
-    // Возвращаем объект body на место
     body.visible = true;
   }
-  camera.lookAt(target);
-  // Рендеринг сцены с использованием CubeCamera
+
+  if (cameraControlled) {
+    if (!isDragging) {
+      // Применяем инерцию только если палец/мышь не взаимодействуют
+      if (velocity.x !== 0 || velocity.y !== 0) {
+        rotateCamera(velocity.x, velocity.y);
+
+        // Применяем демпфирование
+        velocity.x *= dampingFactor;
+        velocity.y *= dampingFactor;
+
+        // Останавливаем вращение, если скорость очень мала
+        if (Math.abs(velocity.x) < 0.00001) velocity.x = 0;
+        if (Math.abs(velocity.y) < 0.00001) velocity.y = 0;
+      }
+    }
+  }
+
   renderer.render(scene, camera);
 }
 animate();
-
-
-// Функция для применения краски к автомобилю
-function applyPaint(color) {
-  if (!carDefaultPaintMaterial) {
-    console.error('carDefaultPaintMaterial не определён.');
-    return;
-  }
-
-  if (color === 'map') {
-    carDefaultPaintMaterial.map = carBodyTexture; // Включаем карту текстуры
-    //carDefaultPaintMaterial.metalness = (0.0);
-    carDefaultPaintMaterial.color.set(0xffffff); // Белый цвет, так как карта используется
-  } else {
-    carDefaultPaintMaterial.map = null; // Отключаем карт
-    //carDefaultPaintMaterial.metalness = (0.3);
-    carDefaultPaintMaterial.color.setHex(color);
-  }
-  carDefaultPaintMaterial.needsUpdate = true;
-
-
-  console.log(`Краска автомобиля изменена на: ${color === 'map' ? 'Текстурированный' : `#${color.toString(16)}`}`);
-}
-
-function applyMetallic(met) {
-  if (!carDefaultPaintMaterial) {
-    console.error('carDefaultPaintMaterial не определён.');
-    return;
-  }
-
-  if (met === 'gl') {
-    carDefaultPaintMaterial.metalness = (0.3);
-    carDefaultPaintMaterial.clearCoat = 0.7;
-    carDefaultPaintMaterial.envMapIntensity = 5.5;
-
-  } else if (met === 'met') {
-
-    carDefaultPaintMaterial.metalness = (0.5);
-    carDefaultPaintMaterial.clearCoat = 0.9;
-    carDefaultPaintMaterial.envMapIntensity = 10.5;
-
-  } else if (met === 'mat') {
-
-    carDefaultPaintMaterial.metalness = (0.0);
-    carDefaultPaintMaterial.clearCoat = 0.1;
-    carDefaultPaintMaterial.envMapIntensity = 1.5;
-
-  }
-  carDefaultPaintMaterial.needsUpdate = true;
-
-}
-
-
-
-
-// Функция для инициализации меню тюнинга и действий
-function initializeMenuActions() {
-  // Инициализация меню тюнинга
-  initializeTuningMenu();
-
-  // Обработчик кнопки "Гонка"
-  const raceButton = document.getElementById('start-race');
-  raceButton.addEventListener('click', () => {
-    cameraControlled = false;
-    document.getElementsByClassName('race-gui')[0].classList.add('show');
-    document.getElementsByClassName('race-gui')[0].classList.remove('hide');
-    gsap.to(garage.scale, { x: 0, y: 0, duration: 0.1 });
-    document.getElementById('action-menu').style.display = 'none';
-    gsap.to(camera.position, { x: -2, y: 3, z: -5, duration: 1.5 });
-    loadRace(scene);
-    //front.scale.set(1, 1, 1);
-  });
-
-  // Обработчики для вкладок "Тюнинг" и "Детейлинг"
-  const tuningTabs = document.querySelectorAll('.tuning-tab');
-  tuningTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      // Удалить класс active у всех вкладок
-      tuningTabs.forEach(t => {
-        t.classList.remove('active');
-        t.setAttribute('aria-selected', 'false');
-      });
-      // Добавить класс active к выбранной вкладке
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected', 'true');
-
-      const selectedTab = tab.dataset.tab;
-
-      // Показать соответствующий контент и скрыть остальные
-      document.querySelectorAll('.tab-content').forEach(content => {
-        if (content.dataset.tabContent === selectedTab) {
-          content.classList.add('active');
-          content.removeAttribute('hidden');
-          content.setAttribute('aria-hidden', 'false');
-        } else {
-          content.classList.remove('active');
-          content.setAttribute('hidden', '');
-          content.setAttribute('aria-hidden', 'true');
-        }
-      });
-    });
-  });
-
-  // Обработчики для опций краски
-  const paintOptions = document.querySelectorAll('.paint-option');
-  paintOptions.forEach(option => {
-    option.addEventListener('click', () => {
-      const selectedColor = option.dataset.color;
-      applyPaint(selectedColor);
-      // Добавляем визуальный индикатор выбранной краски
-      paintOptions.forEach(opt => opt.classList.remove('selected'));
-      option.classList.add('selected');
-    });
-  });
-
-
-  // Обработчики для опций металлик
-  const metOptions = document.querySelectorAll('.metallic-option');
-  metOptions.forEach(option => {
-    option.addEventListener('click', () => {
-      const selectedMet = option.dataset.met;
-      applyMetallic(selectedMet);
-      // Добавляем визуальный индикатор выбранной краски
-      metOptions.forEach(opt => opt.classList.remove('selected'));
-      option.classList.add('selected');
-    });
-  });
-}
-
