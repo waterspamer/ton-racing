@@ -1,6 +1,7 @@
 // modelLoader.js
 
 var floorCar;
+var garageFloor;
 var body; // Глобальная переменная для автомобиля
 var front;
 var back;
@@ -16,26 +17,31 @@ var carBodyTexture;
 
 
 function loadRace(scene){
-  floorCar.visible = false;
+  //floorCar.visible = false;
   const loader = new THREE.FBXLoader();
   const textureLoader = new THREE.TextureLoader();
   
   const buildTexture = textureLoader.load('assets/env/build_albedo.jpg');
 
   const roadTexture = textureLoader.load('assets/env/road_albedo.jpg');
+  roadTexture.wrapS = THREE.RepeatWrapping;
+  roadTexture.wrapT = THREE.RepeatWrapping;
+  roadTexture.repeat.set(1, 1);
+
+
   const roadRoughness = textureLoader.load('assets/env/road_roughness.jpg');
   const roadNormal = textureLoader.load('assets/env/road_normal.jpg');
 
   let roadMaterial = new THREE.MeshPhysicalMaterial({
     //metalnessMap: garageMetallic,
-    color:0x444444,
+    color:0x333333,
     envMap: cubeRenderTarget.texture,
-    envMapIntensity: 10.00,
+    envMapIntensity: 1.00,
     metalness: 0.3,
     roughness: 0.085,
     roughnessMap: roadRoughness,
     map: roadTexture,
-    reflectivity: 0.1,
+    reflectivity: 0.5,
     //envMap: envMap,
     //envMapIntensity: 1.00,
   });
@@ -56,8 +62,9 @@ function loadRace(scene){
   //document.getElementById("loading-label").innerText = "loading: garage";
   loader.load('assets/env/road.fbx', function (loadedRoad) {
     road = loadedRoad;
+    //road.receiveShadows = true;
     road.scale.set(0.01, 0.01, 0.01);
-    road.position.set(0, -0.05, 0);
+    road.position.set(0, -0.1, 0);
 
     road.traverse(function (child) {
       if (child.isMesh) {
@@ -77,7 +84,7 @@ function loadRace(scene){
 
           for (let i = 0; i < 20; i++){
             var clonedRoad = road.clone();
-            clonedRoad.position.z += i*15;
+            clonedRoad.position.z += i*20;
             var b1 = building.clone();
             var b2 = b1.clone();
             b1.position.set(90, 16, 0);
@@ -113,6 +120,7 @@ function loadGarage(scene) {
   envMap.flipY = false;
   envMap.flipX = false;
   const garageTexture = textureLoader.load('assets/env/bakedGarage.jpg');
+  const garageFloorTexture = textureLoader.load('assets/env/wood_basecolor.jpg');
   const garageRoughness = textureLoader.load('assets/env/bakedGarageRough.jpg');
   const garageMetallic = textureLoader.load('assets/env/bakedGarageMetal.jpg');
 
@@ -127,11 +135,88 @@ function loadGarage(scene) {
     envMapIntensity: 1.00,
   });
 
+  const garageFloorMaterial = new THREE.MeshPhysicalMaterial({
+    map: garageFloorTexture,
+    metalness: 0.0,
+    roughness: 1.0, // Изначальное значение roughness
+    reflectivity: 0.8,
+    envMap: envMap,
+    envMapIntensity: 1.00,
+    roughnessMap: garageFloorTexture, // Добавляем roughnessMap
+    transparent: true, // Включаем прозрачность для корректного наложения отражений
+  });
+  
+  
+  garageFloorMaterial.onBeforeCompile = (shader) => {
+    // Добавляем uniforms для отражения и разрешения экрана
+    shader.uniforms.reflectionTexture = { value: reflectionRenderTarget.texture };
+    shader.uniforms.screenResolution = { value: new THREE.Vector2(window.innerWidth, window.innerHeight) };
+  
+    // Вставляем объявления uniforms в начало фрагментного шейдера
+    shader.fragmentShader = `
+      uniform sampler2D reflectionTexture;
+      uniform vec2 screenResolution;
+    ` + shader.fragmentShader;
+  
+    // Модифицируем фрагментный шейдер для наложения отражения в screen space с учетом roughness
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <output_fragment>',
+      `
+      #include <output_fragment>
+  
+      // Получаем экранные координаты фрагмента
+      vec2 screenUV = gl_FragCoord.xy / screenResolution;
+  
+      // Получаем цвет отражения из reflectionTexture
+      vec4 reflectionColor = texture2D(reflectionTexture, screenUV);
+  
+      // Получаем значение roughness для текущего фрагмента
+      // Если roughnessMap присутствует, используем его, иначе используем uniform roughness
+      float currentRoughness = 1.0 -texture2D(roughnessMap, vUv).r;
+  
+      // Вычисляем коэффициент отражения на основе roughness
+      // Чем выше roughness, тем меньше отражения
+      // (1.0 - currentRoughness) даёт значение от 0 (полностью грубый) до 1 (полностью гладкий)
+      float reflectivityFactor = (1.0 - currentRoughness) * 0.2; // Коэффициент 0.5 регулирует общую интенсивность
+  
+      // Наложение отражения на основной цвет материала
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, reflectionColor.rgb, reflectivityFactor);
+      `
+    );
+  
+    // Сохраняем изменённый шейдер для последующего использования (если необходимо)
+    garageFloorMaterial.userData.shader = shader;
+  };
+  
+  
+  
+
+    // Обновление разрешения экрана при изменении размеров окна
+    window.addEventListener('resize', () => {
+      const newResolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
+      garageFloorMaterial.userData.shader.uniforms.screenResolution.value.copy(newResolution);
+    });
+  
+  
+
   document.getElementById("loading-label").innerText = "loading: garage";
   loader.load('assets/env/garage.fbx', function (loadedGarage) {
     garage = loadedGarage;
     garage.scale.set(0.01, 0.01, 0.01);
     garage.position.set(0, -0.05, 0);
+
+    loader.load('assets/env/carFloor.fbx', function (loadedFloorNorm) {
+      garageFloor = loadedFloorNorm;
+      garageFloor.scale.set(1, 1, 1);
+      garageFloor.position.set(0, -0.05, 0);
+  
+      garageFloor.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = garageFloorMaterial;
+        }
+      });
+      garage.add(garageFloor);
+    });
 
     garage.traverse(function (child) {
       if (child.isMesh) {
@@ -140,6 +225,7 @@ function loadGarage(scene) {
     });
     scene.add(garage);
   });
+
 }
 
 function loadCarModel(scene, onLoaded) {
@@ -215,7 +301,7 @@ function loadCarModel(scene, onLoaded) {
     roughness: 0.9, // Низкая шероховатость для гладкой поверхности.
     envMap: cubeRenderTarget.texture, // Убедитесь, что окружение качественное.
     reflectivity: 0.8, // Высокая, но не максимальная отражаемость.
-    envMapIntensity: 10.5, // Интенсивность отражений.
+    envMapIntensity: 3.5, // Интенсивность отражений.
     clearcoat: 0.7, // Добавление слоя блеска.
     clearcoatRoughness: 0.03, // Гладкий слой блеска.
   });
@@ -224,15 +310,39 @@ function loadCarModel(scene, onLoaded) {
 
 
 
-let carFloorMaterial = new THREE.MeshPhysicalMaterial({
-  color: 0xffffff,
-  metalness: 0.0,
-  roughness: 0.2,
-  map: carFloorTexture,
-  reflectivity: 0.8,
-  envMap: cubeRenderTarget.texture, // cubeRenderTarget должен быть глобальным
-  envMapIntensity: 1.00,
-});
+  let carFloorMaterial = new THREE.MeshPhysicalMaterial({
+    
+    color: 0xffffff,
+    metalness: 0.0,
+    roughness: 1.0,
+    map: carFloorTexture,
+    transparent: true, // Включаем прозрачность
+    onBeforeCompile: (shader) => {
+      // Модифицируем фрагментный шейдер для управления альфа-каналом
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <output_fragment>',
+        `
+        #include <output_fragment>
+        
+        // Получаем цвет из текстуры
+        vec4 mapColor = texture2D(map, vUv);
+        
+        // Вычисляем яркость (градации серого) текстуры
+        //float brightness = dot(mapColor.rgb, vec3(0.299, 0.587, 0.114));
+        //float brightness = mapColor.r;
+        // Инвертируем яркость: белое -> прозрачное, черное -> непрозрачное
+        //float alpha = min((1.0 - brightness) * 20.0, 10.0);
+        float brightness = max(pow(1.0 - mapColor.r, 3.0) - 0.17, 0.0);
+        gl_FragColor.a = brightness;
+        gl_FragColor.rgb = vec3(0.0,0.0,0.0);
+        // Применяем вычисленный альфа-канал
+        //gl_FragColor.a *= alpha;
+        `
+      );
+    },
+  });
+  
+  
 
 
 
@@ -616,7 +726,7 @@ let carFloorMaterial = new THREE.MeshPhysicalMaterial({
 
         // Устанавливаем флаг, что тело готово к рендерингу
         canRenderBody = true;
-
+        body.castShadow = true;
         // Вызываем коллбек после полной загрузки автомобиля
         if (onLoaded) onLoaded(body);
       });

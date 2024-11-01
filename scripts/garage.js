@@ -38,17 +38,71 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(2.5, 1, 4);
 camera.rotation.set(-0., .65, 0);
 
+
+
+// Предполагается, что у вас уже есть основная камера, например:
+const mainCamera = camera; // Ваша основная камера
+
+// Создаём дублированную камеру
+const mirroredCamera = mainCamera.clone();
+
+// Отражаем камеру по вертикальной оси (ось Y)
+mirroredCamera.scale.y = -1;
+
+// Обновляем матрицы камеры после изменения масштаба
+mirroredCamera.updateProjectionMatrix();
+mirroredCamera.updateMatrixWorld();
+
+
+const reflectionRenderTarget = new THREE.WebGLRenderTarget(512, 512, {
+  minFilter: THREE.LinearFilter,
+  magFilter: THREE.LinearFilter,
+  format: THREE.RGBAFormat,
+});
+
+
+
+
 // Переменная для контроля вращения камеры
 let cameraControlled = true;
 
 // Настройка CubeCamera для отражений
-const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
+const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(128, {
   generateMipmaps: true,
   minFilter: THREE.LinearMipmapLinearFilter
 });
-const cubeCamera = new THREE.CubeCamera(1, 100000, cubeRenderTarget);
-cubeCamera.position.y = 3;
+const cubeCamera = new THREE.CubeCamera(0.1, 1000, cubeRenderTarget);
+cubeCamera.position.y = 0.1;
 scene.add(cubeCamera);
+
+
+document.onkeydown = checkKey;
+
+function checkKey(e) {
+
+    e = e || window.event;
+
+
+
+    if (e.keyCode == 38) {
+      cubeCamera.position.y+= .1;
+        // up arrow
+    }
+    else if (e.keyCode == 40) {
+      cubeCamera.position.y-= .1;
+        // down arrow
+    }
+    else if (e.keyCode == 37) {
+      carDefaultPaintMaterial.envMapIntensity -=.1;
+       // left arrow
+    }
+    else if (e.keyCode == 39) {
+      carDefaultPaintMaterial.envMapIntensity +=.1;
+       // right arrow
+    }
+    console.log('pos y: '+cubeCamera.position.y+ ', intens: ' + carDefaultPaintMaterial.envMapIntensity);
+}
+
 
 // Инициализация Telegram Web Apps
 let tg = window.Telegram.WebApp;
@@ -318,17 +372,17 @@ function applyMetallic(met) {
     case 'gl':
       carDefaultPaintMaterial.metalness = 0.3;
       carDefaultPaintMaterial.clearCoat = 0.7;
-      carDefaultPaintMaterial.envMapIntensity = 5.5;
+      carDefaultPaintMaterial.envMapIntensity = 1.5;
       break;
     case 'met':
       carDefaultPaintMaterial.metalness = 0.5;
       carDefaultPaintMaterial.clearCoat = 0.9;
-      carDefaultPaintMaterial.envMapIntensity = 10.5;
+      carDefaultPaintMaterial.envMapIntensity = 3.5;
       break;
     case 'mat':
       carDefaultPaintMaterial.metalness = 0.0;
       carDefaultPaintMaterial.clearCoat = 0.1;
-      carDefaultPaintMaterial.envMapIntensity = 1.5;
+      carDefaultPaintMaterial.envMapIntensity = 0.5;
       break;
     default:
       console.warn('Неизвестный тип металлика:', met);
@@ -402,6 +456,7 @@ function initializeMenuActions() {
     gsap.to(garage.scale, { x: 0, y: 0, duration: 0.1 });
     document.getElementById('action-menu').style.display = 'none';
     gsap.to(camera.position, { x: -2, y: 3, z: -5, duration: 1.5 });
+    gsap.to(camera.rotation, { x: 0.5,y: Math.PI + .4, z:0.4, duration: 1 });
     loadRace(scene);
     // front.scale.set(1, 1, 1); // Раскомментируйте при необходимости
   });
@@ -549,8 +604,14 @@ document.getElementById('garage-container').appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, .5);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+directionalLight.castShadow = true;
 directionalLight.position.set(0, 2, 0);
+//Set up shadow properties for the light
+directionalLight.shadow.mapSize.width = 512; // default
+directionalLight.shadow.mapSize.height = 512; // default
+directionalLight.shadow.camera.near = 0.5; // default
+directionalLight.shadow.camera.far = 500; // default
 //scene.add(directionalLight);
 
 // Загрузка моделей
@@ -686,13 +747,47 @@ camera.lookAt(target);
 function animate() {
   requestAnimationFrame(animate);
 
+  // Обновление cubeCamera для динамических отражений
   if (body) {
     // Временно скрываем объект body для обновления отражений
     body.visible = false;
+
+    // Обновляем cubeCamera
     cubeCamera.update(renderer, scene);
+
+    // Возвращаем видимость объекта body
     body.visible = true;
   }
 
+  // Обновление mirroredCamera для фейковых отражений пола
+  if (garageFloor) {
+    // Временно скрываем пол, чтобы он не отображался в отражении
+    garageFloor.visible = false;
+
+    // Синхронизируем позицию и ориентацию mirroredCamera с основной камерой
+    mirroredCamera.position.copy(mainCamera.position);
+    mirroredCamera.quaternion.copy(mainCamera.quaternion);
+
+    // Инвертируем Y-позицию камеры относительно пола
+    // Предполагается, что пол находится на Y = 0
+    mirroredCamera.position.y = -mainCamera.position.y;
+
+    // Обновляем матрицы мира и проекции mirroredCamera
+    mirroredCamera.updateMatrixWorld();
+    mirroredCamera.updateProjectionMatrix();
+
+    mirroredCamera.lookAt(target);
+
+    // Рендерим сцену с mirroredCamera в Render Target
+    renderer.setRenderTarget(reflectionRenderTarget);
+    renderer.render(scene, mirroredCamera);
+    renderer.setRenderTarget(null);
+
+    // Возвращаем видимость пола
+    garageFloor.visible = true;
+  }
+
+  // Управление камерой (инерция и вращение)
   if (cameraControlled) {
     if (!isDragging) {
       // Применяем инерцию только если палец/мышь не взаимодействуют
@@ -710,6 +805,9 @@ function animate() {
     }
   }
 
-  renderer.render(scene, camera);
+  // Рендерим основную сцену с основной камерой
+  renderer.render(scene, mainCamera);
 }
 animate();
+
+
