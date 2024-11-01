@@ -177,7 +177,7 @@ function loadGarage(scene) {
       // Вычисляем коэффициент отражения на основе roughness
       // Чем выше roughness, тем меньше отражения
       // (1.0 - currentRoughness) даёт значение от 0 (полностью грубый) до 1 (полностью гладкий)
-      float reflectivityFactor = (1.0 - currentRoughness) * 0.2; // Коэффициент 0.5 регулирует общую интенсивность
+      float reflectivityFactor = (1.0 - currentRoughness) * 0.4; // Коэффициент 0.5 регулирует общую интенсивность
   
       // Наложение отражения на основной цвет материала
       gl_FragColor.rgb = mix(gl_FragColor.rgb, reflectionColor.rgb, reflectivityFactor);
