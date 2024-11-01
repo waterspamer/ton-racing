@@ -140,8 +140,7 @@ function loadGarage(scene) {
     metalness: 0.0,
     roughness: 1.0, // Изначальное значение roughness
     reflectivity: 0.8,
-    envMap: envMap,
-    envMapIntensity: 1.00,
+  
     roughnessMap: garageFloorTexture, // Добавляем roughnessMap
     transparent: true, // Включаем прозрачность для корректного наложения отражений
   });
