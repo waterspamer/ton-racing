@@ -2,6 +2,7 @@
 
 // Инициализация сцены, камеры и рендерера
 const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0xffebaa, 0.04);
 
 
 
@@ -597,6 +598,8 @@ document.getElementById('greeting').innerHTML = `Привет, <span class="grad
 // Настройка рендерера
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ReinhardToneMapping;
+renderer.toneMappingExposure = 4.5;
 //renderer.setPixelRatio(window.devicePixelRatio); // Улучшение качества
 document.getElementById('garage-container').appendChild(renderer.domElement);
 

@@ -303,6 +303,26 @@ function loadCarModel(scene, onLoaded) {
     envMapIntensity: 3.5, // Интенсивность отражений.
     clearcoat: 0.7, // Добавление слоя блеска.
     clearcoatRoughness: 0.03, // Гладкий слой блеска.
+    onBeforeCompile: (shader) => {
+      shader.uniforms.fresnelColor = {
+        value: new THREE.Color(0x111111),
+      };
+
+      shader.fragmentShader =
+        'uniform vec3 fresnelColor;\n' + shader.fragmentShader;
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <output_fragment>',
+        `
+        #include <output_fragment>
+        vec3 normalDirection = normalize(vNormal);
+        vec3 viewDirection = normalize(vViewPosition);
+        float fresnel = abs(dot(normalDirection, viewDirection));
+        fresnel = pow(1.0 - fresnel, 3.0);
+        gl_FragColor.rgb += pow(fresnel, 3.0) * fresnelColor * 1.2;
+        `
+      );
+    },
   });
   
 
