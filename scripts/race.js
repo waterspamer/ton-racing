@@ -3,8 +3,8 @@
 // Основные константы для управления RPM и скоростью
 const MIN_RPM = 800; // Минимальные обороты (идл)
 const MAX_RPM = 8000; // Максимальные обороты
-const RPM_INCREASE_RATE = 6000; // Обороты в секунду при нажатой педали газа
-const RPM_DECREASE_RATE = 4000; // Обороты в секунду при отпускании педали газа
+const RPM_INCREASE_RATE = 10000; // Обороты в секунду при нажатой педали газа
+const RPM_DECREASE_RATE = 8000; // Обороты в секунду при отпускании педали газа
 
 const FINISH_POSITION = 1000; // Примерное расстояние до финиша (в единицах вашей игровой сцены)
 
@@ -23,6 +23,14 @@ let gameState = {
 
 // Переменная для управления педалью газа
 let gas = false;
+
+// Звуковые переменные
+let audioCtx;
+let engineBuffer;
+let engineSource;
+
+// Переменные для виброотклика
+let currentHapticLevel = 0; // Текущий уровень вибрации
 
 // Функции для обновления UI через CSS переменные
 function updateRpm(value) {
@@ -194,6 +202,7 @@ function initRace() {
     setTimeout(() => {
         gameState.isRaceStarted = true;
         console.log('Гонка началась!');
+        startEngineSound(); // Запуск звука двигателя при старте гонки
     }, 3000);
 }
 
@@ -237,6 +246,16 @@ function updatePhysics(deltaTime) {
     updateRpm(gameState.rpm);
     updateKmh(gameState.speed);
 
+    // Обновление звука двигателя с текущими RPM
+    if (gameState.isRaceStarted && !gameState.hasFinished && engineSource) {
+        updateEngineSound(gameState.rpm);
+    }
+
+    // Обновление виброотклика с текущими RPM
+    if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+        triggerHapticFeedback(gameState.rpm);
+    }
+
     // Проверка финиша гонки
     if (gameState.position >= FINISH_POSITION && !gameState.hasFinished) {
         finishRace();
@@ -251,6 +270,7 @@ function finishRace() {
     gameState.isRaceStarted = false;
     console.log('Гонка завершена!');
     alert('Гонка завершена!');
+    stopEngineSound(); // Остановить звук двигателя при завершении гонки
     // Остановить обновление физики или показать результаты
 }
 
@@ -274,11 +294,134 @@ function gameLoop() {
     // renderer.render(scene, camera);
 }
 
-// Запуск игры
+/**
+ * Запуск игры
+ */
 function startGame() {
     initRace();
     gameLoop();
 }
 
-// Запуск игры при загрузке страницы
-window.addEventListener('load', startGame);
+/**
+ * Загрузка звука двигателя
+ */
+function loadEngineSound() {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "assets/audio/engine.wav", true);
+    xhr.responseType = "arraybuffer";
+    xhr.onload = function (e) {
+        const audioData = this.response;
+        audioCtx.decodeAudioData(audioData, function (buffer) {
+            engineBuffer = buffer;
+        }, function (err) {
+            console.error('Ошибка декодирования аудиоданных', err);
+        });
+    };
+    xhr.send();
+}
+
+/**
+ * Запуск звука двигателя
+ */
+function startEngineSound() {
+    if (audioCtx && engineBuffer && !engineSource) {
+        engineSource = audioCtx.createBufferSource();
+        engineSource.buffer = engineBuffer;
+        engineSource.loop = true;
+        engineSource.playbackRate.value = rpmToPlaybackRate(gameState.rpm);
+        engineSource.connect(audioCtx.destination);
+        engineSource.start();
+    }
+}
+
+/**
+ * Обновление звука двигателя на основе текущих RPM
+ * @param {number} rpm - Текущие обороты двигателя
+ */
+function updateEngineSound(rpm) {
+    if (engineSource) {
+        const newPlaybackRate = rpmToPlaybackRate(rpm);
+        engineSource.playbackRate.setTargetAtTime(newPlaybackRate, audioCtx.currentTime, 0.1); // Плавное изменение
+    }
+}
+
+/**
+ * Остановка звука двигателя
+ */
+function stopEngineSound() {
+    if (engineSource) {
+        engineSource.stop();
+        engineSource.disconnect();
+        engineSource = null;
+    }
+}
+
+/**
+ * Преобразование RPM в playbackRate
+ * Здесь вы можете настроить зависимость между RPM и playbackRate
+ * Например, нормализовать RPM в диапазон [0.8, 8.2]
+ * Можно линейно связать RPM с playbackRate
+ * @param {number} rpm - Текущие обороты двигателя
+ * @returns {number} - Значение playbackRate
+ */
+function rpmToPlaybackRate(rpm) {
+    const minPlaybackRate = 0.8;
+    const maxPlaybackRate = 8.2;
+    // Линейная интерполяция
+    return minPlaybackRate + ((rpm - MIN_RPM) / (MAX_RPM - MIN_RPM)) * (maxPlaybackRate - minPlaybackRate);
+}
+
+/**
+ * Функция для триггера виброотклика на основе RPM
+ * @param {number} rpm - Текущие обороты двигателя
+ */
+function triggerHapticFeedback(rpm) {
+    let newLevel = 0;
+    if (rpm >= 800 && rpm < 2000) {
+        newLevel = 1; // Легкая вибрация
+    } else if (rpm >= 2000 && rpm < 4000) {
+        newLevel = 2; // Средняя вибрация
+    } else if (rpm >= 4000 && rpm < 6000) {
+        newLevel = 3; // Сильная вибрация
+    } else if (rpm >= 6000 && rpm <= 8000) {
+        newLevel = 4; // Сильная вибрация с частотой
+    }
+
+    if (newLevel !== currentHapticLevel) {
+        currentHapticLevel = newLevel;
+        if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+            switch(newLevel) {
+                case 1:
+                    Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                    break;
+                case 2:
+                    Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                    break;
+                case 3:
+                    Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+                    break;
+                case 4:
+                    // Для более частой сильной вибрации, можно вызвать несколько раз
+                    Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+                    setTimeout(() => {
+                        if (currentHapticLevel === 4) { // Проверяем, не изменился ли уровень
+                            Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+                        }
+                    }, 50); // Интервал между вибрациями
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+// Загрузка звука двигателя при загрузке страницы и запуск игры
+window.addEventListener('load', function () {
+    loadEngineSound();
+    if (Telegram && Telegram.WebApp) {
+        Telegram.WebApp.ready(); // Уведомление Telegram о готовности приложения
+    }
+    startGame();
+});
