@@ -458,6 +458,7 @@ function initializeMenuActions() {
     document.getElementById('action-menu').style.display = 'none';
     gsap.to(camera.position, { x: -2, y: 3, z: -5, duration: 1.5 });
     gsap.to(camera.rotation, { x: 0.5,y: Math.PI + .4, z:0.4, duration: 1 });
+    scene.fog = new THREE.FogExp2(0xff33ff, 0.02);
     loadRace(scene);
     // front.scale.set(1, 1, 1); // Раскомментируйте при необходимости
   });
@@ -598,7 +599,7 @@ document.getElementById('greeting').innerHTML = `Привет, <span class="grad
 // Настройка рендерера
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.toneMapping = THREE.ReinhardToneMapping;
+renderer.toneMapping = THREE.ReinhardToneMapping ;
 renderer.toneMappingExposure = 4.5;
 //renderer.setPixelRatio(window.devicePixelRatio); // Улучшение качества
 document.getElementById('garage-container').appendChild(renderer.domElement);

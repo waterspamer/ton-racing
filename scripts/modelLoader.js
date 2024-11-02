@@ -278,6 +278,7 @@ function loadCarModel(scene, onLoaded) {
 
   carGlassMaterial = new THREE.MeshPhysicalMaterial({
     transparent: true,
+    side:2,
     opacity: 0.5,
     color: 0xffffff,
     metalness: 1.0,

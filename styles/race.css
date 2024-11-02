@@ -1,4 +1,7 @@
-.race-gui{
+/* race.css */
+
+/* Стили для race-gui */
+.race-gui {
     position: absolute;
     border-radius: 40px 40px 0px 0px;
     display: flex;
@@ -8,49 +11,52 @@
     background-color: rgba(110, 110, 110, 0.151);
     backdrop-filter: blur(10px);
     z-index: 10;
-    transition: all .5s;
+    transition: all 0.5s;
 }
 
-.race-gui.show{
-bottom:0vh;
+.race-gui.show {
+    bottom: 0vh;
 }
 
-.race-gui.hide{
-    bottom:-100vh;
-    }
+.race-gui.hide {
+    bottom: -100vh;
+}
 
-
-#visuals{
+/* Стили для визуальных элементов внутри race-gui */
+#visuals {
     position: absolute;
-    top:-5vh;
-width:100%;
-height:5vh;
+    top: -5vh;
+    width: 100%;
+    height: 5vh;
 }
 
-#speedometer{
+/* Стили для спидометра */
+#speedometer {
     position: relative;
-    width:calc(100% - 2vh);
-    top:2vh;
-    left:1vh;
+    width: calc(100% - 2vh);
+    top: 2vh;
+    left: 1vh;
     border-radius: 10vh;
+    background: linear-gradient(90deg, rgb(151, 151, 151) 50%, rgb(151, 151, 151) 58%, blue 60%, blue 65%, green 70%, green 75%, blue 80%, blue 85%, rgb(255, 0, 13) 100%);
     background-color: rgb(185, 185, 185);
-    height:2vh;
-}
-
-#speed{
-    width:25%;
-    top: 1vh;
-    border-radius: 10vh;
-    background-color: rgb(187, 224, 22);
     height: 2vh;
 }
 
-#controls{
-width:100%;
-perspective: 500px;
+#speed {
+    position: relative;
+    width: 25%;
+    top: 0.5vh;
+    border-radius: 10vh;
+    background-color: rgb(187, 224, 22);
+    height: 1vh;
 }
 
-#gas-pedal{
+/* Стили для контролов */
+#controls {
+    /* width: 100%; */
+}
+
+#gas-pedal {
     outline: solid;
     outline-color: #b9b9b9;
     color: rgb(37, 37, 37);
@@ -63,37 +69,474 @@ perspective: 500px;
     position: absolute;
     background: linear-gradient(0deg, #c9c9c9, #575757);
     background-color: rgb(194, 194, 194);
-    border-radius: 3vh 1vh 3vh 1vh; 
-    scale:1.2;
-    height: 15.5vh; 
+    border-radius: 3vh 1vh 3vh 1vh;
+    transform: scale(1.2);
+    height: 15.5vh;
     width: 11vh;
-    right:40px;
+    right: 40px;
     z-index: 4;
-    object-fit:fill ;
-    /* opacity: .5; */
- /* background-image: url('/assets/img/gas.png'); */
- transition: all .05s;
+    object-fit: fill;
+    transition: all 0.05s;
 }
 
-#gas-pedal-leg{
+#gas-pedal-leg {
     position: absolute;
-    width:1vh;
+    width: 1vh;
     left: 5vh;
     height: 5vh;
     bottom: -4vh;
     z-index: 3;
-    /* box-shadow: inset 0px 10px 1px 1px rgb(104, 104, 104); */
     background-color: rgb(194, 194, 194);
 }
 
-.pressed{
+.pressed {
     color: rgb(0, 0, 0) !important;
-    transform: rotateX(10deg) !important;
+    transform: rotateX(10deg) scale(1.1) !important;
     filter: drop-shadow(0 0px 10px rgb(160, 0, 210));
-    scale:1.1 !important;
 }
 
-
-#shift-pedal{
-
+/* Стили для тахометра (revmeter) */
+#revmeter {
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
+
+#revmeter .gauge {
+    --start-angle: -30deg;
+    --digits-angle: 30deg;
+    --lines-count: 10;
+    --digits-count: 8;
+    --gauge-value: 0;
+
+    position: relative;
+    border: 0.2rem solid #137;
+    border-radius: 100%;
+    box-shadow: inset 0 0 0.25rem 0.25rem #137, inset 0 0 7.5rem rgba(40, 101, 224, 0.5);
+    width: 50%;
+    /* height: 100%; */
+    background-color: #040b10;
+    overflow: hidden;
+}
+
+#revmeter .gauge::before {
+    padding-top: 100%;
+    content: '';
+    display: block;
+}
+
+#revmeter .gauge::after {
+    font-size: 0.5rem;
+    font-weight: bold;
+    display: block;
+    content: 'x1000r/min';
+    position: absolute;
+    top: 25%;
+    width: 100%;
+    text-align: center;
+}
+
+#revmeter .gauge .digit {
+    position: absolute;
+    top: 49.375%;
+    right: 50%;
+    width: 50%;
+    height: 1.25%;
+    border-left: 1.1rem solid white;
+    transform-origin: center right;
+    box-sizing: border-box;
+    z-index: 1;
+    transform: rotate(calc(var(--start-angle) + var(--digit-order) * var(--digits-angle)));
+}
+
+#revmeter .gauge .digit .label {
+    position: absolute;
+    transform: rotate(calc(-1 * (var(--start-angle) + var(--digit-order) * var(--digits-angle))));
+    font-family: 'Changa One', cursive;
+    font-style: italic;
+    font-size: 1rem;
+    bottom: -0.5rem;
+    left: 7%;
+    text-shadow:
+        0.1rem 0.1rem 0.1rem black,
+        0.1rem -0.1rem 0.1rem black,
+        -0.1rem 0.1rem 0.1rem black,
+        -0.1rem -0.1rem 0.1rem black;
+    box-shadow: 0 0 1rem 1rem rgba(195, 225, 255, 0.05);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#revmeter .gauge .digit.highlighted {
+    border-left-color: red;
+}
+
+#revmeter .gauge .digit .line {
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 50%;
+    border-left: 0.5rem solid white;
+    border-right: 0.5rem solid transparent;
+    left: -1rem;
+    top: 25%;
+    transform: rotate(calc(var(--digits-angle) / var(--lines-count) * var(--line-order)));
+    transform-origin: center right;
+}
+
+#revmeter .gauge .digit .line.highlighted {
+    border-left-color: red;
+}
+
+#revmeter .gauge .digit .line.separating {
+    top: 12.5%;
+    height: 75%;
+}
+
+#revmeter .gauge .digit .line.separating::after {
+    content: '';
+    display: block;
+    border-left: 2.5rem solid rgba(255, 255, 255, 0.15);
+    border-top: 0.075rem solid transparent;
+    border-bottom: 0.075rem solid transparent;
+    width: 0;
+    height: 0;
+    position: absolute;
+    left: 0.25rem;
+}
+
+/* Нумерация цифр */
+#revmeter .gauge .digit:nth-of-type(1) { --digit-order: 0; }
+#revmeter .gauge .digit:nth-of-type(2) { --digit-order: 1; }
+#revmeter .gauge .digit:nth-of-type(3) { --digit-order: 2; }
+#revmeter .gauge .digit:nth-of-type(4) { --digit-order: 3; }
+#revmeter .gauge .digit:nth-of-type(5) { --digit-order: 4; }
+#revmeter .gauge .digit:nth-of-type(6) { --digit-order: 5; }
+#revmeter .gauge .digit:nth-of-type(7) { --digit-order: 6; }
+#revmeter .gauge .digit:nth-of-type(8) { --digit-order: 7; }
+#revmeter .gauge .digit:nth-of-type(9) { --digit-order: 8; }
+#revmeter .gauge .digit:nth-of-type(10) { --digit-order: 9; }
+#revmeter .gauge .digit:nth-of-type(11) { --digit-order: 10; }
+
+/* Ограничитель для тахометра */
+#revmeter .gauge .limiter {
+    width: 100%;
+    height: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: bottom center;
+    transform: rotate(calc(var(--start-angle) + var(--digits-count) * var(--digits-angle) - 180deg));
+    overflow: hidden;
+    z-index: 0;
+}
+
+#revmeter .gauge .limiter::after {
+    content: '';
+    width: 99.5%;
+    height: 199%;
+    border: 0.6rem solid;
+    border-color: transparent red red transparent;
+    border-radius: 100%;
+    display: block;
+    box-sizing: border-box;
+    transform: rotate(calc(45deg + var(--digits-angle) * (var(--gauge-value) - var(--digits-count))));
+}
+
+/* Указатель тахометра */
+#revmeter .gauge .pointer {
+    z-index: 4;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#revmeter .gauge .pointer::before {
+    content: '';
+    display: block;
+    box-sizing: border-box;
+    position: absolute;
+    width: 22%;
+    height: 22%;
+    left: 39%;
+    top: 39%;
+    border-radius: 100%;
+    box-shadow:
+        inset 0 0 1rem 1px rgba(51, 153, 255, 0.5),
+        0 0 5rem 0.1rem #137;
+}
+
+#revmeter .gauge .pointer .hand {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transform-origin: center center;
+    transform: rotate(calc(var(--start-angle) + (var(--gauge-value) * var(--digits-angle))));
+    transition: transform ease 0.2s;
+}
+
+#revmeter .gauge .pointer .hand::after {
+    content: '';
+    display: block;
+    box-sizing: border-box;
+    position: absolute;
+    width: 39%;
+    height: 2%;
+    top: 49%;
+    right: 56%;
+    background: #fff;
+    border: 1px solid #fff;
+    border-right: 0;
+    border-bottom-left-radius: 1.7rem 0.25rem;
+    border-top-left-radius: 1.7rem 0.25rem;
+    box-shadow: inset 0px 0 1px #000;
+    z-index: 1;
+}
+
+#revmeter .gauge .pointer .hand::before {
+    content: '';
+    display: block;
+    border: 1px solid #fff;
+    position: absolute;
+    width: 12%;
+    height: 5.5%;
+    left: 44%;
+    top: 47.25%;
+    box-sizing: border-box;
+    border-radius: 20%;
+    background: #e6e7e8;
+    box-shadow: inset 0 0 1px 1px rgba(0, 0, 0, 0.25);
+    z-index: 0;
+}
+
+/* Стили для спидометра */
+#speedometer .gauge {
+    --start-angle: 0deg;
+    --digits-angle: 30deg;
+    --lines-count: 6;
+    --digits-count: 10;
+    --gauge-value: 0;
+
+    position: relative;
+    border: 0.2rem solid #137;
+    border-radius: 100%;
+    box-shadow: inset 0 0 0.25rem 0.25rem #137, inset 0 0 7.5rem rgba(40, 101, 224, 0.5);
+    width: 100%;
+    height: 100%;
+    background-color: #040b10;
+    overflow: hidden;
+}
+
+#speedometer .gauge::before {
+    padding-top: 100%;
+    content: '';
+    display: block;
+}
+
+#speedometer .gauge::after {
+    font-size: 0.5rem;
+    font-weight: bold;
+    display: block;
+    content: 'km/h';
+    position: absolute;
+    top: 25%;
+    width: 100%;
+    text-align: center;
+}
+
+#speedometer .gauge .digit {
+    position: absolute;
+    top: 49.375%;
+    right: 50%;
+    width: 50%;
+    height: 1.25%;
+    border-left: 1.1rem solid white;
+    transform-origin: center right;
+    box-sizing: border-box;
+    z-index: 1;
+    transform: rotate(calc(var(--start-angle) + var(--digit-order) * var(--digits-angle)));
+}
+
+#speedometer .gauge .digit .label {
+    position: absolute;
+    transform: rotate(calc(-1 * (var(--start-angle) + var(--digit-order) * var(--digits-angle))));
+    font-family: 'Changa One', cursive;
+    font-style: italic;
+    font-size: 1rem;
+    bottom: -0.5rem;
+    left: 7%;
+    text-shadow:
+        0.1rem 0.1rem 0.1rem black,
+        0.1rem -0.1rem 0.1rem black,
+        -0.1rem 0.1rem 0.1rem black,
+        -0.1rem -0.1rem 0.1rem black;
+    box-shadow: 0 0 1rem 1rem rgba(195, 225, 255, 0.05);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#speedometer .gauge .digit.highlighted {
+    border-left-color: red;
+}
+
+#speedometer .gauge .digit .line {
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 50%;
+    border-left: 0.5rem solid white;
+    border-right: 0.5rem solid transparent;
+    left: -1rem;
+    top: 25%;
+    transform: rotate(calc(var(--digits-angle) / var(--lines-count) * var(--line-order)));
+    transform-origin: center right;
+}
+
+#speedometer .gauge .digit .line.highlighted {
+    border-left-color: red;
+}
+
+#speedometer .gauge .digit .line.separating {
+    top: 12.5%;
+    height: 75%;
+}
+
+#speedometer .gauge .digit .line.separating::after {
+    content: '';
+    display: block;
+    border-left: 2.5rem solid rgba(255, 255, 255, 0.15);
+    border-top: 0.075rem solid transparent;
+    border-bottom: 0.075rem solid transparent;
+    width: 0;
+    height: 0;
+    position: absolute;
+    left: 0.25rem;
+}
+
+/* Нумерация цифр в спидометре */
+#speedometer .gauge .digit:nth-of-type(1) { --digit-order: 0; }
+#speedometer .gauge .digit:nth-of-type(2) { --digit-order: 1; }
+#speedometer .gauge .digit:nth-of-type(3) { --digit-order: 2; }
+#speedometer .gauge .digit:nth-of-type(4) { --digit-order: 3; }
+#speedometer .gauge .digit:nth-of-type(5) { --digit-order: 4; }
+#speedometer .gauge .digit:nth-of-type(6) { --digit-order: 5; }
+#speedometer .gauge .digit:nth-of-type(7) { --digit-order: 6; }
+#speedometer .gauge .digit:nth-of-type(8) { --digit-order: 7; }
+#speedometer .gauge .digit:nth-of-type(9) { --digit-order: 8; }
+#speedometer .gauge .digit:nth-of-type(10) { --digit-order: 9; }
+#speedometer .gauge .digit:nth-of-type(11) { --digit-order: 10; }
+
+/* Ограничитель для спидометра */
+#speedometer .gauge .limiter {
+    width: 100%;
+    height: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: bottom center;
+    transform: rotate(calc(var(--start-angle) + var(--digits-count) * var(--digits-angle) - 180deg));
+    overflow: hidden;
+    z-index: 0;
+}
+
+#speedometer .gauge .limiter::after {
+    content: '';
+    width: 99.5%;
+    height: 199%;
+    border: 0.6rem solid;
+    border-color: transparent red red transparent;
+    border-radius: 100%;
+    display: block;
+    box-sizing: border-box;
+    transform: rotate(calc(45deg + var(--digits-angle) * (var(--gauge-value) - var(--digits-count))));
+}
+
+/* Указатель спидометра */
+#speedometer .gauge .pointer {
+    z-index: 4;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#speedometer .gauge .pointer::before {
+    content: '';
+    display: block;
+    box-sizing: border-box;
+    position: absolute;
+    width: 22%;
+    height: 22%;
+    left: 39%;
+    top: 39%;
+    border-radius: 100%;
+    box-shadow:
+        inset 0 0 1rem 1px rgba(51, 153, 255, 0.5),
+        0 0 5rem 0.1rem #137;
+}
+
+#speedometer .gauge .pointer .hand {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transform-origin: center center;
+    transform: rotate(calc(var(--start-angle) + (var(--gauge-value) * var(--digits-angle))));
+    transition: transform ease 0.2s;
+}
+
+#speedometer .gauge .pointer .hand::after {
+    content: '';
+    display: block;
+    box-sizing: border-box;
+    position: absolute;
+    width: 39%;
+    height: 2%;
+    top: 49%;
+    right: 56%;
+    background: #fff;
+    border: 1px solid #fff;
+    border-right: 0;
+    border-bottom-left-radius: 1.7rem 0.25rem;
+    border-top-left-radius: 1.7rem 0.25rem;
+    box-shadow: inset 0px 0 1px #000;
+    z-index: 1;
+}
+
+#speedometer .gauge .pointer .hand::before {
+    content: '';
+    display: block;
+    border: 1px solid #fff;
+    position: absolute;
+    width: 12%;
+    height: 5.5%;
+    left: 44%;
+    top: 47.25%;
+    box-sizing: border-box;
+    border-radius: 20%;
+    background: #e6e7e8;
+    box-shadow: inset 0 0 1px 1px rgba(0, 0, 0, 0.25);
+    z-index: 0;
+}
+
+/* Стили для гейров (gear) */
+#revmeter .gauge .gear {
+    position: absolute;
+    bottom: 10%;
+    right: 10%;
+    width: 20%;
+    height: 10%;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    text-align: center;
+    line-height: 10%;
+    font-weight: bold;
+    color: white;
+    font-size: 1rem;
+}
+
+/* Дополнительные стили для Tachometer, если необходимо */
