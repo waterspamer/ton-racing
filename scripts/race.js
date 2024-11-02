@@ -30,7 +30,7 @@ let engineBuffer;
 let engineSource;
 
 // Переменные для виброотклика
-let currentHapticLevel = 0; // Текущий уровень вибрации
+let hapticIntervalId = null;
 
 // Функции для обновления UI через CSS переменные
 function updateRpm(value) {
@@ -271,6 +271,7 @@ function finishRace() {
     console.log('Гонка завершена!');
     alert('Гонка завершена!');
     stopEngineSound(); // Остановить звук двигателя при завершении гонки
+    stopHapticFeedback(); // Остановить вибрацию
     // Остановить обновление физики или показать результаты
 }
 
@@ -373,51 +374,54 @@ function rpmToPlaybackRate(rpm) {
 }
 
 /**
- * Функция для триггера виброотклика на основе RPM
+ * Функция для триггера виброотклика на основе RPM с использованием Telegram Web Apps Haptic Feedback API
  * @param {number} rpm - Текущие обороты двигателя
  */
 function triggerHapticFeedback(rpm) {
-    let newLevel = 0;
-    if (rpm >= 800 && rpm < 2000) {
-        newLevel = 1; // Легкая вибрация
-    } else if (rpm >= 2000 && rpm < 4000) {
-        newLevel = 2; // Средняя вибрация
-    } else if (rpm >= 4000 && rpm < 6000) {
-        newLevel = 3; // Сильная вибрация
-    } else if (rpm >= 6000 && rpm <= 8000) {
-        newLevel = 4; // Сильная вибрация с частотой
+    // Частота вибрации в Гц
+    const frequency = rpm / 100; // Например, RPM = 4000 => 40 Гц
+
+    // Ограничение частоты до допустимого диапазона
+    const minFrequency = 1; // 1 Гц
+    const maxFrequency = 100; // 100 Гц
+    const clampedFrequency = Math.min(Math.max(frequency, minFrequency), maxFrequency);
+
+    // Интервал между вибрациями в миллисекундах
+    const interval = 1000 / clampedFrequency; // Например, 40 Гц => 25 мс
+
+    // Очистка предыдущего интервала, если он существует
+    if (hapticIntervalId) {
+        clearInterval(hapticIntervalId);
+        hapticIntervalId = null;
     }
 
-    if (newLevel !== currentHapticLevel) {
-        currentHapticLevel = newLevel;
+    // Выбор стиля вибрации в зависимости от частоты
+    let hapticStyle = 'light';
+    if (clampedFrequency >= 60) {
+        hapticStyle = 'heavy';
+    } else if (clampedFrequency >= 30) {
+        hapticStyle = 'medium';
+    }
+
+    // Установка нового интервала для вибрации
+    hapticIntervalId = setInterval(() => {
         if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
-            switch(newLevel) {
-                case 1:
-                    Telegram.WebApp.HapticFeedback.impactOccurred('light');
-                    break;
-                case 2:
-                    Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-                    break;
-                case 3:
-                    Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-                    break;
-                case 4:
-                    // Для более частой сильной вибрации, можно вызвать несколько раз
-                    Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-                    setTimeout(() => {
-                        if (currentHapticLevel === 4) { // Проверяем, не изменился ли уровень
-                            Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-                        }
-                    }, 50); // Интервал между вибрациями
-                    break;
-                default:
-                    break;
-            }
+            Telegram.WebApp.HapticFeedback.impactOccurred(hapticStyle);
         }
+    }, interval);
+}
+
+/**
+ * Остановка виброотклика
+ */
+function stopHapticFeedback() {
+    if (hapticIntervalId) {
+        clearInterval(hapticIntervalId);
+        hapticIntervalId = null;
     }
 }
 
-// Загрузка звука двигателя при загрузке страницы и запуск игры
+// Запуск игры при загрузке страницы
 window.addEventListener('load', function () {
     loadEngineSound();
     if (Telegram && Telegram.WebApp) {
