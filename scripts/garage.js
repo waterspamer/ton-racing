@@ -36,7 +36,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1, // Ближняя плоскость отсечения
   1000 // Дальняя плоскость отсечения
 );
-camera.position.set(2.5, 1, 4);
+camera.position.set(-2.5, .8, 4);
 camera.rotation.set(-0., .65, 0);
 
 
@@ -655,7 +655,7 @@ const rotationSpeed = 0.005;
 const dampingFactor = 0.95;
 
 // Ограничения для вертикального угла (в радианах)
-const minPolarAngle = Math.PI / 6; // 30 градусов
+const minPolarAngle = Math.PI / 3; // 30 градусов
 const maxPolarAngle = Math.PI / 2; // 90 градусов
 
 // Обработчики событий мыши
