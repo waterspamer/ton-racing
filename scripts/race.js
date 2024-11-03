@@ -3,9 +3,9 @@
 /**
  * Запуск гонки при загрузке страницы
  */
-window.addEventListener('load', function () {
+/* window.addEventListener('load', function () {
     startRace();
-});
+}); */
 
 /**
  * Запуск гонки
@@ -74,7 +74,7 @@ function updateRpm(value) {
 function updateKmh(value) {
     const speedLabel = document.getElementById('speed-label');
     if (speedLabel) {
-        speedLabel.textContent = Math.round(value);
+        speedLabel.textContent = Math.round(value * 3.6);
     }
     const speedometerGauge = document.querySelector('#speedometer .gauge');
     if (speedometerGauge) {
