@@ -9,6 +9,9 @@ var garage;
 var road;
 var canRenderBody = false; // Флаг для контроля рендеринга
 
+var backWheelPivot;
+var frontWheelPivot;
+
 var carDefaultPaintMaterial;
 var wheelMaterial;
 var carGlassMaterial;
@@ -16,77 +19,209 @@ var carGlassMaterial;
 var carBodyTexture;
 
 
-function loadRace(scene){
-  //floorCar.visible = false;
+const buildingData = [
+  {
+    model: 'assets/env/build.fbx',
+    albedo: 'assets/env/build_albedo.jpg',
+    roughnessMap: 'assets/env/build_roughness.jpg',
+    normalMap: 'assets/env/build_normal.jpg'
+  },
+  {
+    model: 'assets/env/build2.fbx',
+    albedo: 'assets/env/build2_albedo.jpg',
+    roughnessMap: 'assets/env/build2_roughness.jpg',
+    normalMap: 'assets/env/build2_normal.jpg'
+  },
+  // Добавьте больше объектов по необходимости
+];
+
+
+
+async function loadBuildingModels(loader, textureLoader, buildingData) {
+  const loadedBuildings = [];
+
+  for (const building of buildingData) {
+    try {
+      const loadedBuilding = await new Promise((resolve, reject) => {
+        loader.load(
+          building.model,
+          resolve,
+          undefined,
+          reject
+        );
+      });
+
+      // Загрузка текстур
+      const albedo = await new Promise((resolve, reject) => {
+        textureLoader.load(building.albedo, resolve, undefined, reject);
+      });
+
+      /* const roughnessMap = await new Promise((resolve, reject) => {
+        textureLoader.load(building.roughnessMap, resolve, undefined, reject);
+      });
+
+      const normalMap = await new Promise((resolve, reject) => {
+        textureLoader.load(building.normalMap, resolve, undefined, reject);
+      }); */
+
+      // Создание материала
+      const material = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff, // Цвет по умолчанию, можно изменить
+        map: albedo,
+        /* roughnessMap: roughnessMap,
+        normalMap: normalMap, */
+        roughness: 0.5, // Можно настроить
+        metalness: 0.5, // Можно настроить
+        reflectivity: 0.5, // Можно настроить
+      });
+
+      // Применение материала ко всем мешам в загруженной модели
+      loadedBuilding.traverse(function (child) {
+        if (child.isMesh) {
+          child.material = material;
+        }
+      });
+
+      // Добавление загруженной модели в массив
+      loadedBuildings.push(loadedBuilding);
+    } catch (error) {
+      console.error(`Ошибка загрузки здания: ${building.model}`, error);
+    }
+  }
+
+  return loadedBuildings;
+}
+
+
+
+
+async function loadRace(scene){
+  // Инициализация загрузчиков
   const loader = new THREE.FBXLoader();
   const textureLoader = new THREE.TextureLoader();
-  
-  const buildTexture = textureLoader.load('assets/env/build_albedo.jpg');
 
+  // Загрузка текстур дороги
   const roadTexture = textureLoader.load('assets/env/road_albedo.jpg');
   roadTexture.wrapS = THREE.RepeatWrapping;
   roadTexture.wrapT = THREE.RepeatWrapping;
   roadTexture.repeat.set(1, 1);
 
-
   const roadRoughness = textureLoader.load('assets/env/road_roughness.jpg');
   const roadNormal = textureLoader.load('assets/env/road_normal.jpg');
 
+  // Создание материала для дороги
   let roadMaterial = new THREE.MeshPhysicalMaterial({
-    //metalnessMap: garageMetallic,
-    color:0x333333,
+    color: 0x333333,
     envMap: cubeRenderTarget.texture,
     envMapIntensity: 1.00,
-    metalness: 0.3,
-    roughness: 0.085,
+    metalness: 0.0,
+    roughness: 1.0,
     roughnessMap: roadRoughness,
+    normalMap: roadNormal,
     map: roadTexture,
     reflectivity: 0.5,
-    //envMap: envMap,
-    //envMapIntensity: 1.00,
   });
 
+  // Настройка шейдера для дороги
   roadMaterial.onBeforeCompile = (shader) => {
-    // Добавляем uniforms для отражения и разрешения экрана
+    // Добавляем uniforms
     shader.uniforms.reflectionTexture = { value: reflectionRenderTarget.texture };
     shader.uniforms.screenResolution = { value: new THREE.Vector2(window.innerWidth, window.innerHeight) };
-  
+    /* shader.uniforms.roughnessMap = { value: roadMaterial.roughnessMap }; */
+
     // Вставляем объявления uniforms в начало фрагментного шейдера
     shader.fragmentShader = `
       uniform sampler2D reflectionTexture;
       uniform vec2 screenResolution;
+      /* uniform sampler2D roughnessMap; */
     ` + shader.fragmentShader;
-  
-    // Модифицируем фрагментный шейдер для наложения отражения в screen space с учетом roughness
+
+    // Модификация фрагментного шейдера
     shader.fragmentShader = shader.fragmentShader.replace(
       '#include <output_fragment>',
       `
       #include <output_fragment>
-  
+      
       // Получаем экранные координаты фрагмента
       vec2 screenUV = gl_FragCoord.xy / screenResolution;
-  
+      
       // Получаем цвет отражения из reflectionTexture
       vec4 reflectionColor = texture2D(reflectionTexture, screenUV);
-  
+      
       // Получаем значение roughness для текущего фрагмента
-      // Если roughnessMap присутствует, используем его, иначе используем uniform roughness
-      float currentRoughness = 1.0 -texture2D(roughnessMap, vUv).r;
-  
-      // Вычисляем коэффициент отражения на основе roughness
-      // Чем выше roughness, тем меньше отражения
-      // (1.0 - currentRoughness) даёт значение от 0 (полностью грубый) до 1 (полностью гладкий)
-      float reflectivityFactor = (1.0 - currentRoughness) * 0.4; // Коэффициент 0.5 регулирует общую интенсивность
-  
-      // Наложение отражения на основной цвет материала
+      float roughness = texture2D(roughnessMap, vUv).r;
+      
+      // Вычисляем smoothness как инверсию roughness
+      float smoothness = 1.0 - roughness;
+      
+      // Вычисляем коэффициент отражения на основе smoothness
+      float reflectivityFactor = smoothness * 0.15; // Коэффициент 0.4 регулирует общую интенсивность
+      
+      // Наложение отражения на основной цвет материала с учетом reflectivityFactor
       gl_FragColor.rgb = mix(gl_FragColor.rgb, reflectionColor.rgb, reflectivityFactor);
       `
     );
-  
+
     // Сохраняем изменённый шейдер для последующего использования (если необходимо)
     roadMaterial.userData.shader = shader;
+
+    // Обновление разрешения экрана при изменении размера окна
+    window.addEventListener('resize', () => {
+      shader.uniforms.screenResolution.value.set(window.innerWidth, window.innerHeight);
+    });
   };
 
+  // Загрузка моделей зданий
+  const loadedBuildings = await loadBuildingModels(loader, textureLoader, buildingData);
+
+  // Загрузка модели дороги
+  loader.load('assets/env/road.fbx', function (loadedRoad) {
+    road = loadedRoad;
+    road.scale.set(0.01, 0.01, 0.01);
+    road.position.set(0, -0.1, 0);
+
+    road.traverse(function (child) {
+      if (child.isMesh) {
+        child.material = roadMaterial;
+      }
+    });
+
+    // Расстановка дорог и зданий
+    for (let i = 0; i < 20; i++) { // Количество сегментов дороги
+      // Клонирование дороги
+      const clonedRoad = road.clone();
+      clonedRoad.position.z += i * 20; // Расстояние между сегментами
+
+      // Выбор случайного здания
+      if (loadedBuildings.length > 0) {
+        const randomIndex = Math.floor(Math.random() * loadedBuildings.length);
+        const randomBuilding = loadedBuildings[randomIndex].clone(); // Клонирование выбранного здания
+
+        // Применение случайных преобразований для разнообразия
+        randomBuilding.scale.setScalar(1 + Math.random() * 0.5); // Масштабирование от 1 до 1.5
+        //randomBuilding.rotation.y = Math.random() * Math.PI * 2; // Случайный поворот по оси Y
+
+        // Позиционирование зданий относительно дороги
+        const building1 = randomBuilding.clone();
+        const building2 = randomBuilding.clone();
+
+        building1.position.set(90, 16, 0); // Позиция первого здания
+        building2.position.set(-90, 16, 0); // Позиция второго здания
+        building2.scale.set(-1, 1, 1); // Отражение второго здания по оси X для разнообразия
+
+        // Добавление зданий к клонированной дороге
+        clonedRoad.add(building1);
+        clonedRoad.add(building2);
+      }
+
+      // Добавление клонированной дороги с зданиями в сцену
+      scene.add(clonedRoad);
+    }
+
+  }, undefined, function (error) {
+    console.error('Ошибка загрузки дороги:', error);
+  });
+}
 
 
 
@@ -95,7 +230,10 @@ function loadRace(scene){
 
 
 
-  let buildMaterial = new THREE.MeshPhysicalMaterial({
+
+
+
+ /*  let buildMaterial = new THREE.MeshPhysicalMaterial({
     //metalnessMap: garageMetallic,
     metalness: 0.0,
     roughness: 0.3,
@@ -147,12 +285,11 @@ function loadRace(scene){
       });
       //scene.add(garage);
     });
-
+ */
 
     
     
-  });
-}
+
 
 function loadGarage(scene) {
   const loader = new THREE.FBXLoader();
@@ -632,12 +769,12 @@ function loadCarModel(scene, onLoaded) {
     });
 
     // Создаём pivots для колес
-    const frontWheelPivot = new THREE.Object3D();
-    const backWheelPivot = new THREE.Object3D();
+    frontWheelPivot = new THREE.Object3D();
+    backWheelPivot = new THREE.Object3D();
 
     // Позиционируем pivots
-    frontWheelPivot.position.set(0, 0, 0); // Передние колеса
-    backWheelPivot.position.set(0, 0, -275); // Задние колеса
+    frontWheelPivot.position.set(0, 25, 147); // Передние колеса
+    backWheelPivot.position.set(0, 25, -130); // Задние колеса
 
     loadedBody.add(frontWheelPivot);
     loadedBody.add(backWheelPivot);
@@ -764,27 +901,28 @@ function loadCarModel(scene, onLoaded) {
 
         // Переднее левое колесо
         const frontLeftWheel = wheelAssembly.clone();
-        frontLeftWheel.position.set(0, 0, 0);
+        frontLeftWheel.position.set(85, 0, 0);
         frontLeftWheel.scale.set(-1, 1, 1); // Отражаем по оси X для левой стороны
 
         // Переднее правое колесо
         const frontRightWheel = wheelAssembly.clone();
-        frontRightWheel.position.set(0, 0, 0);
+        frontRightWheel.position.set(-85, 0, 0);
 
         frontWheelPivot.add(frontLeftWheel);
         frontWheelPivot.add(frontRightWheel);
 
         // Заднее левое колесо
         const backLeftWheel = wheelAssembly.clone();
-        backLeftWheel.position.set(0, 0, 0);
+        backLeftWheel.position.set(85, 0, 0);
         backLeftWheel.scale.set(-1, 1, 1); // Отражаем по оси X для левой стороны
 
         // Заднее правое колесо
         const backRightWheel = wheelAssembly.clone();
-        backRightWheel.position.set(0, 0, 0);
+        backRightWheel.position.set(-85, 0, 0);
 
         backWheelPivot.add(backLeftWheel);
         backWheelPivot.add(backRightWheel);
+        backRightWheel.scale.set(1,1,1);
 
         // Добавляем автомобиль в сцену
         scene.add(loadedBody);

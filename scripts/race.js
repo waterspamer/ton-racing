@@ -25,9 +25,9 @@ const RPM_INCREASE_RATE = 10000; // Обороты в секунду при на
 
 // Введение массивов RPM_DECREASE_RATES и INCREASE_RATIOS для разных передач
 const RPM_DECREASE_RATES = [8000, 500, 400, 300, 200, 150, 100]; // Индекс 0: Neutral, 1-6: Gears 1-6
-const INCREASE_RATIOS = [1, 0.3, 0.2, 0.15, 0.12, 0.1, 0.05]; // Индекс 0: Neutral, 1-6: Gears 1-6
+const INCREASE_RATIOS = [1, 0.25, 0.2, 0.15, 0.12, 0.07, 0.03]; // Индекс 0: Neutral, 1-6: Gears 1-6
 
-const FINISH_POSITION = 1000; // Примерное расстояние до финиша (в единицах вашей игровой сцены)
+const FINISH_POSITION = 402; // Примерное расстояние до финиша (в единицах вашей игровой сцены)
 
 // Константы для физики автомобиля
 const FINAL_DRIVE_RATIO = 3.56; // Финальное передаточное отношение
@@ -130,6 +130,33 @@ if (gearDownButton) {
     gearDownButton.addEventListener('click', handleGearDown);
 }
 
+
+
+// Добавляем обработчик события keydown на весь документ
+document.addEventListener('keydown', function(event) {
+    // Проверяем, нажата ли клавиша Shift
+    if (event.shiftKey) {
+        switch(event.key) {
+            case 'ArrowUp':
+                // Предотвращаем выполнение стандартного действия браузера при нажатии стрелки вверх
+                event.preventDefault();
+                handleGearUp();
+                break;
+            case 'ArrowDown':
+                // Предотвращаем выполнение стандартного действия браузера при нажатии стрелки вниз
+                event.preventDefault();
+                handleGearDown();
+                break;
+            default:
+                break;
+        }
+    }
+});
+
+
+
+
+
 // Обработка изменения коэффициентов передач через слайдеры
 const gearControls = Array.from(document.querySelectorAll('input[type=range][name^=gear]'));
 
@@ -189,7 +216,7 @@ function handleGearUp() {
                 gameState.rpm = Math.max(MIN_RPM, Math.min(gameState.rpm, MAX_RPM));
             } else {
                 // Если переключение из нейтрали, устанавливаем RPM на фиксированное значение
-                gameState.rpm = 1500; // Можно настроить
+                gameState.rpm = 3500; // Можно настроить
             }
 
             console.log(`Передача переключена на ${gameState.currentGear}. Новые RPM: ${gameState.rpm.toFixed(2)}`);
@@ -264,6 +291,31 @@ function initRace() {
     }, 1000);
 }
 
+
+const wheelRadius = 0.3; // метры
+
+function updateWheelRotation(deltaTime) {
+    if (!backRightWheel) return; // Проверка, что колесо загружено
+
+    // Вычисляем угловую скорость (рад/с)
+    const angularSpeed = gameState.speed / wheelRadius;
+
+    // Вычисляем изменение угла за текущий кадр
+    const deltaRotation = angularSpeed * deltaTime;
+
+    // Определяем локальную ось вращения (например, локальная ось X)
+    const localAxis = new THREE.Vector3(10, 0, 0); // Настройте в зависимости от модели
+
+    // Создаём кватернион для вращения вокруг локальной оси
+    const quaternion = new THREE.Quaternion();
+    quaternion.setFromAxisAngle(localAxis, deltaRotation);
+
+    // Применяем кватернион к текущему кватерниону колеса
+    //backRightWheel.quaternion.multiplyQuaternions(quaternion, backRightWheel.quaternion);
+    //backRightWheel.rotation.set(deltaRotation/10,0,0);
+}
+
+
 /**
  * Основной цикл обновления физики
  * @param {number} deltaTime - Время, прошедшее с последнего обновления (в секундах)
@@ -310,6 +362,10 @@ function updatePhysics(deltaTime) {
 
     // Обновление позиции автомобиля
     gameState.position += gameState.speed * deltaTime;
+    backWheelPivot.rotation.x +=(gameState.speed);
+    frontWheelPivot.rotation.x +=(gameState.speed);
+    //updateWheelRotation(deltaTime);
+    
 
     // Обновление позиции 3D-модели автомобиля
     if (typeof body !== 'undefined' && body.position) {

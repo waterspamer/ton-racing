@@ -458,9 +458,11 @@ function initializeMenuActions() {
     document.getElementById('action-menu').style.display = 'none';
     gsap.to(camera.position, { x: -2, y: 3, z: -5, duration: 1.5 });
     gsap.to(camera.rotation, { x: 0.5,y: Math.PI + .4, z:0.4, duration: 1 });
-    scene.fog = new THREE.FogExp2(0xff33ff, 0.02);
+    scene.fog = new THREE.FogExp2(0x333356, 0.02);
     loadRace(scene);
     startRace();
+    renderer.toneMapping = THREE.ReinhardToneMapping ;
+    renderer.toneMappingExposure = 4.5;
     isRace = true;
     // front.scale.set(1, 1, 1); // Раскомментируйте при необходимости
   });
