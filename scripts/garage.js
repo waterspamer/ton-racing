@@ -4,7 +4,7 @@
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x333333, 0.07);
 
-
+var isRace = false;
 
 // Создание RenderTarget для глубины
 const width = window.innerWidth;
@@ -461,6 +461,7 @@ function initializeMenuActions() {
     scene.fog = new THREE.FogExp2(0xff33ff, 0.02);
     loadRace(scene);
     startRace();
+    isRace = true;
     // front.scale.set(1, 1, 1); // Раскомментируйте при необходимости
   });
 
@@ -766,7 +767,7 @@ function animate() {
   }
 
   // Обновление mirroredCamera для фейковых отражений пола
-  if (garageFloor) {
+  if (garageFloor && !isRace) {
     // Временно скрываем пол, чтобы он не отображался в отражении
     garageFloor.visible = false;
 

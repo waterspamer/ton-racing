@@ -173,7 +173,7 @@ gearControls.forEach((gearControl, index) => {
 function handleGearUp() {
     if (gameState.currentGear < 6) { // Предполагаем максимум 6 передач
         // Проверить условия переключения (например, RPM в допустимом диапазоне и не нажат газ)
-        if (!gas && gameState.rpm > 3500 /* && gameState.rpm < 6500 */) {
+        if (/* !gas && */ gameState.rpm > 3500 /* && gameState.rpm < 6500 */) {
             const oldGear = gameState.currentGear;
             const newGear = oldGear === 0 ? 1 : oldGear + 1;
 
@@ -328,6 +328,33 @@ function updatePhysics(deltaTime) {
 
         // Направляем камеру на автомобиль
         camera.lookAt(body.position);
+
+
+        // Синхронизируем позицию и ориентацию mirroredCamera с основной камерой
+        //mirroredCamera.position.copy(mainCamera.position);
+        //mirroredCamera.quaternion.copy(mainCamera.quaternion);
+
+        // Инвертируем Y-позицию камеры относительно пола
+        // Предполагается, что пол находится на Y = 0
+        
+        mirroredCamera.position.lerp(desiredCameraPosition, 0.1);
+        mirroredCamera.position.y = -mainCamera.position.y;
+
+        // Обновляем матрицы мира и проекции mirroredCamera
+        mirroredCamera.updateMatrixWorld();
+        mirroredCamera.updateProjectionMatrix();
+
+        mirroredCamera.lookAt(body.position);
+
+        // Рендерим сцену с mirroredCamera в Render Target
+        renderer.setRenderTarget(reflectionRenderTarget);
+        renderer.render(scene, mirroredCamera);
+        renderer.setRenderTarget(null);
+
+
+
+
+
     }
 
     // Обновление времени гонки
