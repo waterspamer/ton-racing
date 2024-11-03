@@ -23,8 +23,9 @@
 
   <!-- Подключение собственных скриптов с отложенной загрузкой -->
   <script src="scripts/modelLoader.js" defer></script>
-  <script src="scripts/garage.js" defer></script>
   <script src="scripts/race.js" defer></script>
+  <script src="scripts/garage.js" defer></script>
+  
 </head>
 <body>
   <!-- Контейнер для загрузки -->
@@ -90,8 +91,10 @@
 
   <div class="race-gui hide">
     <div id="visuals">
+      <div id = 'speed-label'>0KM/h</div>
       <!-- Тахометр (revmeter) интегрирован сюда -->
       <div id="revmeter">
+        
         <div class="gauge" style="--rpm: 750; --limiter: 6700; --gauge-value: calc(var(--rpm) / 1000);">
           <div class="digit">
             <span class="line"></span>
@@ -211,12 +214,11 @@
         </div>
       </div>
       
-      <!-- Секундомер для скорости -->
-      <!-- <div id="speedometer">
-        <div id="speed"></div>
-      </div> -->
+
+
     </div>
-    <div id="controls">
+    <div id="controls">\
+      <div id='shift-pedal'>SHIFT</div>
       <div id='gas-pedal'>GAS<div id="gas-pedal-leg"></div></div>
     </div>
   </div>

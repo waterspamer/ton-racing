@@ -460,6 +460,7 @@ function initializeMenuActions() {
     gsap.to(camera.rotation, { x: 0.5,y: Math.PI + .4, z:0.4, duration: 1 });
     scene.fog = new THREE.FogExp2(0xff33ff, 0.02);
     loadRace(scene);
+    startRace();
     // front.scale.set(1, 1, 1); // Раскомментируйте при необходимости
   });
 
@@ -745,7 +746,7 @@ function rotateCamera(deltaAzimuthAngle, deltaPolarAngle) {
 }
 
 // Анимация
-const target = new THREE.Vector3(0, 0, 0); // Точка, вокруг которой вращается камера
+var target = new THREE.Vector3(0, 0, 0); // Точка, вокруг которой вращается камера
 camera.lookAt(target);
 
 function animate() {
