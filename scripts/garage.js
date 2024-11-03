@@ -758,6 +758,7 @@ function animate() {
     body.visible = false;
 
     // Обновляем cubeCamera
+    
     cubeCamera.update(renderer, scene);
 
     // Возвращаем видимость объекта body

@@ -314,6 +314,8 @@ function updatePhysics(deltaTime) {
     // Обновление позиции 3D-модели автомобиля
     if (typeof body !== 'undefined' && body.position) {
         body.position.z = gameState.position;
+        cubeCamera.position.z = body.position.z;
+        cubeCamera.position.y = 0.1;
     }
 
     // Плавное следование камеры за автомобилем
