@@ -3,9 +3,9 @@
 /**
  * Запуск гонки при загрузке страницы
  */
-/* window.addEventListener('load', function () {
+window.addEventListener('load', function () {
     startRace();
-}); */
+});
 
 /**
  * Запуск гонки
@@ -23,8 +23,9 @@ const MIN_RPM = 800; // Минимальные обороты (идл)
 const MAX_RPM = 8000; // Максимальные обороты
 const RPM_INCREASE_RATE = 10000; // Обороты в секунду при нажатой педали газа
 
-// Введение массива RPM_DECREASE_RATES для разных передач
+// Введение массивов RPM_DECREASE_RATES и INCREASE_RATIOS для разных передач
 const RPM_DECREASE_RATES = [8000, 500, 400, 300, 200, 150, 100]; // Индекс 0: Neutral, 1-6: Gears 1-6
+const INCREASE_RATIOS = [1, 0.3, 0.2, 0.15, 0.12, 0.1, 0.05]; // Индекс 0: Neutral, 1-6: Gears 1-6
 
 const FINISH_POSITION = 1000; // Примерное расстояние до финиша (в единицах вашей игровой сцены)
 
@@ -269,8 +270,9 @@ function initRace() {
  */
 function updatePhysics(deltaTime) {
     if (gameState.isGasPressed) {
-        // Если педаль газа нажата, увеличиваем RPM
-        gameState.rpm += RPM_INCREASE_RATE * deltaTime;
+        // Если педаль газа нажата, увеличиваем RPM с учетом INCREASE_RATIOS
+        const currentIncreaseRatio = INCREASE_RATIOS[gameState.currentGear] || 1;
+        gameState.rpm += RPM_INCREASE_RATE * currentIncreaseRatio * deltaTime;
 
         // Ограничиваем RPM до максимального значения
         if (gameState.rpm > MAX_RPM) {
