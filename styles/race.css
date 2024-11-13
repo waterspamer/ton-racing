@@ -45,7 +45,7 @@ button, #gas-pedal, #shift-pedal {
 }
 
 .race-gui.show {
-    bottom: 200px;
+    bottom: 20px;
 }
 
 .race-gui.hide {
