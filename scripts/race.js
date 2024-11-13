@@ -59,8 +59,8 @@ let gameState = {
     isCountdownActive: false, // Флаг для отслеживания активного отсчета
 };
 
-// Переменная для отслеживания активных указателей
-let activePointers = {};
+// Переменная для отслеживания активных касаний
+let activeTouches = {};
 
 // Звуковые переменные
 let audioCtx;
@@ -161,10 +161,13 @@ const shiftPedalButton = document.getElementById('shift-pedal'); // Провер
 
 // Обработчики событий для педали газа с поддержкой multi-touch
 if (gasPedal) {
-    gasPedal.addEventListener('pointerdown', (event) => {
+    // Обработчик события touchstart
+    gasPedal.addEventListener('touchstart', (event) => {
         event.preventDefault();
-        const pointerId = event.pointerId;
-        activePointers[pointerId] = 'gas';
+        for (let touch of event.changedTouches) {
+            const touchId = touch.identifier;
+            activeTouches[touchId] = 'gas';
+        }
         updateGasState();
         gasPedal.classList.add('pressed');
 
@@ -172,49 +175,36 @@ if (gasPedal) {
         if (!engineSource && audioCtx && engineBuffer && gameState.isRaceStarted) {
             startEngineSound();
         }
+    }, { passive: false });
+
+    // Обработчик события touchend
+    gasPedal.addEventListener('touchend', (event) => {
+        for (let touch of event.changedTouches) {
+            const touchId = touch.identifier;
+            delete activeTouches[touchId];
+        }
+        updateGasState();
+
+        // Если больше нет активных касаний, удаляем класс 'pressed'
+        if (!Object.values(activeTouches).includes('gas')) {
+            gasPedal.classList.remove('pressed');
+        }
     });
 
-    gasPedal.addEventListener('pointerup', (event) => {
-        const pointerId = event.pointerId;
-        delete activePointers[pointerId];
+    // Обработчик события touchcancel
+    gasPedal.addEventListener('touchcancel', (event) => {
+        for (let touch of event.changedTouches) {
+            const touchId = touch.identifier;
+            delete activeTouches[touchId];
+        }
         updateGasState();
-        gasPedal.classList.remove('pressed');
-    });
 
-    gasPedal.addEventListener('pointercancel', (event) => {
-        const pointerId = event.pointerId;
-        delete activePointers[pointerId];
-        updateGasState();
-        gasPedal.classList.remove('pressed');
+        // Если больше нет активных касаний, удаляем класс 'pressed'
+        if (!Object.values(activeTouches).includes('gas')) {
+            gasPedal.classList.remove('pressed');
+        }
     });
 }
-
-// **Удаляем обработчики событий pointer для педали SHIFT**
-/*
-if (shiftPedalButton) {
-    shiftPedalButton.addEventListener('pointerdown', (event) => {
-        event.preventDefault();
-        const pointerId = event.pointerId;
-        activePointers[pointerId] = 'shift';
-        updateShiftState();
-        shiftPedalButton.classList.add('pressed');
-    });
-
-    shiftPedalButton.addEventListener('pointerup', (event) => {
-        const pointerId = event.pointerId;
-        delete activePointers[pointerId];
-        updateShiftState();
-        shiftPedalButton.classList.remove('pressed');
-    });
-
-    shiftPedalButton.addEventListener('pointercancel', (event) => {
-        const pointerId = event.pointerId;
-        delete activePointers[pointerId];
-        updateShiftState();
-        shiftPedalButton.classList.remove('pressed');
-    });
-}
-*/
 
 // Обработчики событий для педали SHIFT с использованием события click
 if (shiftPedalButton) {
@@ -231,17 +221,13 @@ if (shiftPedalButton) {
 
 // Функции обновления состояний газа и SHIFT
 function updateGasState() {
-    gameState.isGasPressed = Object.values(activePointers).includes('gas');
+    gameState.isGasPressed = Object.values(activeTouches).includes('gas');
 }
 
 function updateShiftState() {
     // В данном случае, переключение передач обрабатывается отдельно через событие click
     // Если требуется отслеживать состояние SHIFT, можно добавить дополнительную логику
 }
-
-// Обработчики нажатия кнопок "gear-up" и "gear-down" через кнопку SHIFT
-// **Удаляем или оставляем, если необходимо**
-// В данном случае, обработчик 'click' уже настроен выше
 
 // Добавляем обработчик события keydown на весь документ
 document.addEventListener('keydown', function(event) {
@@ -321,7 +307,7 @@ function handleGearUp() {
 /**
  * Обработчик нажатия кнопки "Понизить передачу"
  */
-/* function handleGearDown() {
+ /* function handleGearDown() {
     // Не позволяем переключать передачу во время отсчета
     if (gameState.isCountdownActive) return;
 
