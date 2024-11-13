@@ -206,16 +206,47 @@ if (gasPedal) {
     });
 }
 
-// Обработчики событий для педали SHIFT с использованием события click
+// Обработчики событий для педали SHIFT с использованием Touch Events
 if (shiftPedalButton) {
-    shiftPedalButton.addEventListener('click', (event) => {
+    // Обработчик события touchstart
+    shiftPedalButton.addEventListener('touchstart', (event) => {
         event.preventDefault();
-        handleGearUp();
-
-        // Управление классом 'pressed' для визуального эффекта
+        for (let touch of event.changedTouches) {
+            const touchId = touch.identifier;
+            activeTouches[touchId] = 'shift';
+        }
+        updateShiftState();
         shiftPedalButton.classList.add('pressed');
-        // Удаляем класс 'pressed' сразу после клика
-        shiftPedalButton.classList.remove('pressed');
+    }, { passive: false });
+
+    // Обработчик события touchend
+    shiftPedalButton.addEventListener('touchend', (event) => {
+        for (let touch of event.changedTouches) {
+            const touchId = touch.identifier;
+            delete activeTouches[touchId];
+            // При touchend для shift-pedal вызываем переключение передачи
+            handleGearUp();
+        }
+        updateShiftState();
+
+        // Удаляем класс 'pressed' после завершения касания
+        if (!Object.values(activeTouches).includes('shift')) {
+            shiftPedalButton.classList.remove('pressed');
+        }
+    });
+
+    // Обработчик события touchcancel
+    shiftPedalButton.addEventListener('touchcancel', (event) => {
+        for (let touch of event.changedTouches) {
+            const touchId = touch.identifier;
+            delete activeTouches[touchId];
+        }
+        updateShiftState();
+
+        // Удаляем класс 'pressed' после отмены касания
+        if (!Object.values(activeTouches).includes('shift')) {
+            shiftPedalButton.classList.remove('pressed');
+        }
     });
 }
 
@@ -225,7 +256,7 @@ function updateGasState() {
 }
 
 function updateShiftState() {
-    // В данном случае, переключение передач обрабатывается отдельно через событие click
+    // В данном случае, переключение передач обрабатывается отдельно через событие touchend
     // Если требуется отслеживать состояние SHIFT, можно добавить дополнительную логику
 }
 
@@ -307,7 +338,7 @@ function handleGearUp() {
 /**
  * Обработчик нажатия кнопки "Понизить передачу"
  */
- /* function handleGearDown() {
+/* function handleGearDown() {
     // Не позволяем переключать передачу во время отсчета
     if (gameState.isCountdownActive) return;
 
