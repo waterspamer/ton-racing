@@ -114,8 +114,9 @@ body {
   display: flex;
   height: 20vh;
   border-radius: 40px;
-  background: linear-gradient(45deg, rgb(32, 2, 44), rgb(6, 19, 61));
-  bottom: 0%;
+/*   background: linear-gradient(45deg, rgb(32, 2, 44), rgb(6, 19, 61));
+ */  bottom: 0%;
+ background-color: #000000;
   position: absolute;
   vertical-align: middle;
   justify-content: space-around;

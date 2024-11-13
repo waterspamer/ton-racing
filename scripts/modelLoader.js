@@ -488,11 +488,11 @@ function loadCarModel(scene, onLoaded) {
     envMap: cubeRenderTarget.texture, // Убедитесь, что окружение качественное.
     reflectivity: 0.8, // Высокая, но не максимальная отражаемость.
     envMapIntensity: 3.5, // Интенсивность отражений.
-    clearcoat: 0.7, // Добавление слоя блеска.
+    clearcoat: 0.5, // Добавление слоя блеска.
     clearcoatRoughness: 0.03, // Гладкий слой блеска.
     onBeforeCompile: (shader) => {
       shader.uniforms.fresnelColor = {
-        value: new THREE.Color(0x111111),
+        value: new THREE.Color(0xffffff),
       };
 
       shader.fragmentShader =
@@ -506,7 +506,7 @@ function loadCarModel(scene, onLoaded) {
         vec3 viewDirection = normalize(vViewPosition);
         float fresnel = abs(dot(normalDirection, viewDirection));
         fresnel = pow(1.0 - fresnel, 3.0);
-        gl_FragColor.rgb += pow(fresnel, 3.0) * fresnelColor * 1.2;
+        gl_FragColor.rgb += pow(fresnel, 3.0) * fresnelColor * 0.5;
         `
       );
     },
@@ -688,11 +688,11 @@ function loadCarModel(scene, onLoaded) {
     roughness: 0.2,
     reflectivity: 0.3,
     map: carWheelTexture,
-    envMap: cubeRenderTarget.texture,
+    //envMap: cubeRenderTarget.texture,
     envMapIntensity: 1.00,
     onBeforeCompile: (shader) => {
       shader.uniforms.fresnelColor = {
-        value: new THREE.Color(0xaaffee),
+        value: new THREE.Color(0xffffff),
       };
 
       shader.fragmentShader =
@@ -706,7 +706,7 @@ function loadCarModel(scene, onLoaded) {
         vec3 viewDirection = normalize(vViewPosition);
         float fresnel = abs(dot(normalDirection, viewDirection));
         fresnel = pow(1.0 - fresnel, 3.0);
-        //gl_FragColor.rgb -= pow(fresnel, 3.0) * fresnelColor * 1.0;
+        //gl_FragColor.rgb += pow(fresnel, 1.0) * fresnelColor * 1.0;
         `
       );
     },
@@ -901,24 +901,24 @@ function loadCarModel(scene, onLoaded) {
 
         // Переднее левое колесо
         const frontLeftWheel = wheelAssembly.clone();
-        frontLeftWheel.position.set(85, 0, 0);
+        frontLeftWheel.position.set(83, 0, 0);
         frontLeftWheel.scale.set(-1, 1, 1); // Отражаем по оси X для левой стороны
 
         // Переднее правое колесо
         const frontRightWheel = wheelAssembly.clone();
-        frontRightWheel.position.set(-85, 0, 0);
+        frontRightWheel.position.set(-83, 0, 0);
 
         frontWheelPivot.add(frontLeftWheel);
         frontWheelPivot.add(frontRightWheel);
 
         // Заднее левое колесо
         const backLeftWheel = wheelAssembly.clone();
-        backLeftWheel.position.set(85, 0, 0);
+        backLeftWheel.position.set(83, 0, 0);
         backLeftWheel.scale.set(-1, 1, 1); // Отражаем по оси X для левой стороны
 
         // Заднее правое колесо
         const backRightWheel = wheelAssembly.clone();
-        backRightWheel.position.set(-85, 0, 0);
+        backRightWheel.position.set(-83, 0, 0);
 
         backWheelPivot.add(backLeftWheel);
         backWheelPivot.add(backRightWheel);

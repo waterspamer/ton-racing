@@ -646,6 +646,9 @@ function onWindowResize() {
   
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
+
+  mirroredCamera.aspect = width/height;
+  mirroredCamera.updateProjectionMatrix();
   
   renderer.setSize(width, height);
 }

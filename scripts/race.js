@@ -64,6 +64,10 @@ let hapticIntervalId = null;
 
 // Функции для обновления UI через CSS переменные
 function updateRpm(value) {
+    let revs = document.getElementById('revs');
+    revs.style.width = `${value/MAX_RPM * 100}%`;
+
+
     const revmeterGauge = document.querySelector('#revmeter .gauge');
     if (revmeterGauge) {
         revmeterGauge.style.setProperty('--rpm', value);
@@ -74,7 +78,7 @@ function updateRpm(value) {
 function updateKmh(value) {
     const speedLabel = document.getElementById('speed-label');
     if (speedLabel) {
-        speedLabel.textContent = Math.round(value * 3.6);
+        speedLabel.textContent = Math.round(value * 3.6) + 'KM/H';
     }
     const speedometerGauge = document.querySelector('#speedometer .gauge');
     if (speedometerGauge) {
