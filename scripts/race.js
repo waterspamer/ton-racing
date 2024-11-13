@@ -59,8 +59,8 @@ let gameState = {
     isCountdownActive: false, // Флаг для отслеживания активного отсчета
 };
 
-// Переменная для управления педалью газа
-let gas = false;
+// Переменная для отслеживания активных указателей
+let activePointers = {};
 
 // Звуковые переменные
 let audioCtx;
@@ -155,14 +155,16 @@ function updateIdealShiftMarkers() {
     markerDown.style.left = `calc(${markerOffset}% - 0.5vh)`;
 }
 
-// Обработчики событий для педали газа
+// Обработчики событий для педали газа и SHIFT с поддержкой multi-touch
 const gasPedal = document.getElementById('gas-pedal');
+const shiftPedalButton = document.getElementById('shift-pedal'); // Проверьте правильность ID
 
 if (gasPedal) {
-    gasPedal.addEventListener('pointerdown', () => {
-        gas = true;
-        gameState.isGasPressed = true;
-        console.log('Gas pedal pressed');
+    gasPedal.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        const pointerId = event.pointerId;
+        activePointers[pointerId] = 'gas';
+        updateGasState();
         gasPedal.classList.add('pressed');
 
         // Запускаем звук двигателя при нажатии газа, если звук еще не запущен
@@ -171,33 +173,63 @@ if (gasPedal) {
         }
     });
 
-    gasPedal.addEventListener('pointerup', () => {
-        gas = false;
-        gameState.isGasPressed = false;
-        console.log('Gas pedal released');
+    gasPedal.addEventListener('pointerup', (event) => {
+        const pointerId = event.pointerId;
+        delete activePointers[pointerId];
+        updateGasState();
         gasPedal.classList.remove('pressed');
     });
 
-    // Обработка события "pointerleave"
-    gasPedal.addEventListener('pointerleave', () => {
-        gas = false;
-        gameState.isGasPressed = false;
-        console.log('Gas pedal pointer left');
+    gasPedal.addEventListener('pointercancel', (event) => {
+        const pointerId = event.pointerId;
+        delete activePointers[pointerId];
+        updateGasState();
         gasPedal.classList.remove('pressed');
     });
 }
 
-// Обработчики нажатия кнопок "gear-up" и "gear-down"
-const shiftPedalButton = document.getElementById('shift-pedal'); // Проверьте правильность ID
-// const gearDownButton = document.querySelector('button[name="gear-down"]'); // Не используется, можно удалить или добавить кнопку в HTML
+if (shiftPedalButton) {
+    shiftPedalButton.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        const pointerId = event.pointerId;
+        activePointers[pointerId] = 'shift';
+        updateShiftState();
+        shiftPedalButton.classList.add('pressed');
+    });
 
+    shiftPedalButton.addEventListener('pointerup', (event) => {
+        const pointerId = event.pointerId;
+        delete activePointers[pointerId];
+        updateShiftState();
+        shiftPedalButton.classList.remove('pressed');
+    });
+
+    shiftPedalButton.addEventListener('pointercancel', (event) => {
+        const pointerId = event.pointerId;
+        delete activePointers[pointerId];
+        updateShiftState();
+        shiftPedalButton.classList.remove('pressed');
+    });
+}
+
+// Функции обновления состояний газа и SHIFT
+function updateGasState() {
+    gameState.isGasPressed = Object.values(activePointers).includes('gas');
+}
+
+function updateShiftState() {
+    // В данном случае, переключение передач обрабатывается отдельно, поэтому можно оставить пустым
+    // Но если требуется отслеживать нажатие SHIFT, можно добавить дополнительную логику
+}
+
+// Обработчики нажатия кнопок "gear-up" и "gear-down" через кнопку SHIFT
 if (shiftPedalButton) {
     shiftPedalButton.addEventListener('click', handleGearUp);
 }
 
 // Добавляем обработчик события keydown на весь документ
 document.addEventListener('keydown', function(event) {
-    // Проверяем, нажата ли клавиша Shift
+    // Проверяем, нажата ли клавиша Shift и не обрабатывается ли уже событие
     if (event.shiftKey) {
         switch(event.key) {
             case 'ArrowUp':
@@ -237,11 +269,11 @@ function handleGearUp() {
         const rpmDifference = Math.abs(currentRPM - idealShiftRPM);
 
         // Определяем качество переключения и применяем бонус
-        if (rpmDifference <= 100) {
+        if (rpmDifference <= 50) {
             showShiftFeedback('PERFECT SHIFT');
             gameState.accelerationBonus = 0.2; // Бонус к ускорению для PERFECT SHIFT
             gameState.accelerationBonusTimer = 1.0; // Бонус длится 1 секунду
-        } else if (rpmDifference <= 200) {
+        } else if (rpmDifference <= 100) {
             showShiftFeedback('GOOD SHIFT');
             gameState.accelerationBonus = 0.1; // Бонус к ускорению для GOOD SHIFT
             gameState.accelerationBonusTimer = 0.5; // Бонус длится 0.5 секунды
