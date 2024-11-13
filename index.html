@@ -28,6 +28,15 @@
   
 </head>
 <body>
+  <!-- Таймер гонки -->
+<div id="timer">0.00s</div>
+
+<!-- Стартовый отсчет -->
+<div id="countdown"></div>
+
+<!-- Отображение "GOOD SHIFT" / "PERFECT SHIFT" -->
+<div id="shift-feedback"></div>
+
   <!-- Контейнер для загрузки -->
   <div id="loading-container">
     <div id="loading-label">Загрузка:</div>
@@ -97,9 +106,14 @@
         <div id = 'circle'>
           <div id = 'gear'>N</div>
         </div>
-        <div id = 'rev-bg'>
-          <div id = 'revs'></div>
-        </div>
+        <div id="rev-bg">
+          <div id="ideal-shift-marker">
+              <div class="triangle-up"></div>
+              <div class="triangle-down"></div>
+          </div>
+          <div id="revs"></div>
+      </div>
+      
       </div>
     </div>
 

@@ -71,14 +71,49 @@
     width: calc(100% - 20px);
 }
 
-#rev-bg{
+#rev-bg {
     align-self: center;
-    height:3vh;
+    height: 3vh;
     transform: translateX(-5px);
     border-radius: 0px 30px 30px 0px;
     width: calc(100% - 6vh - 15px);
-    background-color: rgb(27, 73, 69);
+    /* Удаляем старый цвет фона */
+    /* background-color: rgb(27, 73, 69); */
+    /* Добавляем градиент */
+    background: linear-gradient(to right, rgb(27, 73, 69) 70%, green 81.94%, red 100%);
 }
+
+
+/* Убедитесь, что #rev-bg имеет position: relative */
+#rev-bg {
+    position: relative;
+    /* существующие стили */
+}
+
+/* Стили для треугольников */
+.triangle-up, .triangle-down {
+    position: absolute;
+    width: 0;
+    height: 0;
+    left: 0; /* Будет обновлено через JavaScript */
+}
+
+.triangle-up {
+    transform: rotate(180deg);
+    border-left: 0.5vh solid transparent;
+    border-right: 0.5vh solid transparent;
+    border-bottom: 1vh solid green;
+    bottom: 100%; /* Размещаем над rev-bg */
+}
+
+.triangle-down {
+    transform: rotate(180deg);
+    border-left: 0.5vh solid transparent;
+    border-right: 0.5vh solid transparent;
+    border-top: 1vh solid green;
+    top: 100%; /* Размещаем под rev-bg */
+}
+
 
 #revs{
     top:0.5vh;
@@ -185,6 +220,54 @@
 }
 
 
+
+/* Стиль для таймера */
+#timer {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 3vh;
+    color: white;
+    z-index: 100;
+    display: none; /* Скрыт по умолчанию */
+}
+
+/* Стиль для стартового отсчета */
+#countdown {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10vh;
+    color: red;
+    z-index: 100;
+    display: none;
+}
+
+/* Стиль для отображения "GOOD SHIFT" / "PERFECT SHIFT" */
+#shift-feedback {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 5vh;
+    color: yellow;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#shift-feedback.visible {
+    opacity: 1;
+}
+
+/* Стили для неактивной кнопки переключения передач */
+#shift-pedal.disabled {
+    background-color: gray;
+    color: darkgray;
+    pointer-events: none;
+}
 
 
 

@@ -10,7 +10,7 @@
 /**
  * Запуск гонки
  */
-function startRace(){
+ function startRace(){
     loadEngineSound();
     if (Telegram && Telegram.WebApp) {
         Telegram.WebApp.ready(); // Уведомление Telegram о готовности приложения
@@ -22,6 +22,9 @@ function startRace(){
 const MIN_RPM = 800; // Минимальные обороты (идл)
 const MAX_RPM = 8000; // Максимальные обороты
 const RPM_INCREASE_RATE = 10000; // Обороты в секунду при нажатой педали газа
+
+// Добавляем массив идеальных оборотов переключения для каждой передачи
+const IDEAL_SHIFT_RPMS = [0, 6700, 6500, 6300, 6100, 5900, 5700]; // Индекс 0 для нейтрали
 
 // Введение массивов RPM_DECREASE_RATES и INCREASE_RATIOS для разных передач
 const RPM_DECREASE_RATES = [8000, 500, 400, 300, 200, 150, 100]; // Индекс 0: Neutral, 1-6: Gears 1-6
@@ -48,7 +51,12 @@ let gameState = {
     position: 0,
     timeElapsed: 0,
     hasFinished: false,
-    gearRatios: TRANSMISSION_GEAR_RATIOS, // Используем реальные передаточные числа
+    gearRatios: TRANSMISSION_GEAR_RATIOS.slice(), // Используем реальные передаточные числа
+    startTime: null,
+    shiftFeedback: '', // Для отображения GOOD SHIFT / PERFECT SHIFT
+    accelerationBonus: 0, // Бонус к ускорению
+    accelerationBonusTimer: 0, // Таймер для бонуса
+    isCountdownActive: false, // Флаг для отслеживания активного отсчета
 };
 
 // Переменная для управления педалью газа
@@ -65,8 +73,7 @@ let hapticIntervalId = null;
 // Функции для обновления UI через CSS переменные
 function updateRpm(value) {
     let revs = document.getElementById('revs');
-    revs.style.width = `${value/MAX_RPM * 100}%`;
-
+    revs.style.width = `${(value / MAX_RPM) * 100}%`;
 
     const revmeterGauge = document.querySelector('#revmeter .gauge');
     if (revmeterGauge) {
@@ -78,7 +85,7 @@ function updateRpm(value) {
 function updateKmh(value) {
     const speedLabel = document.getElementById('speed-label');
     if (speedLabel) {
-        speedLabel.textContent = Math.round(value * 3.6) + 'KM/H';
+        speedLabel.textContent = Math.round(value * 3.6) + ' KM/H';
     }
     const speedometerGauge = document.querySelector('#speedometer .gauge');
     if (speedometerGauge) {
@@ -88,11 +95,62 @@ function updateKmh(value) {
 }
 
 function updateGear(value) {
-    const gearDisplay = document.querySelector('#revmeter .gauge .gear');
-    if (gearDisplay) {
-        const gearText = value === 0 ? 'N' : `Gear: ${value}`;
-        gearDisplay.textContent = gearText;
+    let gearElement = document.getElementById('gear');
+    if (gearElement) {
+        gearElement.innerText = value === 0 ? 'N' : value;
     }
+}
+
+function updateTimer() {
+    const timerElement = document.getElementById('timer');
+    if (timerElement && gameState.isRaceStarted && !gameState.hasFinished) {
+        const elapsed = (performance.now() - gameState.startTime) / 1000; // в секундах
+        timerElement.textContent = elapsed.toFixed(2) + 's';
+    }
+}
+
+function showShiftFeedback(message) {
+    const feedbackElement = document.getElementById('shift-feedback');
+    if (feedbackElement) {
+        feedbackElement.textContent = message;
+        feedbackElement.classList.add('visible');
+        setTimeout(() => {
+            feedbackElement.classList.remove('visible');
+        }, 1000); // Показываем сообщение на 1 секунду
+    }
+}
+
+// Функция обновления градиента на тахометре
+function updateRevBgGradient() {
+    const revBg = document.getElementById('rev-bg');
+    if (!revBg) return;
+
+    const currentGear = gameState.currentGear || 1; // Используем передачу 1, если нейтраль
+    const idealShiftRPM = IDEAL_SHIFT_RPMS[currentGear];
+
+    const idealShiftPercent = ((idealShiftRPM - MIN_RPM) / (MAX_RPM - MIN_RPM)) * 100;
+    const gradient = `linear-gradient(to right, blue 0%, green ${idealShiftPercent}%, red 100%)`;
+
+    revBg.style.background = gradient;
+}
+
+// Функция обновления маркеров идеального переключения
+function updateIdealShiftMarkers() {
+    const revBg = document.getElementById('rev-bg');
+    const markerUp = document.querySelector('#ideal-shift-marker .triangle-up');
+    const markerDown = document.querySelector('#ideal-shift-marker .triangle-down');
+
+    if (!revBg || !markerUp || !markerDown) return;
+
+    const currentGear = gameState.currentGear || 1; // Используем передачу 1, если нейтраль
+    const idealShiftRPM = IDEAL_SHIFT_RPMS[currentGear];
+
+    const idealShiftPercent = ((idealShiftRPM - MIN_RPM) / (MAX_RPM - MIN_RPM)) * 100;
+
+    const markerOffset = idealShiftPercent;
+
+    markerUp.style.left = `calc(${markerOffset}% - 0.5vh)`;
+    markerDown.style.left = `calc(${markerOffset}% - 0.5vh)`;
 }
 
 // Обработчики событий для педали газа
@@ -104,6 +162,11 @@ if (gasPedal) {
         gameState.isGasPressed = true;
         console.log('Gas pedal pressed');
         gasPedal.classList.add('pressed');
+
+        // Запускаем звук двигателя при нажатии газа, если звук еще не запущен
+        if (!engineSource && audioCtx && engineBuffer) {
+            startEngineSound();
+        }
     });
 
     gasPedal.addEventListener('pointerup', () => {
@@ -134,8 +197,6 @@ if (gearDownButton) {
     gearDownButton.addEventListener('click', handleGearDown);
 }
 
-
-
 // Добавляем обработчик события keydown на весь документ
 document.addEventListener('keydown', function(event) {
     // Проверяем, нажата ли клавиша Shift
@@ -157,79 +218,53 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-
-
-
-
-// Обработка изменения коэффициентов передач через слайдеры
-const gearControls = Array.from(document.querySelectorAll('input[type=range][name^=gear]'));
-
-gearControls.forEach((gearControl, index) => {
-    // gears are 1-6, index 0 corresponds to gear 1
-    const gearNumber = index + 1;
-    gearControl.addEventListener('input', function () {
-        let value = Number.parseFloat(this.value);
-        const minValue = Number.parseFloat(this.dataset.min) || 1;
-        const maxValue = Number.parseFloat(this.dataset.max) || 100;
-
-        if (value < minValue) {
-            this.value = minValue;
-            value = minValue;
-        }
-        if (value > maxValue) {
-            this.value = maxValue;
-            value = maxValue;
-        }
-
-        // Обновляем соседние диапазоны для предотвращения перекрытия
-        if (index > 0) {
-            gearControls[index - 1].dataset.max = (value - 0.1).toFixed(2); // небольшое изменение для предотвращения наложения
-        }
-        if (index < gearControls.length - 1) {
-            gearControls[index + 1].dataset.min = (value + 0.1).toFixed(2);
-        }
-
-        // Обновляем коэффициент передачи
-        // Assuming the slider adjusts the gearRatio as a multiple (transmissionGearRatio)
-        gameState.gearRatios[gearNumber] = value !== 0 ? value : TRANSMISSION_GEAR_RATIOS[gearNumber];
-        this.nextElementSibling.textContent = `Gear ${gearNumber}: ${value.toFixed(2)}`;
-
-        console.log(`Коэффициент передачи ${gearNumber}: ${value.toFixed(2)}`);
-    });
-});
-
 /**
  * Обработчик нажатия кнопки "Повысить передачу"
  */
 function handleGearUp() {
+    // Не позволяем переключать передачу во время отсчета
+    if (gameState.isCountdownActive) return;
+
     if (gameState.currentGear < 6) { // Предполагаем максимум 6 передач
-        // Проверить условия переключения (например, RPM в допустимом диапазоне и не нажат газ)
-        if (/* !gas && */ gameState.rpm > 3500 /* && gameState.rpm < 6500 */) {
-            const oldGear = gameState.currentGear;
-            const newGear = oldGear === 0 ? 1 : oldGear + 1;
+        const oldGear = gameState.currentGear;
+        const newGear = oldGear === 0 ? 1 : oldGear + 1;
 
-            const oldGearRatio = TRANSMISSION_GEAR_RATIOS[oldGear];
-            const newGearRatio = TRANSMISSION_GEAR_RATIOS[newGear];
+        const oldGearRatio = TRANSMISSION_GEAR_RATIOS[oldGear];
+        const newGearRatio = TRANSMISSION_GEAR_RATIOS[newGear];
 
-            // Переключаем передачу
-            gameState.currentGear = newGear;
+        // Вычисляем разницу RPM между текущими и идеальными оборотами
+        const currentRPM = gameState.rpm;
+        const idealShiftRPM = IDEAL_SHIFT_RPMS[oldGear];
 
-            // Корректируем RPM
-            if (oldGearRatio !== 0 && newGearRatio !== 0) {
-                gameState.rpm = gameState.rpm * (newGearRatio / oldGearRatio);
-                gameState.rpm = Math.max(MIN_RPM, Math.min(gameState.rpm, MAX_RPM));
-            } else {
-                // Если переключение из нейтрали, устанавливаем RPM на фиксированное значение
-                gameState.rpm = 3500; // Можно настроить
-            }
+        const rpmDifference = Math.abs(currentRPM - idealShiftRPM);
 
-            console.log(`Передача переключена на ${gameState.currentGear}. Новые RPM: ${gameState.rpm.toFixed(2)}`);
-            updateGear(gameState.currentGear);
-            updateRpm(gameState.rpm); // Обновляем UI с новым RPM
-        } else {
-            // Обработать неправильное переключение (например, уведомление)
-            console.warn('Неправильное переключение передачи!');
+        // Определяем качество переключения и применяем бонус
+        if (rpmDifference <= 50) {
+            showShiftFeedback('PERFECT SHIFT');
+            gameState.accelerationBonus = 0.2; // Бонус к ускорению для PERFECT SHIFT
+            gameState.accelerationBonusTimer = 1.0; // Бонус длится 1 секунду
+        } else if (rpmDifference <= 100) {
+            showShiftFeedback('GOOD SHIFT');
+            gameState.accelerationBonus = 0.1; // Бонус к ускорению для GOOD SHIFT
+            gameState.accelerationBonusTimer = 0.5; // Бонус длится 0.5 секунды
         }
+
+        // Переключаем передачу
+        gameState.currentGear = newGear;
+
+        // Корректируем RPM
+        if (oldGearRatio !== 0 && newGearRatio !== 0) {
+            gameState.rpm = gameState.rpm * (newGearRatio / oldGearRatio);
+            gameState.rpm = Math.max(MIN_RPM, Math.min(gameState.rpm, MAX_RPM));
+        }
+
+        console.log(`Передача переключена на ${gameState.currentGear}. Новые RPM: ${gameState.rpm.toFixed(2)}`);
+        updateGear(gameState.currentGear);
+        updateRpm(gameState.rpm); // Обновляем UI с новым RPM
+
+        // Обновляем градиент и маркеры
+        updateRevBgGradient();
+        updateIdealShiftMarkers();
     }
 }
 
@@ -237,34 +272,32 @@ function handleGearUp() {
  * Обработчик нажатия кнопки "Понизить передачу"
  */
 function handleGearDown() {
+    // Не позволяем переключать передачу во время отсчета
+    if (gameState.isCountdownActive) return;
+
     if (gameState.currentGear > 0) { // Предполагаем минимум Neutral (0)
-        // Проверить условия переключения (например, RPM в допустимом диапазоне и не нажат газ)
-        if (!gas && gameState.rpm > 1500 && gameState.rpm < 6500) {
-            const oldGear = gameState.currentGear;
-            const newGear = oldGear === 1 ? 0 : oldGear - 1;
+        const oldGear = gameState.currentGear;
+        const newGear = oldGear === 1 ? 0 : oldGear - 1;
 
-            const oldGearRatio = TRANSMISSION_GEAR_RATIOS[oldGear];
-            const newGearRatio = TRANSMISSION_GEAR_RATIOS[newGear];
+        const oldGearRatio = TRANSMISSION_GEAR_RATIOS[oldGear];
+        const newGearRatio = TRANSMISSION_GEAR_RATIOS[newGear];
 
-            // Переключаем передачу
-            gameState.currentGear = newGear;
+        // Переключаем передачу
+        gameState.currentGear = newGear;
 
-            // Корректируем RPM
-            if (newGear !== 0 && oldGearRatio !== 0) {
-                gameState.rpm = gameState.rpm * (newGearRatio / oldGearRatio);
-                gameState.rpm = Math.max(MIN_RPM, Math.min(gameState.rpm, MAX_RPM));
-            } else {
-                // Если переключение на нейтральную передачу, устанавливаем RPM на минимальное значение
-                gameState.rpm = MIN_RPM;
-            }
-
-            console.log(`Передача переключена на ${gameState.currentGear === 0 ? 'Neutral' : gameState.currentGear}. Новые RPM: ${gameState.rpm.toFixed(2)}`);
-            updateGear(gameState.currentGear);
-            updateRpm(gameState.rpm); // Обновляем UI с новым RPM
-        } else {
-            // Обработать неправильное переключение
-            console.warn('Неправильное переключение передачи!');
+        // Корректируем RPM
+        if (newGear !== 0 && oldGearRatio !== 0) {
+            gameState.rpm = gameState.rpm * (newGearRatio / oldGearRatio);
+            gameState.rpm = Math.max(MIN_RPM, Math.min(gameState.rpm, MAX_RPM));
         }
+
+        console.log(`Передача переключена на ${gameState.currentGear === 0 ? 'Neutral' : gameState.currentGear}. Новые RPM: ${gameState.rpm.toFixed(2)}`);
+        updateGear(gameState.currentGear);
+        updateRpm(gameState.rpm); // Обновляем UI с новым RPM
+
+        // Обновляем градиент и маркеры
+        updateRevBgGradient();
+        updateIdealShiftMarkers();
     }
 }
 
@@ -281,50 +314,92 @@ function initRace() {
     gameState.position = 0;
     gameState.timeElapsed = 0;
     gameState.hasFinished = false;
+    gameState.startTime = null;
+    gameState.accelerationBonus = 0;
+    gameState.accelerationBonusTimer = 0;
+    gameState.isCountdownActive = true;
+
+    // Обновляем градиент и маркеры при старте
+    updateRevBgGradient();
+    updateIdealShiftMarkers();
 
     // Обновить UI
     updateRpm(gameState.rpm);
     updateKmh(gameState.speed);
     updateGear(gameState.currentGear);
 
-    // Запустить гонку через 1 секунду
-    setTimeout(() => {
-        gameState.isRaceStarted = true;
-        console.log('Гонка началась!');
-        startEngineSound(); // Запуск звука двигателя при старте гонки
-    }, 1000);
+    // Скрываем таймер до начала гонки
+    const timerElement = document.getElementById('timer');
+    if (timerElement) {
+        timerElement.style.display = 'none';
+    }
+
+    // Деактивируем кнопку переключения передач
+    if (gearUpButton) {
+        gearUpButton.disabled = true;
+        gearUpButton.classList.add('disabled');
+    }
+
+    // Показываем стартовый отсчет
+    startCountdown(4); // 4 секунды
 }
 
+/**
+ * Функция для запуска стартового отсчета
+ * @param {number} seconds - Количество секунд для отсчета
+ */
+function startCountdown(seconds) {
+    const countdownElement = document.getElementById('countdown');
+    if (!countdownElement) return;
+
+    countdownElement.style.display = 'block';
+    countdownElement.textContent = seconds;
+
+    const interval = setInterval(() => {
+        seconds--;
+        if (seconds > 0) {
+            countdownElement.textContent = seconds;
+        } else {
+            clearInterval(interval);
+            countdownElement.style.display = 'none';
+            gameState.isRaceStarted = true;
+            gameState.startTime = performance.now();
+            gameState.isCountdownActive = false;
+            console.log('Гонка началась!');
+
+            // Активируем кнопку переключения передач
+            if (gearUpButton) {
+                gearUpButton.disabled = false;
+                gearUpButton.classList.remove('disabled');
+            }
+
+            // Автоматически переключаем на первую передачу
+            gameState.currentGear = 1;
+            updateGear(gameState.currentGear);
+            updateRevBgGradient();
+            updateIdealShiftMarkers();
+
+            // Показываем таймер
+            const timerElement = document.getElementById('timer');
+            if (timerElement) {
+                timerElement.style.display = 'block';
+            }
+        }
+    }, 1000);
+}
 
 const wheelRadius = 0.3; // метры
 
 function updateWheelRotation(deltaTime) {
-    if (!backRightWheel) return; // Проверка, что колесо загружено
-
-    // Вычисляем угловую скорость (рад/с)
-    const angularSpeed = gameState.speed / wheelRadius;
-
-    // Вычисляем изменение угла за текущий кадр
-    const deltaRotation = angularSpeed * deltaTime;
-
-    // Определяем локальную ось вращения (например, локальная ось X)
-    const localAxis = new THREE.Vector3(10, 0, 0); // Настройте в зависимости от модели
-
-    // Создаём кватернион для вращения вокруг локальной оси
-    const quaternion = new THREE.Quaternion();
-    quaternion.setFromAxisAngle(localAxis, deltaRotation);
-
-    // Применяем кватернион к текущему кватерниону колеса
-    //backRightWheel.quaternion.multiplyQuaternions(quaternion, backRightWheel.quaternion);
-    //backRightWheel.rotation.set(deltaRotation/10,0,0);
+    // Реализуйте функцию обновления вращения колес, если необходимо
 }
-
 
 /**
  * Основной цикл обновления физики
  * @param {number} deltaTime - Время, прошедшее с последнего обновления (в секундах)
  */
 function updatePhysics(deltaTime) {
+    // Обновляем обороты двигателя независимо от того, началась гонка или нет
     if (gameState.isGasPressed) {
         // Если педаль газа нажата, увеличиваем RPM с учетом INCREASE_RATIOS
         const currentIncreaseRatio = INCREASE_RATIOS[gameState.currentGear] || 1;
@@ -346,6 +421,19 @@ function updatePhysics(deltaTime) {
         }
     }
 
+    // Обновление UI оборотов двигателя
+    updateRpm(gameState.rpm);
+
+    // Обновление звука двигателя с текущими RPM
+    if (engineSource) {
+        updateEngineSound(gameState.rpm);
+    }
+
+    // Во время отсчета не обновляем физику движения автомобиля
+    if (!gameState.isRaceStarted || gameState.hasFinished) {
+        return;
+    }
+
     // Получение передаточного коэффициента текущей передачи
     const gearRatio = gameState.gearRatios[gameState.currentGear]; // Коэффициент передачи
     const overallDriveRatio = gearRatio * FINAL_DRIVE_RATIO; // Общий передаточный коэффициент
@@ -356,6 +444,17 @@ function updatePhysics(deltaTime) {
         gameState.speed = 0;
     } else {
         gameState.speed = (gameState.rpm * SPEED_CONSTANT) / overallDriveRatio;
+
+        // Применяем бонус к ускорению, если активен
+        if (gameState.accelerationBonusTimer > 0) {
+            gameState.speed += gameState.accelerationBonus * gameState.speed;
+            gameState.accelerationBonusTimer -= deltaTime;
+
+            if (gameState.accelerationBonusTimer <= 0) {
+                gameState.accelerationBonus = 0;
+                gameState.accelerationBonusTimer = 0;
+            }
+        }
     }
 
     // Ограничение скорости до разумного предела (может потребовать настройки)
@@ -366,10 +465,9 @@ function updatePhysics(deltaTime) {
 
     // Обновление позиции автомобиля
     gameState.position += gameState.speed * deltaTime;
-    backWheelPivot.rotation.x +=(gameState.speed);
-    frontWheelPivot.rotation.x +=(gameState.speed);
-    //updateWheelRotation(deltaTime);
-    
+
+    // Обновление вращения колес
+    updateWheelRotation(deltaTime);
 
     // Обновление позиции 3D-модели автомобиля
     if (typeof body !== 'undefined' && body.position) {
@@ -388,46 +486,15 @@ function updatePhysics(deltaTime) {
 
         // Направляем камеру на автомобиль
         camera.lookAt(body.position);
-
-
-        // Синхронизируем позицию и ориентацию mirroredCamera с основной камерой
-        //mirroredCamera.position.copy(mainCamera.position);
-        //mirroredCamera.quaternion.copy(mainCamera.quaternion);
-
-        // Инвертируем Y-позицию камеры относительно пола
-        // Предполагается, что пол находится на Y = 0
-        
-        mirroredCamera.position.lerp(desiredCameraPosition, 0.1);
-        mirroredCamera.position.y = -mainCamera.position.y;
-
-        // Обновляем матрицы мира и проекции mirroredCamera
-        mirroredCamera.updateMatrixWorld();
-        mirroredCamera.updateProjectionMatrix();
-
-        mirroredCamera.lookAt(body.position);
-
-        // Рендерим сцену с mirroredCamera в Render Target
-        renderer.setRenderTarget(reflectionRenderTarget);
-        renderer.render(scene, mirroredCamera);
-        renderer.setRenderTarget(null);
-
-
-
-
-
     }
 
     // Обновление времени гонки
-    gameState.timeElapsed += deltaTime;
-
-    // Обновление UI
-    updateRpm(gameState.rpm);
-    updateKmh(gameState.speed);
-
-    // Обновление звука двигателя с текущими RPM
-    if (gameState.isRaceStarted && !gameState.hasFinished && engineSource) {
-        updateEngineSound(gameState.rpm);
+    if (gameState.isRaceStarted && !gameState.hasFinished) {
+        updateTimer();
     }
+
+    // Обновление UI скорости
+    updateKmh(gameState.speed);
 
     // Обновление виброотклика с текущими RPM через Telegram API
     if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
@@ -465,12 +532,9 @@ function gameLoop() {
     const deltaTime = (currentTime - lastTime) / 1000; // deltaTime в секундах
     lastTime = currentTime;
 
-    if (gameState.isRaceStarted && !gameState.hasFinished) {
+    if (!gameState.hasFinished) {
         updatePhysics(deltaTime);
     }
-
-    // Обновление графики (например, рендеринг 3D сцены, если используется Three.js)
-    // renderer.render(scene, camera);
 }
 
 /**
@@ -575,11 +639,11 @@ function triggerHapticFeedback(rpm) {
 
     // Выбор стиля вибрации в зависимости от частоты
     let hapticStyle = 'light';
-    //if (clampedFrequency >= 60) {
+    if (clampedFrequency >= 60) {
         hapticStyle = 'heavy';
-    //} else if (clampedFrequency >= 30) {
-       // hapticStyle = 'medium';
-    //}
+    } else if (clampedFrequency >= 30) {
+        hapticStyle = 'medium';
+    }
 
     // Установка нового интервала для вибрации
     hapticIntervalId = setInterval(() => {
