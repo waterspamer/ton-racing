@@ -155,10 +155,11 @@ function updateIdealShiftMarkers() {
     markerDown.style.left = `calc(${markerOffset}% - 0.5vh)`;
 }
 
-// Обработчики событий для педали газа и SHIFT с поддержкой multi-touch
+// Инициализация элементов педалей
 const gasPedal = document.getElementById('gas-pedal');
 const shiftPedalButton = document.getElementById('shift-pedal'); // Проверьте правильность ID
 
+// Обработчики событий для педали газа с поддержкой multi-touch
 if (gasPedal) {
     gasPedal.addEventListener('pointerdown', (event) => {
         event.preventDefault();
@@ -188,6 +189,8 @@ if (gasPedal) {
     });
 }
 
+// **Удаляем обработчики событий pointer для педали SHIFT**
+/*
 if (shiftPedalButton) {
     shiftPedalButton.addEventListener('pointerdown', (event) => {
         event.preventDefault();
@@ -211,6 +214,20 @@ if (shiftPedalButton) {
         shiftPedalButton.classList.remove('pressed');
     });
 }
+*/
+
+// Обработчики событий для педали SHIFT с использованием события click
+if (shiftPedalButton) {
+    shiftPedalButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        handleGearUp();
+
+        // Управление классом 'pressed' для визуального эффекта
+        shiftPedalButton.classList.add('pressed');
+        // Удаляем класс 'pressed' сразу после клика
+        shiftPedalButton.classList.remove('pressed');
+    });
+}
 
 // Функции обновления состояний газа и SHIFT
 function updateGasState() {
@@ -218,14 +235,13 @@ function updateGasState() {
 }
 
 function updateShiftState() {
-    // В данном случае, переключение передач обрабатывается отдельно, поэтому можно оставить пустым
-    // Но если требуется отслеживать нажатие SHIFT, можно добавить дополнительную логику
+    // В данном случае, переключение передач обрабатывается отдельно через событие click
+    // Если требуется отслеживать состояние SHIFT, можно добавить дополнительную логику
 }
 
 // Обработчики нажатия кнопок "gear-up" и "gear-down" через кнопку SHIFT
-if (shiftPedalButton) {
-    shiftPedalButton.addEventListener('click', handleGearUp);
-}
+// **Удаляем или оставляем, если необходимо**
+// В данном случае, обработчик 'click' уже настроен выше
 
 // Добавляем обработчик события keydown на весь документ
 document.addEventListener('keydown', function(event) {
