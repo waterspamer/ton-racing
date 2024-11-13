@@ -73,7 +73,9 @@ let hapticIntervalId = null;
 // Функции для обновления UI через CSS переменные
 function updateRpm(value) {
     let revs = document.getElementById('revs');
-    revs.style.width = `${(value / MAX_RPM) * 100}%`;
+    if (revs) {
+        revs.style.width = `${(value / MAX_RPM) * 100}%`;
+    }
 
     const revmeterGauge = document.querySelector('#revmeter .gauge');
     if (revmeterGauge) {
@@ -164,7 +166,7 @@ if (gasPedal) {
         gasPedal.classList.add('pressed');
 
         // Запускаем звук двигателя при нажатии газа, если звук еще не запущен
-        if (!engineSource && audioCtx && engineBuffer) {
+        if (!engineSource && audioCtx && engineBuffer && gameState.isRaceStarted) {
             startEngineSound();
         }
     });
@@ -186,15 +188,11 @@ if (gasPedal) {
 }
 
 // Обработчики нажатия кнопок "gear-up" и "gear-down"
-const gearUpButton = document.getElementById('shift-pedal'); // Проверьте правильность ID
-const gearDownButton = document.querySelector('button[name="gear-down"]');
+const shiftPedalButton = document.getElementById('shift-pedal'); // Проверьте правильность ID
+// const gearDownButton = document.querySelector('button[name="gear-down"]'); // Не используется, можно удалить или добавить кнопку в HTML
 
-if (gearUpButton) {
-    gearUpButton.addEventListener('click', handleGearUp);
-}
-
-if (gearDownButton) {
-    gearDownButton.addEventListener('click', handleGearDown);
+if (shiftPedalButton) {
+    shiftPedalButton.addEventListener('click', handleGearUp);
 }
 
 // Добавляем обработчик события keydown на весь документ
@@ -207,11 +205,11 @@ document.addEventListener('keydown', function(event) {
                 event.preventDefault();
                 handleGearUp();
                 break;
-            case 'ArrowDown':
+            // case 'ArrowDown':
                 // Предотвращаем выполнение стандартного действия браузера при нажатии стрелки вниз
-                event.preventDefault();
-                handleGearDown();
-                break;
+                // event.preventDefault();
+                // handleGearDown();
+                // break;
             default:
                 break;
         }
@@ -239,14 +237,18 @@ function handleGearUp() {
         const rpmDifference = Math.abs(currentRPM - idealShiftRPM);
 
         // Определяем качество переключения и применяем бонус
-        if (rpmDifference <= 50) {
+        if (rpmDifference <= 100) {
             showShiftFeedback('PERFECT SHIFT');
             gameState.accelerationBonus = 0.2; // Бонус к ускорению для PERFECT SHIFT
             gameState.accelerationBonusTimer = 1.0; // Бонус длится 1 секунду
-        } else if (rpmDifference <= 100) {
+        } else if (rpmDifference <= 200) {
             showShiftFeedback('GOOD SHIFT');
             gameState.accelerationBonus = 0.1; // Бонус к ускорению для GOOD SHIFT
             gameState.accelerationBonusTimer = 0.5; // Бонус длится 0.5 секунды
+        } else {
+            // Нет бонуса
+            gameState.accelerationBonus = 0;
+            gameState.accelerationBonusTimer = 0;
         }
 
         // Переключаем передачу
@@ -271,7 +273,7 @@ function handleGearUp() {
 /**
  * Обработчик нажатия кнопки "Понизить передачу"
  */
-function handleGearDown() {
+/* function handleGearDown() {
     // Не позволяем переключать передачу во время отсчета
     if (gameState.isCountdownActive) return;
 
@@ -299,7 +301,7 @@ function handleGearDown() {
         updateRevBgGradient();
         updateIdealShiftMarkers();
     }
-}
+} */
 
 /**
  * Инициализация гонки
@@ -335,9 +337,9 @@ function initRace() {
     }
 
     // Деактивируем кнопку переключения передач
-    if (gearUpButton) {
-        gearUpButton.disabled = true;
-        gearUpButton.classList.add('disabled');
+    if (shiftPedalButton) {
+        shiftPedalButton.classList.add('disabled');
+        shiftPedalButton.style.pointerEvents = 'none'; // Дополнительная защита
     }
 
     // Показываем стартовый отсчет
@@ -368,9 +370,9 @@ function startCountdown(seconds) {
             console.log('Гонка началась!');
 
             // Активируем кнопку переключения передач
-            if (gearUpButton) {
-                gearUpButton.disabled = false;
-                gearUpButton.classList.remove('disabled');
+            if (shiftPedalButton) {
+                shiftPedalButton.classList.remove('disabled');
+                shiftPedalButton.style.pointerEvents = 'auto'; // Восстановление кликабельности
             }
 
             // Автоматически переключаем на первую передачу
