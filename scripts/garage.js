@@ -6,27 +6,7 @@ scene.fog = new THREE.FogExp2(0x333333, 0.07);
 
 var isRace = false;
 
-// Создание RenderTarget для глубины
-const width = window.innerWidth;
-const height = window.innerHeight;
 
-// Буфер глубины
-const depthRenderTarget = new THREE.WebGLRenderTarget(width, height);
-depthRenderTarget.texture.format = THREE.RGBAFormat;
-depthRenderTarget.texture.minFilter = THREE.NearestFilter;
-depthRenderTarget.texture.magFilter = THREE.NearestFilter;
-depthRenderTarget.texture.generateMipmaps = false;
-depthRenderTarget.stencilBuffer = false;
-depthRenderTarget.depthBuffer = true;
-
-// Буфер нормалей
-const normalRenderTarget = new THREE.WebGLRenderTarget(width, height);
-normalRenderTarget.texture.format = THREE.RGBAFormat;
-normalRenderTarget.texture.minFilter = THREE.NearestFilter;
-normalRenderTarget.texture.magFilter = THREE.NearestFilter;
-normalRenderTarget.texture.generateMipmaps = false;
-normalRenderTarget.stencilBuffer = false;
-normalRenderTarget.depthBuffer = true;
 
 
 // Настройка камеры
@@ -603,8 +583,8 @@ document.getElementById('greeting').innerHTML = `Привет, <span class="grad
 // Настройка рендерера
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.toneMapping = THREE.NeutralToneMapping ;
-renderer.toneMappingExposure = 1.5;
+renderer.toneMapping = THREE.ReinhardToneMapping ;
+renderer.toneMappingExposure = 4.5;
 //renderer.setPixelRatio(window.devicePixelRatio); // Улучшение качества
 document.getElementById('garage-container').appendChild(renderer.domElement);
 

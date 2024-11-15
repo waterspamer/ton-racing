@@ -553,6 +553,31 @@ function updatePhysics(deltaTime) {
 
         // Направляем камеру на автомобиль
         camera.lookAt(body.position);
+
+
+       // Синхронизируем позицию и ориентацию mirroredCamera с основной камерой
+        //mirroredCamera.position.copy(mainCamera.position);
+        //mirroredCamera.quaternion.copy(mainCamera.quaternion);
+
+        // Инвертируем Y-позицию камеры относительно пола
+        // Предполагается, что пол находится на Y = 0
+        
+        //mirroredCamera.position.lerp(desiredCameraPosition, 0.1);
+        //mirroredCamera.position.y = -mainCamera.position.y;
+        mirroredCamera.position = camera.position;
+
+        // Обновляем матрицы мира и проекции mirroredCamera
+        mirroredCamera.updateMatrixWorld();
+        mirroredCamera.updateProjectionMatrix();
+
+        mirroredCamera.lookAt(gameState.position);
+
+        // Рендерим сцену с mirroredCamera в Render Target
+        renderer.setRenderTarget(reflectionRenderTarget);
+        renderer.render(scene, mirroredCamera);
+        renderer.setRenderTarget(null);
+
+
     }
 
     // Обновление времени гонки

@@ -324,54 +324,60 @@ function loadGarage(scene) {
   const garageFloorMaterial = new THREE.MeshPhysicalMaterial({
     map: garageFloorTexture,
     metalness: 0.0,
-    roughness: 1.0, // Изначальное значение roughness
-    reflectivity: 0.8,
-  
+    roughness: 0.2, // Изначальное значение roughness
+    reflectivity: 0.9,
     roughnessMap: garageFloorTexture, // Добавляем roughnessMap
     transparent: true, // Включаем прозрачность для корректного наложения отражений
-  });
-  
-  
-  garageFloorMaterial.onBeforeCompile = (shader) => {
+});
+
+garageFloorMaterial.onBeforeCompile = (shader) => {
     // Добавляем uniforms для отражения и разрешения экрана
     shader.uniforms.reflectionTexture = { value: reflectionRenderTarget.texture };
     shader.uniforms.screenResolution = { value: new THREE.Vector2(window.innerWidth, window.innerHeight) };
-  
+
     // Вставляем объявления uniforms в начало фрагментного шейдера
     shader.fragmentShader = `
-      uniform sampler2D reflectionTexture;
-      uniform vec2 screenResolution;
+        uniform sampler2D reflectionTexture;
+        uniform vec2 screenResolution;
     ` + shader.fragmentShader;
-  
-    // Модифицируем фрагментный шейдер для наложения отражения в screen space с учетом roughness
+
+    // Модифицируем фрагментный шейдер для наложения отражения с учетом roughness и эффекта Френеля
     shader.fragmentShader = shader.fragmentShader.replace(
-      '#include <output_fragment>',
-      `
-      #include <output_fragment>
-  
-      // Получаем экранные координаты фрагмента
-      vec2 screenUV = gl_FragCoord.xy / screenResolution;
-  
-      // Получаем цвет отражения из reflectionTexture
-      vec4 reflectionColor = texture2D(reflectionTexture, screenUV);
-  
-      // Получаем значение roughness для текущего фрагмента
-      // Если roughnessMap присутствует, используем его, иначе используем uniform roughness
-      float currentRoughness = 1.0 -texture2D(roughnessMap, vUv).r;
-  
-      // Вычисляем коэффициент отражения на основе roughness
-      // Чем выше roughness, тем меньше отражения
-      // (1.0 - currentRoughness) даёт значение от 0 (полностью грубый) до 1 (полностью гладкий)
-      float reflectivityFactor = (1.0 - currentRoughness) * 0.4; // Коэффициент 0.5 регулирует общую интенсивность
-  
-      // Наложение отражения на основной цвет материала
-      gl_FragColor.rgb = mix(gl_FragColor.rgb, reflectionColor.rgb, reflectivityFactor);
-      `
+        '#include <output_fragment>',
+        `
+        #include <output_fragment>
+
+        // Вычисляем UV координаты экрана
+        vec2 screenUV = gl_FragCoord.xy / screenResolution;
+
+        // Получаем цвет отражения из reflectionTexture
+        vec4 reflectionColor = texture2D(reflectionTexture, screenUV);
+
+        // Получаем значение roughness из roughnessMap
+        float sampledRoughness = texture2D(roughnessMap, vUv).r;
+
+        // Вычисляем направление взгляда и нормали
+        vec3 viewDir = normalize(vViewPosition);
+        vec3 normalDir = normalize(vNormal);
+
+        // Вычисляем фактор Френеля
+        float fresnelFactor = pow(1.0 - max(dot(viewDir, normalDir), 0.0), 3.0);
+
+        // Вычисляем коэффициент отражения с учетом roughness и Френеля
+        float reflectivityFactor = fresnelFactor * (1.0 - sampledRoughness) * 0.4;
+
+        // Наложение отражения на основной цвет материала
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, reflectionColor.rgb, reflectivityFactor);
+
+        // Опционально: корректировка альфа-канала
+        // gl_FragColor.a = mix(gl_FragColor.a, reflectionColor.a, reflectivityFactor);
+        `
     );
-  
+
     // Сохраняем изменённый шейдер для последующего использования (если необходимо)
     garageFloorMaterial.userData.shader = shader;
-  };
+};
+
   
   
   
