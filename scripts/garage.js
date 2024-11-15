@@ -11,7 +11,7 @@ var isRace = false;
 
 // Настройка камеры
 const camera = new THREE.PerspectiveCamera(
-  75, // Угол обзора
+  85, // Угол обзора
   window.innerWidth / window.innerHeight, // Соотношение сторон
   0.1, // Ближняя плоскость отсечения
   1000 // Дальняя плоскость отсечения
@@ -648,16 +648,19 @@ const maxPolarAngle = Math.PI / 2; // 90 градусов
 
 // Обработчики событий мыши
 renderer.domElement.addEventListener('mousedown', function(event) {
+  animateFOV(55);
   isDragging = true;
   previousMousePosition = { x: event.clientX, y: event.clientY };
   velocity = { x: 0, y: 0 }; // Сбрасываем скорость
 });
 
 renderer.domElement.addEventListener('mouseup', function(event) {
+  animateFOV(85);
   isDragging = false;
 });
 
 renderer.domElement.addEventListener('mousemove', function(event) {
+  
   if (isDragging && cameraControlled) {
     const deltaX = event.clientX - previousMousePosition.x;
     const deltaY = event.clientY - previousMousePosition.y;
@@ -671,12 +674,38 @@ renderer.domElement.addEventListener('mousemove', function(event) {
     velocity.x = deltaAzimuthAngle;
     velocity.y = deltaPolarAngle;
 
+    
+
     previousMousePosition = { x: event.clientX, y: event.clientY };
   }
 });
 
+
+// Функция для анимации изменения FOV
+function animateFOV(targetFOV) {
+  gsap.to(camera, {
+      fov: targetFOV,
+      duration: 0.5, // Продолжительность анимации в секундах
+      ease: "power2.out",
+      onUpdate: () => {
+          camera.updateProjectionMatrix();
+      }
+  });
+  gsap.to(mirroredCamera, {
+    fov: targetFOV,
+    duration: 0.5, // Продолжительность анимации в секундах
+    ease: "power2.out",
+    onUpdate: () => {
+        camera.updateProjectionMatrix();
+    }
+});
+}
+
+
+
 // Обработка сенсорных событий для touch-устройств
 renderer.domElement.addEventListener('touchstart', function(event) {
+  
   if (!cameraControlled) return;
   if (event.touches.length === 1) {
     isDragging = true;
@@ -698,7 +727,7 @@ renderer.domElement.addEventListener('touchmove', function(event) {
     // Обновляем скорость для инерции
     velocity.x = deltaAzimuthAngle;
     velocity.y = deltaPolarAngle;
-
+    
     previousMousePosition = { x: event.touches[0].clientX, y: event.touches[0].clientY };
   }
 });
@@ -714,7 +743,7 @@ function rotateCamera(deltaAzimuthAngle, deltaPolarAngle) {
   // Преобразуем смещение в сферические координаты
   const spherical = new THREE.Spherical();
   spherical.setFromVector3(offset);
-
+  
   // Применяем вращения
   spherical.theta -= deltaAzimuthAngle; // Азимутальный угол
   spherical.phi -= deltaPolarAngle;     // Полярный угол
@@ -726,7 +755,7 @@ function rotateCamera(deltaAzimuthAngle, deltaPolarAngle) {
 
   // Преобразуем обратно в декартовы координаты
   offset.setFromSpherical(spherical);
-
+  
   camera.position.copy(target.clone().add(offset));
   camera.lookAt(target);
 }
@@ -778,7 +807,7 @@ function animate() {
     // Возвращаем видимость пола
     garageFloor.visible = true;
   }
-
+  
   // Управление камерой (инерция и вращение)
   if (cameraControlled) {
     if (!isDragging) {
@@ -789,6 +818,7 @@ function animate() {
         // Применяем демпфирование
         velocity.x *= dampingFactor;
         velocity.y *= dampingFactor;
+        
 
         // Останавливаем вращение, если скорость очень мала
         if (Math.abs(velocity.x) < 0.00001) velocity.x = 0;
