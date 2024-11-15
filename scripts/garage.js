@@ -705,7 +705,7 @@ function animateFOV(targetFOV) {
 
 // Обработка сенсорных событий для touch-устройств
 renderer.domElement.addEventListener('touchstart', function(event) {
-  
+  animateFOV(55);
   if (!cameraControlled) return;
   if (event.touches.length === 1) {
     isDragging = true;
@@ -733,6 +733,7 @@ renderer.domElement.addEventListener('touchmove', function(event) {
 });
 
 renderer.domElement.addEventListener('touchend', function(event) {
+  animateFOV(85);
   isDragging = false;
 });
 
