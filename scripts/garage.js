@@ -428,6 +428,7 @@ function initializeMenuActions() {
   // Обработчик кнопки "Гонка"
   const raceButton = document.getElementById('start-race');
   raceButton.addEventListener('click', () => {
+    return;
     cameraControlled = false;
     const raceGui = document.querySelector('.race-gui');
     if (raceGui) {
